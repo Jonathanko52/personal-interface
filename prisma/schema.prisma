@@ -10,3 +10,40 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model List {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#6366f1")
+  createdAt DateTime @default(now())
+  todos     Todo[]
+}
+
+model Todo {
+  id          String    @id @default(cuid())
+  title       String
+  notes       String?
+  priority    String    @default("none")
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  listId      String
+  list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  tags        TodoTag[]
+}
+
+model Tag {
+  id    String    @id @default(cuid())
+  name  String    @unique
+  color String    @default("#6366f1")
+  todos TodoTag[]
+}
+
+model TodoTag {
+  todoId String
+  tagId  String
+  todo   Todo   @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([todoId, tagId])
+}
