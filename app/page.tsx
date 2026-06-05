@@ -1,7 +1,10 @@
+import TodoList from "./components/TodoList";
+
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      Hello World
+    <div className="max-w-2xl mx-auto">
+      <h1 className="text-xl font-semibold text-zinc-900 mb-6">Today</h1>
+      <TodoList />
     </div>
   );
 }
