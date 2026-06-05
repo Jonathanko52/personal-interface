@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { todos, lists } from "@/app/lib/data";
+import { useData } from "@/app/lib/DataContext";
 import TodoList from "@/app/components/TodoList";
 import TodoDetail from "@/app/components/TodoDetail";
+import TodoForm from "@/app/components/TodoForm";
 
 export default function ListPage() {
   const { id } = useParams<{ id: string }>();
+  const { todos, lists } = useData();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const list = lists.find((l) => l.id === id);
@@ -26,6 +28,7 @@ export default function ListPage() {
         )}
         <h1 className="text-xl font-semibold text-zinc-900">{list?.name ?? "List"}</h1>
       </div>
+      <TodoForm defaultListId={id} />
       {filtered.length === 0 ? (
         <p className="text-sm text-zinc-400">No todos in this list.</p>
       ) : (

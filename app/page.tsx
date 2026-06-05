@@ -3,9 +3,11 @@
 import { useState } from "react";
 import TodoList from "./components/TodoList";
 import TodoDetail from "./components/TodoDetail";
-import { todos } from "./lib/data";
+import TodoForm from "./components/TodoForm";
+import { useData } from "./lib/DataContext";
 
 export default function Home() {
+  const { todos } = useData();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selectedTodo = todos.find((t) => t.id === selectedId) ?? null;
@@ -17,6 +19,7 @@ export default function Home() {
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="text-xl font-semibold text-zinc-900 mb-6">Today</h1>
+      <TodoForm />
       <TodoList todos={todos} onSelect={(id) => setSelectedId(id)} />
     </div>
   );

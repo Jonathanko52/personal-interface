@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { todos, tags } from "@/app/lib/data";
+import { useData } from "@/app/lib/DataContext";
 import TodoList from "@/app/components/TodoList";
 import TodoDetail from "@/app/components/TodoDetail";
+import TodoForm from "@/app/components/TodoForm";
 
 export default function TagPage() {
   const { id } = useParams<{ id: string }>();
+  const { todos, tags } = useData();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const tag = tags.find((t) => t.id === id);
@@ -26,6 +28,7 @@ export default function TagPage() {
         )}
         <h1 className="text-xl font-semibold text-zinc-900">#{tag?.name ?? "Tag"}</h1>
       </div>
+      <TodoForm />
       {filtered.length === 0 ? (
         <p className="text-sm text-zinc-400">No todos with this tag.</p>
       ) : (
