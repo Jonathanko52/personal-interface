@@ -3,13 +3,7 @@
 import { useState } from "react";
 import TodoList from "./components/TodoList";
 import TodoDetail from "./components/TodoDetail";
-
-const todos = [
-  { id: "1", title: "Review project proposal", priority: "high", dueDate: "2026-06-06", completed: false },
-  { id: "2", title: "Buy groceries", priority: "low", dueDate: "2026-06-05", completed: false },
-  { id: "3", title: "Schedule dentist appointment", priority: "medium", dueDate: "2026-06-07", completed: false },
-  { id: "4", title: "Read chapter 3", priority: "none", dueDate: null, completed: true },
-];
+import { todos } from "./lib/data";
 
 export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
