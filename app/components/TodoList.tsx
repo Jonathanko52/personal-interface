@@ -1,5 +1,7 @@
 "use client";
 
+import { useData } from "@/app/lib/DataContext";
+
 interface Todo {
   id: string;
   title: string;
@@ -21,6 +23,7 @@ const priorityStyles: Record<string, string> = {
 };
 
 export default function TodoList({ todos, onSelect }: TodoListProps) {
+  const { toggleTodo } = useData();
   return (
     <ul className="flex flex-col gap-2">
       {todos.map((todo) => (
@@ -31,7 +34,8 @@ export default function TodoList({ todos, onSelect }: TodoListProps) {
         >
           <input
             type="checkbox"
-            defaultChecked={todo.completed}
+            checked={todo.completed}
+            onChange={() => toggleTodo(todo.id)}
             className="w-4 h-4 accent-indigo-500 shrink-0"
             onClick={(e) => e.stopPropagation()}
           />

@@ -48,8 +48,11 @@ export default function MonthPage() {
   const isToday = (day: number) =>
     day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
 
-  const cells = Array.from({ length: firstDay }, (_, i) => ({ key: `empty-${i}`, empty: true }))
-    .concat(Array.from({ length: daysInMonth }, (_, i) => ({ key: `day-${i + 1}`, day: i + 1, empty: false })));
+  type Cell = { key: string; empty: true } | { key: string; empty: false; day: number };
+  const cells: Cell[] = [
+    ...Array.from({ length: firstDay }, (_, i): Cell => ({ key: `empty-${i}`, empty: true })),
+    ...Array.from({ length: daysInMonth }, (_, i): Cell => ({ key: `day-${i + 1}`, empty: false, day: i + 1 })),
+  ];
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -96,14 +99,14 @@ export default function MonthPage() {
             >
               <span
                 className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full self-start ${
-                  isToday(cell.day!)
+                  isToday(cell.day)
                     ? "bg-indigo-500 text-white"
                     : "text-zinc-600"
                 }`}
               >
                 {cell.day}
               </span>
-              {todosForDay(cell.day!).map((todo) => (
+              {todosForDay(cell.day).map((todo) => (
                 <button
                   key={todo.id}
                   onClick={() => setSelectedId(todo.id)}

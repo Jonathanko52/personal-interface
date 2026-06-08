@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import { todos as initialTodos, lists as initialLists, tags as initialTags } from "./data";
 
-interface Todo {
+export interface Todo {
   id: string;
   title: string;
   notes: string;
@@ -33,6 +33,8 @@ interface DataContextValue {
   addTodo: (todo: Omit<Todo, "id">) => void;
   addList: (list: Omit<List, "id">) => void;
   toggleTodo: (id: string) => void;
+  updateTodo: (id: string, updates: Partial<Omit<Todo, "id">>) => void;
+  deleteTodo: (id: string) => void;
 }
 
 const DataContext = createContext<DataContextValue | null>(null);
@@ -56,8 +58,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   }
 
+  function updateTodo(id: string, updates: Partial<Omit<Todo, "id">>) {
+    setTodos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, ...updates } : t))
+    );
+  }
+
+  function deleteTodo(id: string) {
+    setTodos((prev) => prev.filter((t) => t.id !== id));
+  }
+
   return (
-    <DataContext.Provider value={{ todos, lists, tags, addTodo, addList, toggleTodo }}>
+    <DataContext.Provider value={{ todos, lists, tags, addTodo, addList, toggleTodo, updateTodo, deleteTodo }}>
       {children}
     </DataContext.Provider>
   );
