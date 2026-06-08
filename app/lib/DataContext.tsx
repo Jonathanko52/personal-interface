@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { todos as initialTodos, lists as initialLists, tags as initialTags } from "./data";
 
 export interface Todo {
@@ -40,12 +40,39 @@ interface DataContextValue {
   deleteTag: (id: string) => void;
 }
 
+function load<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function save(key: string, value: unknown) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {}
+}
+
 const DataContext = createContext<DataContextValue | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [lists, setLists] = useState<List[]>(initialLists);
   const [tags, setTags] = useState<Tag[]>(initialTags);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setTodos(load("todos", initialTodos));
+    setLists(load("lists", initialLists));
+    setTags(load("tags", initialTags));
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => { if (hydrated) save("todos", todos); }, [todos, hydrated]);
+  useEffect(() => { if (hydrated) save("lists", lists); }, [lists, hydrated]);
+  useEffect(() => { if (hydrated) save("tags", tags); }, [tags, hydrated]);
 
   function addTodo(todo: Omit<Todo, "id">) {
     setTodos((prev) => [...prev, { ...todo, id: crypto.randomUUID() }]);
