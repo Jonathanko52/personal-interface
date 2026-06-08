@@ -20,7 +20,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
     if (expanded) inputRef.current?.focus();
   }, [expanded]);
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!title.trim() || !listId) return;
     addTodo({

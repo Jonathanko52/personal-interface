@@ -35,6 +35,9 @@ interface DataContextValue {
   toggleTodo: (id: string) => void;
   updateTodo: (id: string, updates: Partial<Omit<Todo, "id">>) => void;
   deleteTodo: (id: string) => void;
+  updateList: (id: string, updates: Partial<Omit<List, "id">>) => void;
+  deleteList: (id: string) => void;
+  deleteTag: (id: string) => void;
 }
 
 const DataContext = createContext<DataContextValue | null>(null);
@@ -42,7 +45,7 @@ const DataContext = createContext<DataContextValue | null>(null);
 export function DataProvider({ children }: { children: ReactNode }) {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [lists, setLists] = useState<List[]>(initialLists);
-  const [tags] = useState<Tag[]>(initialTags);
+  const [tags, setTags] = useState<Tag[]>(initialTags);
 
   function addTodo(todo: Omit<Todo, "id">) {
     setTodos((prev) => [...prev, { ...todo, id: crypto.randomUUID() }]);
@@ -68,8 +71,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setTodos((prev) => prev.filter((t) => t.id !== id));
   }
 
+  function updateList(id: string, updates: Partial<Omit<List, "id">>) {
+    setLists((prev) => prev.map((l) => (l.id === id ? { ...l, ...updates } : l)));
+  }
+
+  function deleteList(id: string) {
+    setLists((prev) => prev.filter((l) => l.id !== id));
+    setTodos((prev) => prev.filter((t) => t.listId !== id));
+  }
+
+  function deleteTag(id: string) {
+    setTags((prev) => prev.filter((t) => t.id !== id));
+    setTodos((prev) => prev.map((t) => ({ ...t, tagIds: t.tagIds.filter((tid) => tid !== id) })));
+  }
+
   return (
-    <DataContext.Provider value={{ todos, lists, tags, addTodo, addList, toggleTodo, updateTodo, deleteTodo }}>
+    <DataContext.Provider value={{ todos, lists, tags, addTodo, addList, toggleTodo, updateTodo, deleteTodo, updateList, deleteList, deleteTag }}>
       {children}
     </DataContext.Provider>
   );
