@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useData } from "@/app/lib/DataContext";
+import { useSortFilter } from "@/app/lib/useSortFilter";
 import TodoList from "@/app/components/TodoList";
 import TodoDetail from "@/app/components/TodoDetail";
 import TodoForm from "@/app/components/TodoForm";
+import SortFilterBar from "@/app/components/SortFilterBar";
 
 export default function ListPage() {
   const { id } = useParams<{ id: string }>();
@@ -13,8 +15,9 @@ export default function ListPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const list = lists.find((l) => l.id === id);
-  const filtered = todos.filter((t) => t.listId === id);
-  const selectedTodo = filtered.find((t) => t.id === selectedId) ?? null;
+  const listTodos = todos.filter((t) => t.listId === id);
+  const { result, sort, setSort, filter, setFilter } = useSortFilter(listTodos);
+  const selectedTodo = listTodos.find((t) => t.id === selectedId) ?? null;
 
   if (selectedTodo) {
     return <TodoDetail todo={selectedTodo} onClose={() => setSelectedId(null)} />;
@@ -29,10 +32,11 @@ export default function ListPage() {
         <h1 className="text-xl font-semibold text-zinc-900">{list?.name ?? "List"}</h1>
       </div>
       <TodoForm defaultListId={id} />
-      {filtered.length === 0 ? (
+      <SortFilterBar sort={sort} filter={filter} onSortChange={setSort} onFilterChange={setFilter} />
+      {result.length === 0 ? (
         <p className="text-sm text-zinc-400">No todos in this list.</p>
       ) : (
-        <TodoList todos={filtered} onSelect={(id) => setSelectedId(id)} />
+        <TodoList todos={result} onSelect={(id) => setSelectedId(id)} />
       )}
     </div>
   );
