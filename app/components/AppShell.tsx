@@ -4,8 +4,14 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import RightPanel from "./RightPanel";
 
+export type ActivePanel = "navigation" | "jobs" | "checkin" | null;
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const [panelOpen, setPanelOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<ActivePanel>(null);
+
+  function handleSelect(panel: ActivePanel) {
+    setActivePanel((prev) => (prev === panel ? null : panel));
+  }
 
   return (
     <>
@@ -13,9 +19,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <span className="font-semibold tracking-tight">Todos</span>
       </header>
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar panelOpen={panelOpen} onTogglePanel={() => setPanelOpen((p) => !p)} />
+        <Sidebar activePanel={activePanel} onSelect={handleSelect} />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
-        <RightPanel isOpen={panelOpen} onClose={() => setPanelOpen(false)} />
+        <RightPanel activePanel={activePanel} onClose={() => setActivePanel(null)} />
       </div>
     </>
   );
