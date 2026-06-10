@@ -1,6 +1,3 @@
-import axios from "axios";
-import * as cheerio from "cheerio";
-import { NextResponse } from "next/server";
 import { google } from "googleapis";
 
 export async function POST(req: Request) {
@@ -33,11 +30,10 @@ export async function POST(req: Request) {
   //[  [ 'Job Posting Source', 'Company' ],  [ 'LinkedIn', 'IBM' ],]
   const firstOpenRow = resReading.data.values?.length
     ? resReading.data.values.length + 1
-    : 0;
+    : 1;
 
-  const values = resReading.data.values?.flat() || [];
-
-  const postingLinkAsHyperlink = `=HYPERLINK("${body.dataOne.postingLink}", "Link")`;
+  const safePostingLink = String(body.dataOne.postingLink).replace(/"/g, "");
+  const postingLinkAsHyperlink = `=HYPERLINK("${safePostingLink}", "Link")`;
 
   const spreadSheetArray = [
     "LinkedIn",
