@@ -68,6 +68,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const storedTodos = load("todos", initialTodos).filter(
       (t) => !(t.completed && t.dueDate && t.dueDate < today)
     );
+    save("todos", storedTodos);
     setTodos(storedTodos);
     setLists(load("lists", initialLists));
     setTags(load("tags", initialTags));

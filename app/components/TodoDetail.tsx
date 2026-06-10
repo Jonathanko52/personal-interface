@@ -26,8 +26,7 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
         <div className="flex items-center gap-3">
           <button
             onClick={onClose}
-            className="text-sm text-zinc-400 hover:text-zinc-700 transition-colors shrink-0"
-          >
+            className="text-sm text-zinc-400 hover:text-zinc-700 transition-colors shrink-0">
             ← Back
           </button>
           <input
@@ -40,7 +39,9 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Notes</label>
+          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            Notes
+          </label>
           <textarea
             rows={4}
             value={notes}
@@ -52,7 +53,9 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Priority</label>
+          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            Priority
+          </label>
           <div className="flex gap-2">
             {priorityOptions.map((p) => (
               <button
@@ -62,8 +65,7 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
                   todo.priority === p
                     ? "bg-indigo-500 text-white border-indigo-500"
                     : "border-zinc-200 text-zinc-600 hover:border-zinc-400"
-                }`}
-              >
+                }`}>
                 {p}
               </button>
             ))}
@@ -71,27 +73,36 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Due Date</label>
+          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            Due Date
+          </label>
           <input
             type="date"
             defaultValue={todo.dueDate ?? ""}
-            onChange={(e) => updateTodo(todo.id, { dueDate: e.target.value || null })}
+            onChange={(e) =>
+              updateTodo(todo.id, { dueDate: e.target.value || null })
+            }
             className="text-sm text-zinc-700 border border-zinc-200 rounded-md p-2 outline-none focus:border-zinc-400 transition-colors w-fit"
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Tags</label>
+          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            Tags
+          </label>
           <div className="flex gap-2">
-            <span className="text-xs px-3 py-1 rounded-full bg-zinc-100 text-zinc-600">urgent</span>
-            <span className="text-xs px-3 py-1 rounded-full bg-zinc-100 text-zinc-600">later</span>
+            <span className="text-xs px-3 py-1 rounded-full bg-zinc-100 text-zinc-600">
+              urgent
+            </span>
+            <span className="text-xs px-3 py-1 rounded-full bg-zinc-100 text-zinc-600">
+              later
+            </span>
           </div>
         </div>
 
         <button
           onClick={handleDelete}
-          className="self-start text-xs text-red-500 hover:text-red-700 transition-colors mt-2"
-        >
+          className="self-start text-xs text-red-500 hover:text-red-700 transition-colors mt-2">
           Delete todo
         </button>
       </div>
