@@ -2,6 +2,7 @@
 
 import { ActivePanel } from "./AppShell";
 import NavigationPanel from "./NavigationPanel";
+import JobsPanel from "./JobsPanel";
 
 interface RightPanelProps {
   activePanel: ActivePanel;
@@ -30,9 +31,7 @@ export default function RightPanel({ activePanel, onClose }: RightPanelProps) {
 
         <div className="flex-1 overflow-y-auto p-4">
           {activePanel === "navigation" && <NavigationPanel />}
-          {activePanel === "jobs" && (
-            <p className="text-sm text-zinc-400">Job scraper coming soon.</p>
-          )}
+          {activePanel === "jobs" && <JobsPanel />}
           {activePanel === "checkin" && (
             <p className="text-sm text-zinc-400">Daily check-in coming soon.</p>
           )}
