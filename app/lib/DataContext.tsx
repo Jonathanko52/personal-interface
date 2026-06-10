@@ -64,7 +64,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setTodos(load("todos", initialTodos));
+    const today = new Date().toISOString().slice(0, 10);
+    const storedTodos = load("todos", initialTodos).filter(
+      (t) => !(t.completed && t.dueDate && t.dueDate < today)
+    );
+    setTodos(storedTodos);
     setLists(load("lists", initialLists));
     setTags(load("tags", initialTags));
     setHydrated(true);
