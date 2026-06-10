@@ -1,5 +1,7 @@
 "use client";
 
+"use client";
+
 import { useState } from "react";
 import { useData, Todo } from "@/app/lib/DataContext";
 
@@ -11,7 +13,8 @@ interface TodoDetailProps {
 const priorityOptions = ["none", "low", "medium", "high"];
 
 export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
-  const { updateTodo, deleteTodo } = useData();
+  const { updateTodo, deleteTodo, tags } = useData();
+  const todoTags = tags.filter((tag) => todo.tagIds.includes(tag.id));
   const [title, setTitle] = useState(todo.title);
   const [notes, setNotes] = useState(todo.notes);
 
@@ -90,13 +93,20 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
           <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
             Tags
           </label>
-          <div className="flex gap-2">
-            <span className="text-xs px-3 py-1 rounded-full bg-zinc-100 text-zinc-600">
-              urgent
-            </span>
-            <span className="text-xs px-3 py-1 rounded-full bg-zinc-100 text-zinc-600">
-              later
-            </span>
+          <div className="flex gap-2 flex-wrap">
+            {todoTags.length === 0 ? (
+              <span className="text-xs text-zinc-400">No tags</span>
+            ) : (
+              todoTags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="text-xs px-3 py-1 rounded-full bg-zinc-100 text-zinc-600"
+                  style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
+                >
+                  {tag.name}
+                </span>
+              ))
+            )}
           </div>
         </div>
 
