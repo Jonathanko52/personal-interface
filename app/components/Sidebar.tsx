@@ -79,6 +79,16 @@ export default function Sidebar({ panelOpen, onTogglePanel }: SidebarProps) {
       <div className="flex flex-col gap-1">
         <Link href="/" className={linkClass("/")}>Today</Link>
         <Link href="/month" className={linkClass("/month")}>Month</Link>
+        <button
+          onClick={onTogglePanel}
+          className={`flex items-center gap-2 text-sm rounded-md px-3 py-2 transition-colors text-left ${
+            panelOpen
+              ? "bg-indigo-50 text-indigo-700 font-medium"
+              : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
+          }`}
+        >
+          Tools
+        </button>
       </div>
 
       <section>
@@ -185,18 +195,6 @@ export default function Sidebar({ panelOpen, onTogglePanel }: SidebarProps) {
         </ul>
       </section>
 
-      <div className="mt-auto pt-4 border-t border-zinc-200">
-        <button
-          onClick={onTogglePanel}
-          className={`w-full flex items-center gap-2 text-sm px-3 py-2 rounded-md transition-colors ${
-            panelOpen
-              ? "bg-indigo-50 text-indigo-700 font-medium"
-              : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
-          }`}
-        >
-          Tools
-        </button>
-      </div>
     </nav>
   );
 }
