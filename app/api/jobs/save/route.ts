@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
   // Making a call to find the first empty row
   const resReading = await sheets.spreadsheets.values.get({
-    spreadsheetId: "1DcNybZwq7WrXw-AwWCGpPzQf6mDYKAbm1Co3U882gGQ",
+    spreadsheetId: process.env.GOOGLE_SHEETS_ID!,
     range: `${"Jobs"}!${"A"}:${"A"}`,
   });
 
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
 
   // Call to append the job posting
   const res = await sheets.spreadsheets.values.append({
-    spreadsheetId: "1DcNybZwq7WrXw-AwWCGpPzQf6mDYKAbm1Co3U882gGQ",
+    spreadsheetId: process.env.GOOGLE_SHEETS_ID!,
     valueInputOption: "USER_ENTERED",
     range: `Jobs!A${firstOpenRow}:F${firstOpenRow}`,
     requestBody: { values: [spreadSheetArray] },

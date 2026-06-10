@@ -13,21 +13,49 @@ export default function JobsPanel() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<JobResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleScrape() {
+  async function handleScrape() {
     if (!url.trim()) return;
     setLoading(true);
-    // API call will go here
-    setTimeout(() => {
+    setError(null);
+    setResult(null);
+    setSaved(false);
+    try {
+      const res = await fetch("/api/jobs/scrape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value: url.trim() }),
+      });
+      if (!res.ok) throw new Error(`Scrape failed (${res.status})`);
+      const data = await res.json();
+      setResult(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!result) return;
-    // Save to Sheets call will go here
-    setSaved(true);
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/jobs/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dataOne: result }),
+      });
+      if (!res.ok) throw new Error(`Save failed (${res.status})`);
+      setSaved(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -43,6 +71,7 @@ export default function JobsPanel() {
             setUrl(e.target.value);
             setResult(null);
             setSaved(false);
+            setError(null);
           }}
           placeholder="Paste LinkedIn URL..."
           className="text-sm border border-zinc-200 text-zinc-400 rounded-md px-3 py-2 outline-none focus:border-indigo-400 transition-colors w-full"
@@ -50,16 +79,19 @@ export default function JobsPanel() {
         <button
           onClick={handleScrape}
           disabled={!url.trim() || loading}
-          className="text-sm bg-indigo-500 text-white rounded-md px-4 py-2 hover:bg-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+          className="text-sm bg-indigo-500 text-white rounded-md px-4 py-2 hover:bg-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
           {loading ? "Scraping..." : "Scrape"}
         </button>
       </div>
 
+      {error && (
+        <p className="text-xs text-red-500">{error}</p>
+      )}
+
       {result && (
         <div className="flex flex-col gap-3 border border-zinc-200 rounded-lg p-3">
-          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-            Result
-          </p>
+          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Result</p>
           <div className="flex flex-col gap-1.5 text-sm">
             <div>
               <span className="text-zinc-400 text-xs">Company</span>
@@ -77,15 +109,17 @@ export default function JobsPanel() {
               href={result.postingLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-indigo-500 hover:underline text-xs truncate">
+              className="text-indigo-500 hover:underline text-xs truncate"
+            >
               {result.postingLink}
             </a>
           </div>
           <button
             onClick={handleSave}
-            disabled={saved}
-            className="text-sm bg-zinc-800 text-white rounded-md px-4 py-2 hover:bg-zinc-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-            {saved ? "Saved to Sheets ✓" : "Save to Sheets"}
+            disabled={saving || saved}
+            className="text-sm bg-zinc-800 text-white rounded-md px-4 py-2 hover:bg-zinc-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {saving ? "Saving..." : saved ? "Saved to Sheets ✓" : "Save to Sheets"}
           </button>
         </div>
       )}
