@@ -10,7 +10,12 @@ const COLOR_OPTIONS = [
   "#ec4899", "#14b8a6", "#f97316", "#8b5cf6",
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  panelOpen: boolean;
+  onTogglePanel: () => void;
+}
+
+export default function Sidebar({ panelOpen, onTogglePanel }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { lists, tags, addList, updateList, deleteList, deleteTag } = useData();
@@ -179,6 +184,19 @@ export default function Sidebar() {
           ))}
         </ul>
       </section>
+
+      <div className="mt-auto pt-4 border-t border-zinc-200">
+        <button
+          onClick={onTogglePanel}
+          className={`w-full flex items-center gap-2 text-sm px-3 py-2 rounded-md transition-colors ${
+            panelOpen
+              ? "bg-indigo-50 text-indigo-700 font-medium"
+              : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
+          }`}
+        >
+          Tools
+        </button>
+      </div>
     </nav>
   );
 }

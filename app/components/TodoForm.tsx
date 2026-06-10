@@ -45,6 +45,14 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
     setExpanded(false);
   }
 
+  if (lists.length === 0) {
+    return (
+      <p className="text-sm text-zinc-400 mb-6">
+        Create a list in the sidebar before adding todos.
+      </p>
+    );
+  }
+
   if (!expanded) {
     return (
       <button
