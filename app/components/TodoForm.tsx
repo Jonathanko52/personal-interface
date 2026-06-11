@@ -13,7 +13,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
   const [title, setTitle] = useState("");
   const [listId, setListId] = useState(defaultListId ?? lists[0]?.id ?? "");
   const [priority, setPriority] = useState("none");
-  const [dueDate, setDueDate] = useState("");
+  const [dueDate, setDueDate] = useState(new Date().toISOString().slice(0, 10));
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
