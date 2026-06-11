@@ -13,12 +13,30 @@ const COLOR_OPTIONS = [
 export default function NavigationPanel() {
   const pathname = usePathname();
   const router = useRouter();
-  const { lists, tags, addList, updateList, deleteList, deleteTag } = useData();
+  const { lists, tags, addList, addTag, updateList, deleteList, deleteTag } = useData();
 
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
   const [newColor, setNewColor] = useState(COLOR_OPTIONS[0]);
   const addInputRef = useRef<HTMLInputElement>(null);
+
+  const [addingTag, setAddingTag] = useState(false);
+  const [newTagName, setNewTagName] = useState("");
+  const [newTagColor, setNewTagColor] = useState(COLOR_OPTIONS[0]);
+  const addTagInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (addingTag) addTagInputRef.current?.focus();
+  }, [addingTag]);
+
+  function handleAddTagSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!newTagName.trim()) return;
+    addTag({ name: newTagName.trim(), color: newTagColor });
+    setNewTagName("");
+    setNewTagColor(COLOR_OPTIONS[0]);
+    setAddingTag(false);
+  }
 
   const [editingListId, setEditingListId] = useState<string | null>(null);
   const [editingListName, setEditingListName] = useState("");
@@ -164,6 +182,42 @@ export default function NavigationPanel() {
             </li>
           ))}
         </ul>
+
+        {addingTag ? (
+          <form onSubmit={handleAddTagSubmit} className="mt-2 flex flex-col gap-2">
+            <input
+              ref={addTagInputRef}
+              type="text"
+              value={newTagName}
+              onChange={(e) => setNewTagName(e.target.value)}
+              onKeyDown={(e) => e.key === "Escape" && setAddingTag(false)}
+              placeholder="Tag name"
+              className="text-sm border border-zinc-300 rounded-md px-2 py-1.5 outline-none focus:border-indigo-400 transition-colors"
+            />
+            <div className="flex gap-1.5 flex-wrap">
+              {COLOR_OPTIONS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setNewTagColor(c)}
+                  className={`w-5 h-5 rounded-full transition-transform ${newTagColor === c ? "scale-125 ring-2 ring-offset-1 ring-zinc-400" : ""}`}
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button type="submit" className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1 hover:bg-indigo-600 transition-colors">Add</button>
+              <button type="button" onClick={() => setAddingTag(false)} className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors">Cancel</button>
+            </div>
+          </form>
+        ) : (
+          <button
+            onClick={() => setAddingTag(true)}
+            className="mt-1 flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-700 px-2 py-1.5 rounded-md hover:bg-zinc-100 transition-colors w-full"
+          >
+            <span className="text-base leading-none">+</span> New tag
+          </button>
+        )}
       </section>
     </div>
   );

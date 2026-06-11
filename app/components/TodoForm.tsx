@@ -8,17 +8,24 @@ interface TodoFormProps {
 }
 
 export default function TodoForm({ defaultListId }: TodoFormProps) {
-  const { lists, addTodo } = useData();
+  const { lists, tags, addTodo } = useData();
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [listId, setListId] = useState(defaultListId ?? lists[0]?.id ?? "");
   const [priority, setPriority] = useState("none");
   const [dueDate, setDueDate] = useState(new Date().toISOString().slice(0, 10));
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (expanded) inputRef.current?.focus();
   }, [expanded]);
+
+  function toggleTag(id: string) {
+    setSelectedTagIds((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
+    );
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -29,19 +36,21 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
       priority,
       dueDate: dueDate || null,
       completed: false,
-      tagIds: [],
+      tagIds: selectedTagIds,
       notes: "",
     });
     setTitle("");
     setPriority("none");
-    setDueDate("");
+    setDueDate(new Date().toISOString().slice(0, 10));
+    setSelectedTagIds([]);
     setExpanded(false);
   }
 
   function handleCancel() {
     setTitle("");
     setPriority("none");
-    setDueDate("");
+    setDueDate(new Date().toISOString().slice(0, 10));
+    setSelectedTagIds([]);
     setExpanded(false);
   }
 
@@ -106,6 +115,26 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
           className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700"
         />
       </div>
+
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {tags.map((tag) => (
+            <button
+              key={tag.id}
+              type="button"
+              onClick={() => toggleTag(tag.id)}
+              className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                selectedTagIds.includes(tag.id)
+                  ? "text-white border-transparent"
+                  : "border-zinc-200 text-zinc-500 hover:border-zinc-400"
+              }`}
+              style={selectedTagIds.includes(tag.id) ? { backgroundColor: tag.color, borderColor: tag.color } : {}}
+            >
+              {tag.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="flex gap-2">
         <button

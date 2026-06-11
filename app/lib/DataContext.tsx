@@ -32,6 +32,7 @@ interface DataContextValue {
   tags: Tag[];
   addTodo: (todo: Omit<Todo, "id">) => void;
   addList: (list: Omit<List, "id">) => void;
+  addTag: (tag: Omit<Tag, "id">) => void;
   toggleTodo: (id: string) => void;
   updateTodo: (id: string, updates: Partial<Omit<Todo, "id">>) => void;
   deleteTodo: (id: string) => void;
@@ -87,6 +88,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setLists((prev) => [...prev, { ...list, id: crypto.randomUUID() }]);
   }
 
+  function addTag(tag: Omit<Tag, "id">) {
+    setTags((prev) => [...prev, { ...tag, id: crypto.randomUUID() }]);
+  }
+
   function toggleTodo(id: string) {
     setTodos((prev) =>
       prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
@@ -118,7 +123,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <DataContext.Provider value={{ todos, lists, tags, addTodo, addList, toggleTodo, updateTodo, deleteTodo, updateList, deleteList, deleteTag }}>
+    <DataContext.Provider value={{ todos, lists, tags, addTodo, addList, addTag, toggleTodo, updateTodo, deleteTodo, updateList, deleteList, deleteTag }}>
       {children}
     </DataContext.Provider>
   );
