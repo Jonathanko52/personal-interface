@@ -7,7 +7,7 @@ import RightPanel from "./RightPanel";
 export type ActivePanel = "navigation" | "jobs" | "checkin" | null;
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const [activePanel, setActivePanel] = useState<ActivePanel>(null);
+  const [activePanel, setActivePanel] = useState<ActivePanel>("navigation");
   const [minimized, setMinimized] = useState(false);
 
   function handleSelect(panel: ActivePanel) {
