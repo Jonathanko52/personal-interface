@@ -36,6 +36,7 @@ interface DataContextValue {
   toggleTodo: (id: string) => void;
   updateTodo: (id: string, updates: Partial<Omit<Todo, "id">>) => void;
   deleteTodo: (id: string) => void;
+  reorderTodos: (activeId: string, overId: string) => void;
   updateList: (id: string, updates: Partial<Omit<List, "id">>) => void;
   deleteList: (id: string) => void;
   deleteTag: (id: string) => void;
@@ -108,6 +109,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setTodos((prev) => prev.filter((t) => t.id !== id));
   }
 
+  function reorderTodos(activeId: string, overId: string) {
+    setTodos((prev) => {
+      const oldIndex = prev.findIndex((t) => t.id === activeId);
+      const newIndex = prev.findIndex((t) => t.id === overId);
+      if (oldIndex === -1 || newIndex === -1) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(oldIndex, 1);
+      next.splice(newIndex, 0, moved);
+      return next;
+    });
+  }
+
   function updateList(id: string, updates: Partial<Omit<List, "id">>) {
     setLists((prev) => prev.map((l) => (l.id === id ? { ...l, ...updates } : l)));
   }
@@ -123,7 +136,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <DataContext.Provider value={{ todos, lists, tags, addTodo, addList, addTag, toggleTodo, updateTodo, deleteTodo, updateList, deleteList, deleteTag }}>
+    <DataContext.Provider value={{ todos, lists, tags, addTodo, addList, addTag, toggleTodo, updateTodo, deleteTodo, reorderTodos, updateList, deleteList, deleteTag }}>
       {children}
     </DataContext.Provider>
   );
