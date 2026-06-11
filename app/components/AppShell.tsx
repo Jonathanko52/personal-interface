@@ -8,9 +8,15 @@ export type ActivePanel = "navigation" | "jobs" | "checkin" | null;
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
+  const [minimized, setMinimized] = useState(false);
 
   function handleSelect(panel: ActivePanel) {
-    setActivePanel((prev) => (prev === panel ? null : panel));
+    if (activePanel === panel && !minimized) {
+      setMinimized(true);
+    } else {
+      setActivePanel(panel);
+      setMinimized(false);
+    }
   }
 
   return (
@@ -21,7 +27,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar activePanel={activePanel} onSelect={handleSelect} />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
-        <RightPanel activePanel={activePanel} onClose={() => setActivePanel(null)} />
+        <RightPanel
+          activePanel={activePanel}
+          minimized={minimized}
+          onMinimize={() => setMinimized(true)}
+          onRestore={() => setMinimized(false)}
+        />
       </div>
     </>
   );
