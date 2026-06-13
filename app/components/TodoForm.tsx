@@ -23,7 +23,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
 
   function toggleTag(id: string) {
     setSelectedTagIds((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
     );
   }
 
@@ -66,8 +66,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
     return (
       <button
         onClick={() => setExpanded(true)}
-        className="w-full flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-700 bg-white border border-zinc-200 hover:border-zinc-300 rounded-lg px-4 py-3 transition-colors mb-6"
-      >
+        className="w-full flex items-center gap-2 text-sm text-slate-400 hover:text-white bg-slate-900 border border-slate-700 hover:border-slate-600 rounded-lg px-4 py-3 transition-colors mb-6">
         <span className="text-base leading-none">+</span> Add todo
       </button>
     );
@@ -76,8 +75,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white border border-zinc-300 rounded-lg px-4 py-3 flex flex-col gap-3 mb-6"
-    >
+      className="bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 flex flex-col gap-3 mb-6">
       <input
         ref={inputRef}
         type="text"
@@ -85,26 +83,28 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={(e) => e.key === "Escape" && handleCancel()}
         placeholder="Todo title"
-        className="text-sm text-zinc-800 outline-none placeholder:text-zinc-400"
+        className="text-sm text-slate-100 outline-none placeholder:text-slate-500 bg-transparent"
       />
       <div className="flex flex-wrap gap-3 items-center">
         <select
           value={listId}
           onChange={(e) => setListId(e.target.value)}
-          className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700"
-        >
+          className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white">
           {lists.map((l) => (
-            <option key={l.id} value={l.id}>{l.name}</option>
+            <option key={l.id} value={l.id}>
+              {l.name}
+            </option>
           ))}
         </select>
 
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
-          className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700"
-        >
+          className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white">
           {["none", "low", "medium", "high"].map((p) => (
-            <option key={p} value={p}>{p}</option>
+            <option key={p} value={p}>
+              {p}
+            </option>
           ))}
         </select>
 
@@ -112,7 +112,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
-          className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700"
+          className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white"
         />
       </div>
 
@@ -128,8 +128,11 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
                   ? "text-white border-transparent"
                   : "border-zinc-200 text-zinc-500 hover:border-zinc-400"
               }`}
-              style={selectedTagIds.includes(tag.id) ? { backgroundColor: tag.color, borderColor: tag.color } : {}}
-            >
+              style={
+                selectedTagIds.includes(tag.id)
+                  ? { backgroundColor: tag.color, borderColor: tag.color }
+                  : {}
+              }>
               {tag.name}
             </button>
           ))}
@@ -139,15 +142,13 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
       <div className="flex gap-2">
         <button
           type="submit"
-          className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1 hover:bg-indigo-600 transition-colors"
-        >
+          className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1 hover:bg-indigo-600 transition-colors">
           Add
         </button>
         <button
           type="button"
           onClick={handleCancel}
-          className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors"
-        >
+          className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors">
           Cancel
         </button>
       </div>
