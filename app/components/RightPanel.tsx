@@ -24,10 +24,10 @@ export default function RightPanel({ activePanel, minimized, onMinimize, onResto
     return (
       <div
         onClick={onRestore}
-        className="shrink-0 w-8 border-l border-zinc-200 bg-white flex items-center justify-center cursor-pointer hover:bg-zinc-50 transition-colors"
+        className="shrink-0 w-8 border-l border-slate-700 bg-slate-900 flex items-center justify-center cursor-pointer hover:bg-slate-800 transition-colors"
         title={`Restore ${PANEL_LABELS[activePanel]}`}
       >
-        <span className="text-xs font-medium text-zinc-400 hover:text-zinc-700 transition-colors"
+        <span className="text-xs font-medium text-slate-400 hover:text-white transition-colors"
           style={{ writingMode: "vertical-rl", textOrientation: "mixed", transform: "rotate(180deg)" }}
         >
           {PANEL_LABELS[activePanel]}
@@ -37,12 +37,12 @@ export default function RightPanel({ activePanel, minimized, onMinimize, onResto
   }
 
   return (
-    <div className="shrink-0 w-72 border-l border-zinc-200 bg-white flex flex-col transition-all duration-300">
-      <div className="h-14 shrink-0 flex items-center justify-between px-4 border-b border-zinc-200">
-        <span className="text-sm font-medium text-zinc-700">{PANEL_LABELS[activePanel]}</span>
+    <div className="shrink-0 w-72 border-l border-slate-700 bg-slate-900 flex flex-col transition-all duration-300">
+      <div className="h-14 shrink-0 flex items-center justify-between px-4 border-b border-slate-700">
+        <span className="text-sm font-medium text-slate-200">{PANEL_LABELS[activePanel]}</span>
         <button
           onClick={onMinimize}
-          className="text-zinc-400 hover:text-zinc-700 transition-colors text-xs"
+          className="text-slate-400 hover:text-white transition-colors text-xs"
           title="Minimize"
         >
           →

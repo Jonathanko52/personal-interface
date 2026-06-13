@@ -21,8 +21,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <header className="h-14 shrink-0 border-b border-zinc-200 bg-white flex items-center px-6">
-        <span className="font-semibold tracking-tight">Todos</span>
+      <header className="h-14 shrink-0 border-b border-slate-700 bg-slate-900 flex items-center px-6">
+        <span className="font-semibold tracking-tight text-slate-100">Todos</span>
       </header>
       <div className="flex flex-1 overflow-hidden">
         <Sidebar activePanel={activePanel} onSelect={handleSelect} />

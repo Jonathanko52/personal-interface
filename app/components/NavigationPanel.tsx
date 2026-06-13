@@ -78,8 +78,8 @@ export default function NavigationPanel() {
   const linkClass = (href: string) =>
     `flex items-center gap-2 text-sm rounded-md px-2 py-1.5 transition-colors ${
       pathname === href
-        ? "bg-indigo-50 text-indigo-700 font-medium"
-        : "text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100"
+        ? "bg-slate-700 text-white font-medium"
+        : "text-slate-300 hover:text-white hover:bg-slate-700"
     }`;
 
   return (
@@ -137,7 +137,7 @@ export default function NavigationPanel() {
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === "Escape" && handleAddCancel()}
               placeholder="List name"
-              className="text-sm border border-zinc-300 rounded-md px-2 py-1.5 outline-none focus:border-indigo-400 transition-colors"
+              className="text-sm text-zinc-900 border border-zinc-300 rounded-md px-2 py-1.5 outline-none focus:border-indigo-400 transition-colors"
             />
             <div className="flex gap-1.5 flex-wrap">
               {COLOR_OPTIONS.map((c) => (
@@ -158,7 +158,7 @@ export default function NavigationPanel() {
         ) : (
           <button
             onClick={() => setAdding(true)}
-            className="mt-1 flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-700 px-2 py-1.5 rounded-md hover:bg-zinc-100 transition-colors w-full"
+            className="mt-1 flex items-center gap-1.5 text-sm text-slate-400 hover:text-white px-2 py-1.5 rounded-md hover:bg-slate-700 transition-colors w-full"
           >
             <span className="text-base leading-none">+</span> New list
           </button>
@@ -213,7 +213,7 @@ export default function NavigationPanel() {
         ) : (
           <button
             onClick={() => setAddingTag(true)}
-            className="mt-1 flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-700 px-2 py-1.5 rounded-md hover:bg-zinc-100 transition-colors w-full"
+            className="mt-1 flex items-center gap-1.5 text-sm text-slate-400 hover:text-white px-2 py-1.5 rounded-md hover:bg-slate-700 transition-colors w-full"
           >
             <span className="text-base leading-none">+</span> New tag
           </button>
