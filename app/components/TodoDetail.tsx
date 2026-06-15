@@ -9,6 +9,7 @@ interface TodoDetailProps {
 }
 
 const priorityOptions = ["none", "low", "medium", "high"];
+const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
   const { updateTodo, deleteTodo, tags } = useData();
@@ -110,6 +111,32 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
               })}
             </div>
           )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Repeat</label>
+          <div className="flex gap-1">
+            {DAYS.map((label, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => {
+                  const current = todo.repeatDays ?? [];
+                  const updated = current.includes(i)
+                    ? current.filter((d) => d !== i)
+                    : [...current, i];
+                  updateTodo(todo.id, { repeatDays: updated });
+                }}
+                className={`w-7 h-7 text-xs rounded-full font-medium transition-colors ${
+                  (todo.repeatDays ?? []).includes(i)
+                    ? "bg-indigo-500 text-white"
+                    : "border border-zinc-200 text-zinc-500 hover:border-zinc-400"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <button

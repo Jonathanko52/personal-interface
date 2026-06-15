@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useData } from "@/app/lib/DataContext";
 import TodoDetail from "@/app/components/TodoDetail";
 
@@ -14,6 +15,7 @@ const priorityColors: Record<string, string> = {
 };
 
 export default function MonthPage() {
+  const router = useRouter();
   const { todos } = useData();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
@@ -95,7 +97,11 @@ export default function MonthPage() {
           ) : (
             <div
               key={cell.key}
-              className="border-r border-b border-zinc-200 bg-white min-h-24 p-1.5 flex flex-col gap-1"
+              onClick={() => {
+                const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(cell.day).padStart(2, "0")}`;
+                router.push(`/?date=${dateStr}`);
+              }}
+              className="border-r border-b border-zinc-200 bg-white min-h-24 p-1.5 flex flex-col gap-1 cursor-pointer hover:bg-zinc-50 transition-colors"
             >
               <span
                 className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full self-start ${

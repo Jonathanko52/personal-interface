@@ -90,20 +90,20 @@ export default function JobsPanel() {
       )}
 
       {result && (
-        <div className="flex flex-col gap-3 border border-zinc-200 rounded-lg p-3">
-          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Result</p>
+        <div className="flex flex-col gap-3 border border-slate-700 rounded-lg p-3">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Result</p>
           <div className="flex flex-col gap-1.5 text-sm">
             <div>
-              <span className="text-zinc-400 text-xs">Company</span>
-              <p className="text-zinc-800 font-medium">{result.companyName}</p>
+              <span className="text-slate-400 text-xs">Company</span>
+              <p className="text-slate-100 font-medium">{result.companyName}</p>
             </div>
             <div>
-              <span className="text-zinc-400 text-xs">Role</span>
-              <p className="text-zinc-800">{result.jobPosting}</p>
+              <span className="text-slate-400 text-xs">Role</span>
+              <p className="text-slate-100">{result.jobPosting}</p>
             </div>
             <div>
-              <span className="text-zinc-400 text-xs">Location</span>
-              <p className="text-zinc-800">{result.location}</p>
+              <span className="text-slate-400 text-xs">Location</span>
+              <p className="text-slate-100">{result.location}</p>
             </div>
             <a
               href={result.postingLink}

@@ -3,18 +3,23 @@
 import { useState, useRef, useEffect } from "react";
 import { useData } from "@/app/lib/DataContext";
 
+const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
+
 interface TodoFormProps {
   defaultListId?: string;
+  defaultDueDate?: string;
 }
 
-export default function TodoForm({ defaultListId }: TodoFormProps) {
+export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProps) {
   const { lists, tags, addTodo } = useData();
+  const today = new Date().toISOString().slice(0, 10);
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [listId, setListId] = useState(defaultListId ?? lists[0]?.id ?? "");
   const [priority, setPriority] = useState("none");
-  const [dueDate, setDueDate] = useState(new Date().toISOString().slice(0, 10));
+  const [dueDate, setDueDate] = useState(defaultDueDate ?? today);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [repeatDays, setRepeatDays] = useState<number[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -24,6 +29,12 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
   function toggleTag(id: string) {
     setSelectedTagIds((prev) =>
       prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
+    );
+  }
+
+  function toggleRepeatDay(day: number) {
+    setRepeatDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
   }
 
@@ -38,19 +49,22 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
       completed: false,
       tagIds: selectedTagIds,
       notes: "",
+      repeatDays,
     });
     setTitle("");
     setPriority("none");
-    setDueDate(new Date().toISOString().slice(0, 10));
+    setDueDate(defaultDueDate ?? today);
     setSelectedTagIds([]);
+    setRepeatDays([]);
     setExpanded(false);
   }
 
   function handleCancel() {
     setTitle("");
     setPriority("none");
-    setDueDate(new Date().toISOString().slice(0, 10));
+    setDueDate(defaultDueDate ?? today);
     setSelectedTagIds([]);
+    setRepeatDays([]);
     setExpanded(false);
   }
 
@@ -116,6 +130,26 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
         />
       </div>
 
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs text-slate-400">Repeat</span>
+        <div className="flex gap-1">
+          {DAYS.map((label, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => toggleRepeatDay(i)}
+              className={`w-7 h-7 text-xs rounded-full font-medium transition-colors ${
+                repeatDays.includes(i)
+                  ? "bg-indigo-500 text-white"
+                  : "bg-slate-700 text-slate-400 hover:text-white"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {tags.map((tag) => (
@@ -126,7 +160,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
               className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
                 selectedTagIds.includes(tag.id)
                   ? "text-white border-transparent"
-                  : "border-zinc-200 text-zinc-500 hover:border-zinc-400"
+                  : "border-slate-600 text-slate-400 hover:border-slate-400"
               }`}
               style={
                 selectedTagIds.includes(tag.id)
@@ -148,7 +182,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
         <button
           type="button"
           onClick={handleCancel}
-          className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors">
+          className="text-xs text-slate-400 hover:text-white transition-colors">
           Cancel
         </button>
       </div>

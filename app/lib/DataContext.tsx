@@ -12,6 +12,7 @@ export interface Todo {
   completed: boolean;
   listId: string;
   tagIds: string[];
+  repeatDays: number[]; // 0=Sun, 1=Mon, ..., 6=Sat
 }
 
 interface List {
@@ -57,6 +58,17 @@ function save(key: string, value: unknown) {
   } catch {}
 }
 
+function nextRepeatDate(fromDate: string, repeatDays: number[]): string {
+  const date = new Date(fromDate + "T12:00:00");
+  for (let i = 1; i <= 7; i++) {
+    date.setDate(date.getDate() + 1);
+    if (repeatDays.includes(date.getDay())) {
+      return date.toISOString().slice(0, 10);
+    }
+  }
+  return fromDate;
+}
+
 const DataContext = createContext<DataContextValue | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
@@ -67,9 +79,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10);
-    const storedTodos = load("todos", initialTodos).filter(
-      (t) => !(t.completed && t.dueDate && t.dueDate < today)
-    );
+    const storedTodos = load("todos", initialTodos)
+      .map((t) => {
+        if (t.completed && t.dueDate && t.dueDate < today) {
+          if (t.repeatDays?.length) {
+            return { ...t, completed: false, dueDate: nextRepeatDate(today, t.repeatDays) };
+          }
+          return null;
+        }
+        return t;
+      })
+      .filter((t): t is Todo => t !== null);
     save("todos", storedTodos);
     setTodos(storedTodos);
     setLists(load("lists", initialLists));
