@@ -8,22 +8,45 @@ interface ChatMessage {
   content: string;
 }
 
+function loadMessages(): ChatMessage[] {
+  try {
+    const raw = localStorage.getItem("checkinMessages");
+    return raw ? (JSON.parse(raw) as ChatMessage[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMessages(messages: ChatMessage[]) {
+  try {
+    localStorage.setItem("checkinMessages", JSON.stringify(messages));
+  } catch {}
+}
+
 export default function CheckinPanel() {
   const { todos } = useData();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [hydrated, setHydrated] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const stored = loadMessages();
+    setMessages(stored);
+    setHydrated(true);
+    if (stored.length === 0) {
+      fetchReply([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  async function sendMessage(content: string) {
-    const nextMessages: ChatMessage[] = [...messages, { role: "user", content }];
-    setMessages(nextMessages);
-    setInput("");
+  async function fetchReply(messageList: ChatMessage[]) {
     setLoading(true);
     setError(null);
     try {
@@ -31,7 +54,7 @@ export default function CheckinPanel() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: nextMessages,
+          messages: messageList,
           todos: todos.map((t) => ({
             title: t.title,
             completed: t.completed,
@@ -42,7 +65,11 @@ export default function CheckinPanel() {
       });
       if (!res.ok) throw new Error(`Check-in failed (${res.status})`);
       const data = await res.json();
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+      setMessages((prev) => {
+        const updated = [...prev, { role: "assistant" as const, content: data.reply }];
+        saveMessages(updated);
+        return updated;
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -53,13 +80,17 @@ export default function CheckinPanel() {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!input.trim() || loading) return;
-    sendMessage(input.trim());
+    const next = [...messages, { role: "user" as const, content: input.trim() }];
+    setMessages(next);
+    saveMessages(next);
+    setInput("");
+    fetchReply(next);
   }
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto flex flex-col gap-3 mb-3">
-        {messages.length === 0 && (
+        {hydrated && messages.length === 0 && !loading && (
           <p className="text-sm text-slate-400">
             Say hi to start your daily check-in.
           </p>
