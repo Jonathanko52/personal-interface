@@ -31,42 +31,45 @@ Have a brief, supportive daily check-in conversation. Ask about progress on thei
 }
 
 export async function POST(req: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "GEMINI_API_KEY missing" }, { status: 500 });
-  }
+  return NextResponse.json({ error: "Chatbot integration is disabled" }, { status: 503 });
 
-  const { messages, todos } = (await req.json()) as {
-    messages: ChatMessage[];
-    todos: TodoSummary[];
-  };
-
-  const contents = messages.length
-    ? messages.map((m) => ({
-        role: m.role === "assistant" ? "model" : "user",
-        parts: [{ text: m.content }],
-      }))
-    : [{ role: "user", parts: [{ text: "Let's start today's check-in." }] }];
-
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: buildSystemPrompt(todos) }] },
-        contents,
-      }),
-    }
-  );
-
-  if (!res.ok) {
-    const text = await res.text();
-    return NextResponse.json({ error: `Gemini request failed: ${text}` }, { status: 502 });
-  }
-
-  const data = await res.json();
-  const reply = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-
-  return NextResponse.json({ reply });
+  // --- Gemini integration (disabled for now) ---
+  // const apiKey = process.env.GEMINI_API_KEY;
+  // if (!apiKey) {
+  //   return NextResponse.json({ error: "GEMINI_API_KEY missing" }, { status: 500 });
+  // }
+  //
+  // const { messages, todos } = (await req.json()) as {
+  //   messages: ChatMessage[];
+  //   todos: TodoSummary[];
+  // };
+  //
+  // const contents = messages.length
+  //   ? messages.map((m) => ({
+  //       role: m.role === "assistant" ? "model" : "user",
+  //       parts: [{ text: m.content }],
+  //     }))
+  //   : [{ role: "user", parts: [{ text: "Let's start today's check-in." }] }];
+  //
+  // const res = await fetch(
+  //   `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+  //   {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({
+  //       systemInstruction: { parts: [{ text: buildSystemPrompt(todos) }] },
+  //       contents,
+  //     }),
+  //   }
+  // );
+  //
+  // if (!res.ok) {
+  //   const text = await res.text();
+  //   return NextResponse.json({ error: `Gemini request failed: ${text}` }, { status: 502 });
+  // }
+  //
+  // const data = await res.json();
+  // const reply = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  //
+  // return NextResponse.json({ reply });
 }
