@@ -13,6 +13,9 @@ export async function POST(req: Request) {
   let cleanUrl: string;
   try {
     const url = new URL(value);
+    if (url.hostname !== "linkedin.com" && !url.hostname.endsWith(".linkedin.com")) {
+      return NextResponse.json({ error: "Only linkedin.com URLs are allowed" }, { status: 400 });
+    }
     cleanUrl = `${url.origin}${url.pathname}`;
   } catch {
     return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
