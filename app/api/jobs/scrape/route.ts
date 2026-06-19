@@ -3,14 +3,31 @@ import * as cheerio from "cheerio";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const { value } = await req.json();
+  const { value } = await req.json().catch(() => ({}));
+
+  if (typeof value !== "string" || !value) {
+    return NextResponse.json({ error: "Missing or invalid URL" }, { status: 400 });
+  }
 
   // Clean URL
-  const url = new URL(value);
-  const cleanUrl = `${url.origin}${url.pathname}`;
+  let cleanUrl: string;
+  try {
+    const url = new URL(value);
+    cleanUrl = `${url.origin}${url.pathname}`;
+  } catch {
+    return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
+  }
 
-  //Scrape the page
-  const { data } = await axios.get(cleanUrl);
+  // Scrape the page
+  let data: string;
+  try {
+    const res = await axios.get(cleanUrl);
+    data = res.data;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: `Failed to fetch page: ${message}` }, { status: 502 });
+  }
+
   const $ = cheerio.load(data);
 
   // Grabbing values
@@ -22,9 +39,9 @@ export async function POST(req: Request) {
 
   // Return object
   return NextResponse.json({
-    companyName: companyName,
-    jobPosting: jobPosting,
-    location: location,
-    postingLink: postingLink,
+    companyName,
+    jobPosting,
+    location,
+    postingLink,
   });
 }
