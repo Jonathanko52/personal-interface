@@ -24,7 +24,13 @@ export async function POST(req: Request) {
   // Scrape the page
   let data: string;
   try {
-    const res = await axios.get(cleanUrl);
+    const res = await axios.get(cleanUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      },
+      timeout: 10000,
+    });
     data = res.data;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
