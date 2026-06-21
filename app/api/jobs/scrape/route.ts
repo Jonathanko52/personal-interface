@@ -2,6 +2,16 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { NextResponse } from "next/server";
 
+function extractJobInfo(html: string, postingLink: string) {
+  const $ = cheerio.load(html);
+
+  const companyName = $('a[href*="linkedin.com/company"]').first().text();
+  const jobPosting = $("h3").first().text();
+  const location = $("span").eq(5).text();
+
+  return { companyName, jobPosting, location, postingLink };
+}
+
 export async function POST(req: Request) {
   const { value } = await req.json().catch(() => ({}));
 
@@ -37,20 +47,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Failed to fetch page: ${message}` }, { status: 502 });
   }
 
-  const $ = cheerio.load(data);
-
-  // Grabbing values
-  const link = $('a[href*="linkedin.com/company"]').first();
-  const companyName = link.text();
-  const postingLink = cleanUrl;
-  const jobPosting = $("h3").first().text();
-  const location = $("span").eq(5).text();
-
-  // Return object
-  return NextResponse.json({
-    companyName,
-    jobPosting,
-    location,
-    postingLink,
-  });
+  return NextResponse.json(extractJobInfo(data, cleanUrl));
 }
