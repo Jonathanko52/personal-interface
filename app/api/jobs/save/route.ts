@@ -1,62 +1,75 @@
 import { google } from "googleapis";
+import { NextResponse } from "next/server";
+
+interface JobData {
+  companyName: string;
+  jobPosting: string;
+  location: string;
+  postingLink: string;
+}
+
+function isJobData(value: unknown): value is JobData {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.companyName === "string" &&
+    typeof v.jobPosting === "string" &&
+    typeof v.location === "string" &&
+    typeof v.postingLink === "string"
+  );
+}
 
 export async function POST(req: Request) {
-  // Credentials
-  const rawCreds = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (!rawCreds) throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON missing");
-  const creds = JSON.parse(rawCreds);
-  creds.private_key = creds.private_key.replace(/\\n/g, "\n");
-
-  // Authentication object
-  const auth = new google.auth.GoogleAuth({
-    credentials: creds,
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
-
-  // Sheets
-  const sheets = google.sheets({ version: "v4", auth });
-
-  // Calling spreadsheet and using range
   const body = await req.json().catch(() => ({}));
+  const dataOne = (body as { dataOne?: unknown }).dataOne;
 
-  // Making a call to find the first empty row
-  const resReading = await sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.GOOGLE_SHEETS_ID!,
-    range: `${"Jobs"}!${"A"}:${"A"}`,
-  });
+  if (!isJobData(dataOne)) {
+    return NextResponse.json({ error: "Missing or invalid dataOne" }, { status: 400 });
+  }
 
-  // resReading.data.values
-  // returns a 2d array that represents the sheet. As columns are designated from A - A.
-  //[  [ 'Job Posting Source', 'Company' ],  [ 'LinkedIn', 'IBM' ],]
-  const firstOpenRow = resReading.data.values?.length
-    ? resReading.data.values.length + 1
-    : 1;
+  const rawCreds = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  const spreadsheetId = process.env.GOOGLE_SHEETS_ID;
+  if (!rawCreds || !spreadsheetId) {
+    return NextResponse.json({ error: "Google Sheets credentials missing" }, { status: 500 });
+  }
 
-  const safePostingLink = String(body.dataOne.postingLink).replace(/"/g, "");
+  const safePostingLink = dataOne.postingLink.replace(/"/g, "");
   const postingLinkAsHyperlink = `=HYPERLINK("${safePostingLink}", "Link")`;
 
   const spreadSheetArray = [
     "LinkedIn",
-    body.dataOne.companyName,
-    body.dataOne.jobPosting,
+    dataOne.companyName,
+    dataOne.jobPosting,
     getCurrentDateMMDDYY(),
-    body.dataOne.location,
+    dataOne.location,
     postingLinkAsHyperlink,
   ];
 
-  // Call to append the job posting
-  const res = await sheets.spreadsheets.values.append({
-    spreadsheetId: process.env.GOOGLE_SHEETS_ID!,
-    valueInputOption: "USER_ENTERED",
-    range: `Jobs!A${firstOpenRow}:F${firstOpenRow}`,
-    requestBody: { values: [spreadSheetArray] },
-  });
+  try {
+    const creds = JSON.parse(rawCreds);
+    creds.private_key = creds.private_key.replace(/\\n/g, "\n");
 
-  // Return response
-  return new Response(JSON.stringify(res.data), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+    const auth = new google.auth.GoogleAuth({
+      credentials: creds,
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+    });
+    const sheets = google.sheets({ version: "v4", auth });
+
+    // Let Sheets locate the insert row itself (instead of read-then-write-to-computed-row)
+    // so concurrent saves can't collide on the same row.
+    const res = await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      valueInputOption: "USER_ENTERED",
+      insertDataOption: "INSERT_ROWS",
+      range: "Jobs!A:F",
+      requestBody: { values: [spreadSheetArray] },
+    });
+
+    return NextResponse.json(res.data);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: `Failed to save to Sheets: ${message}` }, { status: 502 });
+  }
 }
 
 // Get date helper function

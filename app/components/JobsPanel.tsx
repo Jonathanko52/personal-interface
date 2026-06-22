@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 interface JobResult {
   companyName: string;
@@ -16,6 +16,7 @@ export default function JobsPanel() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const savingRef = useRef(false);
 
   async function handleScrape() {
     if (!url.trim()) return;
@@ -40,7 +41,8 @@ export default function JobsPanel() {
   }
 
   async function handleSave() {
-    if (!result) return;
+    if (!result || savingRef.current) return;
+    savingRef.current = true;
     setSaving(true);
     setError(null);
     try {
@@ -52,8 +54,12 @@ export default function JobsPanel() {
       if (!res.ok) throw new Error(`Save failed (${res.status})`);
       setSaved(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(
+        (err instanceof Error ? err.message : "Something went wrong.") +
+          " You can try saving again."
+      );
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
   }
