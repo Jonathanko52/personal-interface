@@ -53,6 +53,7 @@ export default function JobsPanel() {
       });
       if (!res.ok) throw new Error(`Save failed (${res.status})`);
       setSaved(true);
+      setUrl("");
     } catch (err) {
       setError(
         (err instanceof Error ? err.message : "Something went wrong.") +
