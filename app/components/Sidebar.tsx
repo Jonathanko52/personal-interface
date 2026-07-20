@@ -5,7 +5,6 @@ import { ActivePanel } from "./AppShell";
 const NAV_ITEMS: { id: ActivePanel; label: string }[] = [
   { id: "navigation", label: "Navigation" },
   { id: "jobs", label: "Jobs" },
-  // { id: "checkin", label: "Check-in" }, // chatbot integration disabled for now
 ];
 
 interface SidebarProps {

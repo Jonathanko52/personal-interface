@@ -3,7 +3,6 @@
 import { ActivePanel } from "./AppShell";
 import NavigationPanel from "./NavigationPanel";
 import JobsPanel from "./JobsPanel";
-// import CheckinPanel from "./CheckinPanel"; // chatbot integration disabled for now
 
 interface RightPanelProps {
   activePanel: ActivePanel;
@@ -15,7 +14,6 @@ interface RightPanelProps {
 const PANEL_LABELS: Record<NonNullable<ActivePanel>, string> = {
   navigation: "Navigation",
   jobs: "Jobs",
-  checkin: "Check-in",
 };
 
 export default function RightPanel({ activePanel, minimized, onMinimize, onRestore }: RightPanelProps) {
@@ -52,7 +50,6 @@ export default function RightPanel({ activePanel, minimized, onMinimize, onResto
       <div className="flex-1 overflow-y-auto p-4">
         {activePanel === "navigation" && <NavigationPanel />}
         {activePanel === "jobs" && <JobsPanel />}
-        {/* {activePanel === "checkin" && <CheckinPanel />} chatbot integration disabled for now */}
       </div>
     </div>
   );

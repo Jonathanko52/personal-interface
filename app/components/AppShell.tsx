@@ -4,7 +4,7 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import RightPanel from "./RightPanel";
 
-export type ActivePanel = "navigation" | "jobs" | "checkin" | null;
+export type ActivePanel = "navigation" | "jobs" | null;
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [activePanel, setActivePanel] = useState<ActivePanel>("navigation");
