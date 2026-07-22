@@ -4,16 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useData } from "@/app/lib/DataContext";
 import { useSelectedTodo } from "@/app/lib/useSelectedTodo";
+import { priorityDotColors } from "@/app/lib/priority";
 import TodoDetail from "@/app/components/TodoDetail";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-const priorityColors: Record<string, string> = {
-  high: "bg-red-400",
-  medium: "bg-yellow-400",
-  low: "bg-blue-400",
-  none: "bg-zinc-300",
-};
 
 export default function MonthPage() {
   const router = useRouter();
@@ -119,7 +113,7 @@ export default function MonthPage() {
                     todo.completed ? "opacity-40" : ""
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${priorityColors[todo.priority]}`} />
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${priorityDotColors[todo.priority]}`} />
                   <span className="text-xs text-zinc-700 truncate">{todo.title}</span>
                 </button>
               ))}

@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useData, Todo } from "@/app/lib/DataContext";
+import { PRIORITIES } from "@/app/lib/priority";
 
 interface TodoDetailProps {
   todo: Todo;
   onClose: () => void;
 }
 
-const priorityOptions = ["none", "low", "medium", "high"];
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
@@ -62,7 +62,7 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
         <div className="flex flex-col gap-1">
           <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Priority</label>
           <div className="flex gap-2">
-            {priorityOptions.map((p) => (
+            {PRIORITIES.map((p) => (
               <button
                 key={p}
                 onClick={() => updateTodo(todo.id, { priority: p })}

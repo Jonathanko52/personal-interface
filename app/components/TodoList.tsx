@@ -15,6 +15,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useData } from "@/app/lib/DataContext";
+import { priorityBadgeStyles } from "@/app/lib/priority";
 
 interface Todo {
   id: string;
@@ -29,13 +30,6 @@ interface TodoListProps {
   todos: Todo[];
   onSelect: (id: string) => void;
 }
-
-const priorityStyles: Record<string, string> = {
-  high: "bg-red-100 text-red-700",
-  medium: "bg-yellow-100 text-yellow-700",
-  low: "bg-blue-100 text-blue-700",
-  none: "bg-zinc-100 text-zinc-500",
-};
 
 function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) => void }) {
   const { toggleTodo, tags } = useData();
@@ -75,7 +69,7 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
       ))}
       <span className="flex-1" />
       {todo.priority !== "none" && (
-        <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${priorityStyles[todo.priority]}`}>
+        <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${priorityBadgeStyles[todo.priority]}`}>
           {todo.priority}
         </span>
       )}

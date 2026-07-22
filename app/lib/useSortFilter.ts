@@ -2,11 +2,10 @@
 
 import { useState, useMemo } from "react";
 import { Todo } from "./DataContext";
+import { priorityRank } from "./priority";
 
 export type SortOption = "default" | "due-date" | "priority";
 export type FilterOption = "all" | "active" | "completed";
-
-const priorityRank: Record<string, number> = { high: 0, medium: 1, low: 2, none: 3 };
 
 export function useSortFilter(todos: Todo[]) {
   const [sort, setSort] = useState<SortOption>("default");

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useData } from "@/app/lib/DataContext";
+import { PRIORITIES } from "@/app/lib/priority";
 
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
@@ -115,7 +116,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
           className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white">
-          {["none", "low", "medium", "high"].map((p) => (
+          {PRIORITIES.map((p) => (
             <option key={p} value={p}>
               {p}
             </option>
