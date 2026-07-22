@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useData } from "@/app/lib/DataContext";
 import { PRIORITIES } from "@/app/lib/priority";
-
-const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
+import { toggleDay } from "@/app/lib/repeatDays";
+import RepeatDayPicker from "./RepeatDayPicker";
 
 interface TodoFormProps {
   defaultListId?: string;
@@ -34,9 +34,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
   }
 
   function toggleRepeatDay(day: number) {
-    setRepeatDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
+    setRepeatDays((prev) => toggleDay(prev, day));
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -133,22 +131,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
 
       <div className="flex flex-col gap-1.5">
         <span className="text-xs text-slate-400">Repeat</span>
-        <div className="flex gap-1">
-          {DAYS.map((label, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => toggleRepeatDay(i)}
-              className={`w-7 h-7 text-xs rounded-full font-medium transition-colors ${
-                repeatDays.includes(i)
-                  ? "bg-indigo-500 text-white"
-                  : "bg-slate-700 text-slate-400 hover:text-white"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <RepeatDayPicker selectedDays={repeatDays} onToggle={toggleRepeatDay} variant="dark" />
       </div>
 
       {tags.length > 0 && (
