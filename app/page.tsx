@@ -8,6 +8,7 @@ import TodoForm from "./components/TodoForm";
 import SortFilterBar from "./components/SortFilterBar";
 import { useData } from "./lib/DataContext";
 import { useSortFilter } from "./lib/useSortFilter";
+import { useSelectedTodo } from "./lib/useSelectedTodo";
 
 function dateLabel(dateStr: string): string {
   const today = new Date().toISOString().slice(0, 10);
@@ -24,7 +25,6 @@ export default function Home() {
   const router = useRouter();
   const { todos } = useData();
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -57,10 +57,10 @@ export default function Home() {
   const todosForDate = todos.filter((t) => t.dueDate === selectedDate);
   const { result, sort, setSort, filter, setFilter } = useSortFilter(todosForDate);
 
-  const selectedTodo = todos.find((t) => t.id === selectedId) ?? null;
+  const { selectedTodo, select, clear } = useSelectedTodo(todos);
 
   if (selectedTodo) {
-    return <TodoDetail todo={selectedTodo} onClose={() => setSelectedId(null)} />;
+    return <TodoDetail todo={selectedTodo} onClose={clear} />;
   }
 
   const isToday = selectedDate === new Date().toISOString().slice(0, 10);
@@ -94,7 +94,7 @@ export default function Home() {
       </div>
       <TodoForm key={selectedDate} defaultDueDate={selectedDate} />
       <SortFilterBar sort={sort} filter={filter} onSortChange={setSort} onFilterChange={setFilter} />
-      <TodoList todos={result} onSelect={(id) => setSelectedId(id)} />
+      <TodoList todos={result} onSelect={select} />
     </div>
   );
 }

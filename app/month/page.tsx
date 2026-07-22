@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useData } from "@/app/lib/DataContext";
+import { useSelectedTodo } from "@/app/lib/useSelectedTodo";
 import TodoDetail from "@/app/components/TodoDetail";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -20,12 +21,10 @@ export default function MonthPage() {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-
-  const selectedTodo = todos.find((t) => t.id === selectedId) ?? null;
+  const { selectedTodo, select, clear } = useSelectedTodo(todos);
 
   if (selectedTodo) {
-    return <TodoDetail todo={selectedTodo} onClose={() => setSelectedId(null)} />;
+    return <TodoDetail todo={selectedTodo} onClose={clear} />;
   }
 
   const firstDay = new Date(year, month, 1).getDay();
@@ -115,7 +114,7 @@ export default function MonthPage() {
               {todosForDay(cell.day).map((todo) => (
                 <button
                   key={todo.id}
-                  onClick={() => setSelectedId(todo.id)}
+                  onClick={() => select(todo.id)}
                   className={`flex items-center gap-1.5 text-left w-full rounded px-1.5 py-0.5 hover:bg-zinc-100 transition-colors ${
                     todo.completed ? "opacity-40" : ""
                   }`}

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useData } from "@/app/lib/DataContext";
 import { useSortFilter } from "@/app/lib/useSortFilter";
+import { useSelectedTodo } from "@/app/lib/useSelectedTodo";
 import TodoList from "@/app/components/TodoList";
 import TodoDetail from "@/app/components/TodoDetail";
 import TodoForm from "@/app/components/TodoForm";
@@ -12,15 +12,14 @@ import SortFilterBar from "@/app/components/SortFilterBar";
 export default function TagPage() {
   const { id } = useParams<{ id: string }>();
   const { todos, tags } = useData();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const tag = tags.find((t) => t.id === id);
   const tagTodos = todos.filter((t) => t.tagIds.includes(id));
   const { result, sort, setSort, filter, setFilter } = useSortFilter(tagTodos);
-  const selectedTodo = tagTodos.find((t) => t.id === selectedId) ?? null;
+  const { selectedTodo, select, clear } = useSelectedTodo(tagTodos);
 
   if (selectedTodo) {
-    return <TodoDetail todo={selectedTodo} onClose={() => setSelectedId(null)} />;
+    return <TodoDetail todo={selectedTodo} onClose={clear} />;
   }
 
   return (
@@ -36,7 +35,7 @@ export default function TagPage() {
       {result.length === 0 ? (
         <p className="text-sm text-zinc-400">No todos with this tag.</p>
       ) : (
-        <TodoList todos={result} onSelect={(id) => setSelectedId(id)} />
+        <TodoList todos={result} onSelect={select} />
       )}
     </div>
   );
