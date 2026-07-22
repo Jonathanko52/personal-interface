@@ -13,8 +13,10 @@ export default function JobsPanel() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<JobResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [confirmDuplicate, setConfirmDuplicate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const savingRef = useRef(false);
 
@@ -24,6 +26,7 @@ export default function JobsPanel() {
     setError(null);
     setResult(null);
     setSaved(false);
+    setConfirmDuplicate(false);
     try {
       const res = await fetch("/api/jobs/scrape", {
         method: "POST",
@@ -40,10 +43,30 @@ export default function JobsPanel() {
     }
   }
 
-  async function handleSave() {
+  async function handleSaveClick() {
+    if (!result || savingRef.current) return;
+    setError(null);
+    setChecking(true);
+    try {
+      const res = await fetch(`/api/jobs/check?company=${encodeURIComponent(result.companyName)}`);
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.duplicate) {
+        setConfirmDuplicate(true);
+        return;
+      }
+    } catch {
+      // If the duplicate check itself fails, don't block saving on it.
+    } finally {
+      setChecking(false);
+    }
+    await doSave();
+  }
+
+  async function doSave() {
     if (!result || savingRef.current) return;
     savingRef.current = true;
     setSaving(true);
+    setConfirmDuplicate(false);
     setError(null);
     try {
       const res = await fetch("/api/jobs/save", {
@@ -78,6 +101,7 @@ export default function JobsPanel() {
             setUrl(e.target.value);
             setResult(null);
             setSaved(false);
+            setConfirmDuplicate(false);
             setError(null);
           }}
           placeholder="Paste LinkedIn URL..."
@@ -121,13 +145,36 @@ export default function JobsPanel() {
               {result.postingLink}
             </a>
           </div>
-          <button
-            onClick={handleSave}
-            disabled={saving || saved}
-            className="text-sm bg-zinc-800 text-white rounded-md px-4 py-2 hover:bg-zinc-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {saving ? "Saving..." : saved ? "Saved to Sheets ✓" : "Save to Sheets"}
-          </button>
+          {confirmDuplicate ? (
+            <div className="flex flex-col gap-2 border border-yellow-600/40 bg-yellow-500/10 rounded-md p-3">
+              <p className="text-xs text-yellow-200">
+                You already submitted to {result.companyName} within the last week. Save anyway?
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={doSave}
+                  disabled={saving}
+                  className="text-sm bg-indigo-500 text-white rounded-md px-3 py-1.5 hover:bg-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {saving ? "Saving..." : "Yes, save anyway"}
+                </button>
+                <button
+                  onClick={() => setConfirmDuplicate(false)}
+                  className="text-sm text-slate-400 hover:text-white transition-colors"
+                >
+                  No, cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={handleSaveClick}
+              disabled={checking || saving || saved}
+              className="text-sm bg-zinc-800 text-white rounded-md px-4 py-2 hover:bg-zinc-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {checking ? "Checking..." : saving ? "Saving..." : saved ? "Saved to Sheets ✓" : "Save to Sheets"}
+            </button>
+          )}
         </div>
       )}
     </div>
