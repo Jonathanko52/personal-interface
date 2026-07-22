@@ -9,22 +9,23 @@ import SortFilterBar from "./components/SortFilterBar";
 import { useData } from "./lib/DataContext";
 import { useSortFilter } from "./lib/useSortFilter";
 import { useSelectedTodo } from "./lib/useSelectedTodo";
+import { today as todayStr, toDateString } from "./lib/date";
 
 function dateLabel(dateStr: string): string {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayStr();
   const d = new Date(dateStr + "T12:00:00");
   const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
   const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
   if (dateStr === today) return "Today";
-  if (dateStr === tomorrow.toISOString().slice(0, 10)) return "Tomorrow";
-  if (dateStr === yesterday.toISOString().slice(0, 10)) return "Yesterday";
+  if (dateStr === toDateString(tomorrow)) return "Tomorrow";
+  if (dateStr === toDateString(yesterday)) return "Yesterday";
   return d.toLocaleDateString("default", { weekday: "long", month: "short", day: "numeric" });
 }
 
 export default function Home() {
   const router = useRouter();
   const { todos } = useData();
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
+  const [selectedDate, setSelectedDate] = useState(todayStr());
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -35,7 +36,7 @@ export default function Home() {
   function prevDay() {
     const d = new Date(selectedDate + "T12:00:00");
     d.setDate(d.getDate() - 1);
-    const next = d.toISOString().slice(0, 10);
+    const next = toDateString(d);
     setSelectedDate(next);
     router.replace(`/?date=${next}`);
   }
@@ -43,14 +44,13 @@ export default function Home() {
   function nextDay() {
     const d = new Date(selectedDate + "T12:00:00");
     d.setDate(d.getDate() + 1);
-    const next = d.toISOString().slice(0, 10);
+    const next = toDateString(d);
     setSelectedDate(next);
     router.replace(`/?date=${next}`);
   }
 
   function goToday() {
-    const today = new Date().toISOString().slice(0, 10);
-    setSelectedDate(today);
+    setSelectedDate(todayStr());
     router.replace("/");
   }
 
@@ -63,7 +63,7 @@ export default function Home() {
     return <TodoDetail todo={selectedTodo} onClose={clear} />;
   }
 
-  const isToday = selectedDate === new Date().toISOString().slice(0, 10);
+  const isToday = selectedDate === todayStr();
 
   return (
     <div className="max-w-2xl mx-auto">

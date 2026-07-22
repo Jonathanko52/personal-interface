@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { todos as initialTodos, lists as initialLists, tags as initialTags } from "./data";
+import { today as todayStr, toDateString } from "./date";
 
 export interface Todo {
   id: string;
@@ -63,7 +64,7 @@ function nextRepeatDate(fromDate: string, repeatDays: number[]): string {
   for (let i = 1; i <= 7; i++) {
     date.setDate(date.getDate() + 1);
     if (repeatDays.includes(date.getDay())) {
-      return date.toISOString().slice(0, 10);
+      return toDateString(date);
     }
   }
   return fromDate;
@@ -78,7 +79,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayStr();
     const storedTodos = load("todos", initialTodos)
       .map((t) => {
         if (t.completed && t.dueDate && t.dueDate < today) {

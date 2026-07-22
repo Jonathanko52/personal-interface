@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useData } from "@/app/lib/DataContext";
 import { PRIORITIES } from "@/app/lib/priority";
 import { toggleDay } from "@/app/lib/repeatDays";
+import { today as todayStr } from "@/app/lib/date";
 import RepeatDayPicker from "./RepeatDayPicker";
 
 interface TodoFormProps {
@@ -13,7 +14,7 @@ interface TodoFormProps {
 
 export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProps) {
   const { lists, tags, addTodo } = useData();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayStr();
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [listId, setListId] = useState(defaultListId ?? lists[0]?.id ?? "");
