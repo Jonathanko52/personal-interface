@@ -1,5 +1,5 @@
-import { google } from "googleapis";
 import { NextResponse } from "next/server";
+import { getSheetsClient } from "@/app/lib/googleSheets";
 
 interface JobData {
   companyName: string;
@@ -27,12 +27,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing or invalid dataOne" }, { status: 400 });
   }
 
-  const rawCreds = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  const spreadsheetId = process.env.GOOGLE_SHEETS_ID;
-  if (!rawCreds || !spreadsheetId) {
-    return NextResponse.json({ error: "Google Sheets credentials missing" }, { status: 500 });
-  }
-
   const safePostingLink = dataOne.postingLink.replace(/"/g, "");
   const postingLinkAsHyperlink = `=HYPERLINK("${safePostingLink}", "Link")`;
 
@@ -46,14 +40,7 @@ export async function POST(req: Request) {
   ];
 
   try {
-    const creds = JSON.parse(rawCreds);
-    creds.private_key = creds.private_key.replace(/\\n/g, "\n");
-
-    const auth = new google.auth.GoogleAuth({
-      credentials: creds,
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
-    const sheets = google.sheets({ version: "v4", auth });
+    const { sheets, spreadsheetId } = getSheetsClient();
 
     // Let Sheets locate the insert row itself (instead of read-then-write-to-computed-row)
     // so concurrent saves can't collide on the same row.
