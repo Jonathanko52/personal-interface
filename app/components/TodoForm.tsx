@@ -38,7 +38,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
     setRepeatDays((prev) => toggleDay(prev, day));
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!title.trim() || !listId) return;
     addTodo({

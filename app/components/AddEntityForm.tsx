@@ -29,7 +29,7 @@ export default function AddEntityForm({ label, placeholder, onAdd }: AddEntityFo
     setAdding(false);
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!name.trim()) return;
     onAdd(name.trim(), color);

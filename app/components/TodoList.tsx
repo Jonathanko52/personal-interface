@@ -14,17 +14,10 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useData } from "@/app/lib/DataContext";
+import { useData, Todo as FullTodo } from "@/app/lib/DataContext";
 import { priorityBadgeStyles } from "@/app/lib/priority";
 
-interface Todo {
-  id: string;
-  title: string;
-  priority: string;
-  dueDate: string | null;
-  completed: boolean;
-  tagIds: string[];
-}
+type Todo = Pick<FullTodo, "id" | "title" | "priority" | "dueDate" | "completed" | "tagIds">;
 
 interface TodoListProps {
   todos: Todo[];
