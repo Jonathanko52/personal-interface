@@ -4,66 +4,20 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useData } from "@/app/lib/DataContext";
-
-const COLOR_OPTIONS = [
-  "#6366f1", "#22c55e", "#f59e0b", "#ef4444",
-  "#ec4899", "#14b8a6", "#f97316", "#8b5cf6",
-];
+import AddEntityForm from "./AddEntityForm";
 
 export default function NavigationPanel() {
   const pathname = usePathname();
   const router = useRouter();
   const { lists, tags, addList, addTag, updateList, deleteList, deleteTag } = useData();
 
-  const [adding, setAdding] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newColor, setNewColor] = useState(COLOR_OPTIONS[0]);
-  const addInputRef = useRef<HTMLInputElement>(null);
-
-  const [addingTag, setAddingTag] = useState(false);
-  const [newTagName, setNewTagName] = useState("");
-  const [newTagColor, setNewTagColor] = useState(COLOR_OPTIONS[0]);
-  const addTagInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (addingTag) addTagInputRef.current?.focus();
-  }, [addingTag]);
-
-  function handleAddTagSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!newTagName.trim()) return;
-    addTag({ name: newTagName.trim(), color: newTagColor });
-    setNewTagName("");
-    setNewTagColor(COLOR_OPTIONS[0]);
-    setAddingTag(false);
-  }
-
   const [editingListId, setEditingListId] = useState<string | null>(null);
   const [editingListName, setEditingListName] = useState("");
   const editInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (adding) addInputRef.current?.focus();
-  }, [adding]);
-
-  useEffect(() => {
     if (editingListId) editInputRef.current?.focus();
   }, [editingListId]);
-
-  function handleAddSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!newName.trim()) return;
-    addList({ name: newName.trim(), color: newColor });
-    setNewName("");
-    setNewColor(COLOR_OPTIONS[0]);
-    setAdding(false);
-  }
-
-  function handleAddCancel() {
-    setNewName("");
-    setNewColor(COLOR_OPTIONS[0]);
-    setAdding(false);
-  }
 
   function commitEditList(id: string) {
     if (editingListName.trim()) updateList(id, { name: editingListName.trim() });
@@ -128,41 +82,11 @@ export default function NavigationPanel() {
           ))}
         </ul>
 
-        {adding ? (
-          <form onSubmit={handleAddSubmit} className="mt-2 flex flex-col gap-2">
-            <input
-              ref={addInputRef}
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => e.key === "Escape" && handleAddCancel()}
-              placeholder="List name"
-              className="text-sm text-zinc-900 border border-zinc-300 rounded-md px-2 py-1.5 outline-none focus:border-indigo-400 transition-colors"
-            />
-            <div className="flex gap-1.5 flex-wrap">
-              {COLOR_OPTIONS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setNewColor(c)}
-                  className={`w-5 h-5 rounded-full transition-transform ${newColor === c ? "scale-125 ring-2 ring-offset-1 ring-zinc-400" : ""}`}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <button type="submit" className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1 hover:bg-indigo-600 transition-colors">Add</button>
-              <button type="button" onClick={handleAddCancel} className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors">Cancel</button>
-            </div>
-          </form>
-        ) : (
-          <button
-            onClick={() => setAdding(true)}
-            className="mt-1 flex items-center gap-1.5 text-sm text-slate-400 hover:text-white px-2 py-1.5 rounded-md hover:bg-slate-700 transition-colors w-full"
-          >
-            <span className="text-base leading-none">+</span> New list
-          </button>
-        )}
+        <AddEntityForm
+          label="New list"
+          placeholder="List name"
+          onAdd={(name, color) => addList({ name, color })}
+        />
       </section>
 
       <section>
@@ -183,41 +107,11 @@ export default function NavigationPanel() {
           ))}
         </ul>
 
-        {addingTag ? (
-          <form onSubmit={handleAddTagSubmit} className="mt-2 flex flex-col gap-2">
-            <input
-              ref={addTagInputRef}
-              type="text"
-              value={newTagName}
-              onChange={(e) => setNewTagName(e.target.value)}
-              onKeyDown={(e) => e.key === "Escape" && setAddingTag(false)}
-              placeholder="Tag name"
-              className="text-sm border border-zinc-300 rounded-md px-2 py-1.5 outline-none focus:border-indigo-400 transition-colors"
-            />
-            <div className="flex gap-1.5 flex-wrap">
-              {COLOR_OPTIONS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setNewTagColor(c)}
-                  className={`w-5 h-5 rounded-full transition-transform ${newTagColor === c ? "scale-125 ring-2 ring-offset-1 ring-zinc-400" : ""}`}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <button type="submit" className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1 hover:bg-indigo-600 transition-colors">Add</button>
-              <button type="button" onClick={() => setAddingTag(false)} className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors">Cancel</button>
-            </div>
-          </form>
-        ) : (
-          <button
-            onClick={() => setAddingTag(true)}
-            className="mt-1 flex items-center gap-1.5 text-sm text-slate-400 hover:text-white px-2 py-1.5 rounded-md hover:bg-slate-700 transition-colors w-full"
-          >
-            <span className="text-base leading-none">+</span> New tag
-          </button>
-        )}
+        <AddEntityForm
+          label="New tag"
+          placeholder="Tag name"
+          onAdd={(name, color) => addTag({ name, color })}
+        />
       </section>
     </div>
   );
