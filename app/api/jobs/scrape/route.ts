@@ -19,7 +19,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing or invalid URL" }, { status: 400 });
   }
 
-  // Clean URL
   let cleanUrl: string;
   try {
     const url = new URL(value);
@@ -31,7 +30,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
   }
 
-  // Scrape the page
   let data: string;
   try {
     const res = await axios.get(cleanUrl, {

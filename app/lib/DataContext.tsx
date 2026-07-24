@@ -3,12 +3,13 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { todos as initialTodos, lists as initialLists, tags as initialTags } from "./data";
 import { today as todayStr, toDateString } from "./date";
+import { Priority } from "./priority";
 
 export interface Todo {
   id: string;
   title: string;
   notes: string;
-  priority: string;
+  priority: Priority;
   dueDate: string | null;
   completed: boolean;
   listId: string;

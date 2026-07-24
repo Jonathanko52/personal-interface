@@ -59,7 +59,6 @@ export async function POST(req: Request) {
   }
 }
 
-// Get date helper function
 function getCurrentDateMMDDYY() {
   const today = new Date();
 

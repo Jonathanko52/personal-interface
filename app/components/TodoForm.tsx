@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useData } from "@/app/lib/DataContext";
-import { PRIORITIES } from "@/app/lib/priority";
+import { PRIORITIES, Priority } from "@/app/lib/priority";
 import { toggleDay } from "@/app/lib/repeatDays";
 import { today as todayStr } from "@/app/lib/date";
 import RepeatDayPicker from "./RepeatDayPicker";
@@ -18,7 +18,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [listId, setListId] = useState(defaultListId ?? lists[0]?.id ?? "");
-  const [priority, setPriority] = useState("none");
+  const [priority, setPriority] = useState<Priority>("none");
   const [dueDate, setDueDate] = useState(defaultDueDate ?? today);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [repeatDays, setRepeatDays] = useState<number[]>([]);
@@ -113,7 +113,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
 
         <select
           value={priority}
-          onChange={(e) => setPriority(e.target.value)}
+          onChange={(e) => setPriority(e.target.value as Priority)}
           className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white">
           {PRIORITIES.map((p) => (
             <option key={p} value={p}>
