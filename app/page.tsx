@@ -67,7 +67,7 @@ export default function Home() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-2 mb-6">
         <button
           onClick={prevDay}
           className="text-zinc-400 hover:text-zinc-700 transition-colors leading-none"
