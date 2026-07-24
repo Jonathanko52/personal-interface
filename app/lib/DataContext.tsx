@@ -117,7 +117,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   function toggleTodo(id: string) {
     setTodos((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+      prev.map((t) => {
+        if (t.id !== id) return t;
+        if (!t.completed && t.repeatDays.length > 0) {
+          return { ...t, completed: false, dueDate: nextRepeatDate(t.dueDate ?? todayStr(), t.repeatDays) };
+        }
+        return { ...t, completed: !t.completed };
+      })
     );
   }
 
