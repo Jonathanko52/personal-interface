@@ -35,6 +35,7 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
+      onClick={() => toggleTodo(todo.id)}
       className={`group flex items-center gap-3 bg-white border border-zinc-200 rounded-lg px-4 py-3 transition-colors cursor-grab active:cursor-grabbing ${
         isDragging ? "opacity-50 border-indigo-300 shadow-md" : "hover:border-zinc-300"
       }`}
@@ -45,6 +46,7 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
         type="checkbox"
         checked={todo.completed}
         onChange={() => toggleTodo(todo.id)}
+        onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
         className="w-4 h-4 accent-indigo-500 shrink-0"
       />
@@ -70,7 +72,10 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
         <span className="text-xs text-zinc-400 shrink-0">{todo.dueDate}</span>
       )}
       <button
-        onClick={() => onSelect(todo.id)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect(todo.id);
+        }}
         onPointerDown={(e) => e.stopPropagation()}
         className="shrink-0 text-xs text-zinc-400 hover:text-zinc-700 opacity-0 group-hover:opacity-100 transition-opacity ml-1 cursor-pointer"
       >
@@ -83,7 +88,9 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
 export default function TodoList({ todos, onSelect }: TodoListProps) {
   const { reorderTodos } = useData();
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
+  );
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
