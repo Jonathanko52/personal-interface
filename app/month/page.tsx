@@ -35,9 +35,12 @@ export default function MonthPage() {
     else setMonth((m) => m + 1);
   }
 
+  function dateStrFor(day: number) {
+    return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  }
+
   function todosForDay(day: number) {
-    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return todos.filter((t) => t.dueDate === dateStr);
+    return todos.filter((t) => t.dueDate === dateStrFor(day));
   }
 
   const isToday = (day: number) =>
@@ -90,10 +93,7 @@ export default function MonthPage() {
           ) : (
             <div
               key={cell.key}
-              onClick={() => {
-                const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(cell.day).padStart(2, "0")}`;
-                router.push(`/?date=${dateStr}`);
-              }}
+              onClick={() => router.push(`/?date=${dateStrFor(cell.day)}`)}
               className="border-r border-b border-zinc-200 bg-white min-h-24 p-1.5 flex flex-col gap-1 cursor-pointer hover:bg-zinc-50 transition-colors"
             >
               <span
