@@ -80,12 +80,23 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
 
         <div className="flex flex-col gap-1">
           <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Due Date</label>
-          <input
-            type="date"
-            defaultValue={todo.dueDate ?? ""}
-            onChange={(e) => updateTodo(todo.id, { dueDate: e.target.value || null })}
-            className="text-sm text-zinc-700 border border-zinc-200 rounded-md p-2 outline-none focus:border-zinc-400 transition-colors w-fit"
-          />
+          <div className="flex items-center gap-2">
+            <input
+              key={todo.dueDate ?? "none"}
+              type="date"
+              defaultValue={todo.dueDate ?? ""}
+              onChange={(e) => updateTodo(todo.id, { dueDate: e.target.value || null })}
+              className="text-sm text-zinc-700 border border-zinc-200 rounded-md p-2 outline-none focus:border-zinc-400 transition-colors w-fit"
+            />
+            {todo.dueDate && (
+              <button
+                onClick={() => updateTodo(todo.id, { dueDate: null })}
+                className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors"
+              >
+                No due date
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col gap-1">

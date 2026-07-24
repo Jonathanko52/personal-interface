@@ -17,6 +17,7 @@ export default function JobsPanel() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmDuplicate, setConfirmDuplicate] = useState(false);
+  const [checkFailed, setCheckFailed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const savingRef = useRef(false);
 
@@ -27,6 +28,7 @@ export default function JobsPanel() {
     setResult(null);
     setSaved(false);
     setConfirmDuplicate(false);
+    setCheckFailed(false);
     try {
       const res = await fetch("/api/jobs/scrape", {
         method: "POST",
@@ -46,19 +48,26 @@ export default function JobsPanel() {
   async function handleSaveClick() {
     if (!result || savingRef.current) return;
     setError(null);
+    setCheckFailed(false);
     setChecking(true);
+    let checkOk = true;
     try {
       const res = await fetch(`/api/jobs/check?company=${encodeURIComponent(result.companyName)}`);
       const data = await res.json().catch(() => ({}));
-      if (res.ok && data.duplicate) {
+      if (!res.ok) {
+        checkOk = false;
+      } else if (data.duplicate) {
+        setChecking(false);
         setConfirmDuplicate(true);
         return;
       }
     } catch {
-      // If the duplicate check itself fails, don't block saving on it.
+      checkOk = false;
     } finally {
       setChecking(false);
     }
+    // If the duplicate check itself fails, don't block saving on it — just surface that it didn't run.
+    if (!checkOk) setCheckFailed(true);
     await doSave();
   }
 
@@ -102,6 +111,7 @@ export default function JobsPanel() {
             setResult(null);
             setSaved(false);
             setConfirmDuplicate(false);
+            setCheckFailed(false);
             setError(null);
           }}
           placeholder="Paste LinkedIn URL..."
@@ -174,6 +184,11 @@ export default function JobsPanel() {
             >
               {checking ? "Checking..." : saving ? "Saving..." : saved ? "Saved to Sheets ✓" : "Save to Sheets"}
             </button>
+          )}
+          {checkFailed && (
+            <p className="text-xs text-yellow-500">
+              Couldn&apos;t check for recent submissions to this company — saving anyway.
+            </p>
           )}
         </div>
       )}

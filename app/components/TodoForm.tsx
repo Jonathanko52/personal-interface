@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { useData } from "@/app/lib/DataContext";
 import { PRIORITIES, Priority } from "@/app/lib/priority";
 import { toggleDay } from "@/app/lib/repeatDays";
-import { today as todayStr } from "@/app/lib/date";
 import RepeatDayPicker from "./RepeatDayPicker";
 
 interface TodoFormProps {
@@ -14,12 +13,11 @@ interface TodoFormProps {
 
 export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProps) {
   const { lists, tags, addTodo } = useData();
-  const today = todayStr();
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [listId, setListId] = useState(defaultListId ?? lists[0]?.id ?? "");
   const [priority, setPriority] = useState<Priority>("none");
-  const [dueDate, setDueDate] = useState(defaultDueDate ?? today);
+  const [dueDate, setDueDate] = useState(defaultDueDate ?? "");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [repeatDays, setRepeatDays] = useState<number[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -53,7 +51,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
     });
     setTitle("");
     setPriority("none");
-    setDueDate(defaultDueDate ?? today);
+    setDueDate(defaultDueDate ?? "");
     setSelectedTagIds([]);
     setRepeatDays([]);
     setExpanded(false);
@@ -62,7 +60,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
   function handleCancel() {
     setTitle("");
     setPriority("none");
-    setDueDate(defaultDueDate ?? today);
+    setDueDate(defaultDueDate ?? "");
     setSelectedTagIds([]);
     setRepeatDays([]);
     setExpanded(false);
@@ -128,6 +126,15 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
           onChange={(e) => setDueDate(e.target.value)}
           className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white"
         />
+        {dueDate && (
+          <button
+            type="button"
+            onClick={() => setDueDate("")}
+            className="text-xs text-slate-400 hover:text-white transition-colors"
+          >
+            No due date
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">

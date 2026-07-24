@@ -54,7 +54,7 @@ export default function Home() {
     router.replace("/");
   }
 
-  const todosForDate = todos.filter((t) => t.dueDate === selectedDate);
+  const todosForDate = todos.filter((t) => t.dueDate === null || t.dueDate >= selectedDate);
   const { result, sort, setSort, filter, setFilter } = useSortFilter(todosForDate);
 
   const { selectedTodo, select, clear } = useSelectedTodo(todos);
