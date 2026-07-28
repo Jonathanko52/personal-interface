@@ -112,9 +112,9 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value as Priority)}
-          className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white">
+          className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white capitalize">
           {PRIORITIES.map((p) => (
-            <option key={p} value={p}>
+            <option key={p} value={p} className="capitalize">
               {p}
             </option>
           ))}

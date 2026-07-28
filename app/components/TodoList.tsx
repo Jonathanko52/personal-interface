@@ -64,7 +64,7 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
       ))}
       <span className="flex-1" />
       {todo.priority !== "none" && (
-        <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${priorityBadgeStyles[todo.priority]}`}>
+        <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 capitalize ${priorityBadgeStyles[todo.priority]}`}>
           {todo.priority}
         </span>
       )}
