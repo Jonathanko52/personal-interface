@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, useCallback, ReactNode } from "react";
 import { todos as initialTodos, lists as initialLists, tags as initialTags } from "./data";
-import { today as todayStr, toDateString } from "./date";
+import { today as todayStr } from "./date";
 import { Priority } from "./priority";
+import { rolloverTodos } from "./rollover";
 
 export interface Todo {
   id: string;
@@ -60,17 +61,6 @@ function save(key: string, value: unknown) {
   } catch {}
 }
 
-function nextRepeatDate(fromDate: string, repeatDays: number[]): string {
-  const date = new Date(fromDate + "T12:00:00");
-  for (let i = 1; i <= 7; i++) {
-    date.setDate(date.getDate() + 1);
-    if (repeatDays.includes(date.getDay())) {
-      return toDateString(date);
-    }
-  }
-  return fromDate;
-}
-
 const DataContext = createContext<DataContextValue | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
@@ -78,26 +68,38 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [lists, setLists] = useState<List[]>(initialLists);
   const [tags, setTags] = useState<Tag[]>(initialTags);
   const [hydrated, setHydrated] = useState(false);
+  const lastCheckedDateRef = useRef<string | null>(null);
 
   useEffect(() => {
     const today = todayStr();
-    const storedTodos = load("todos", initialTodos)
-      .map((t) => {
-        if (t.completed && t.dueDate && t.dueDate < today) {
-          if (t.repeatDays?.length) {
-            return { ...t, completed: false, dueDate: nextRepeatDate(today, t.repeatDays) };
-          }
-          return null;
-        }
-        return t;
-      })
-      .filter((t): t is Todo => t !== null);
+    const storedTodos = rolloverTodos(load("todos", initialTodos), today);
     save("todos", storedTodos);
     setTodos(storedTodos);
     setLists(load("lists", initialLists));
     setTags(load("tags", initialTags));
+    lastCheckedDateRef.current = today;
     setHydrated(true);
   }, []);
+
+  const checkRollover = useCallback(() => {
+    const current = todayStr();
+    if (lastCheckedDateRef.current === current) return;
+    lastCheckedDateRef.current = current;
+    setTodos((prev) => rolloverTodos(prev, current));
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    function handleVisibility() {
+      if (document.visibilityState === "visible") checkRollover();
+    }
+    document.addEventListener("visibilitychange", handleVisibility);
+    const intervalId = setInterval(checkRollover, 10 * 60 * 1000);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      clearInterval(intervalId);
+    };
+  }, [hydrated, checkRollover]);
 
   useEffect(() => { if (hydrated) save("todos", todos); }, [todos, hydrated]);
   useEffect(() => { if (hydrated) save("lists", lists); }, [lists, hydrated]);
