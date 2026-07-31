@@ -16,6 +16,7 @@ export interface Todo {
   listId: string;
   tagIds: string[];
   repeatDays: number[]; // 0=Sun, 1=Mon, ..., 6=Sat
+  lastCompletedDate?: string | null; // set when toggled to completed; used by rollover for repeat-only todos with no dueDate
 }
 
 interface List {
@@ -119,7 +120,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   function toggleTodo(id: string) {
     setTodos((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+      prev.map((t) => {
+        if (t.id !== id) return t;
+        const completed = !t.completed;
+        return { ...t, completed, lastCompletedDate: completed ? todayStr() : t.lastCompletedDate };
+      })
     );
   }
 
