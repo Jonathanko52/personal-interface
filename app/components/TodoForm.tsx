@@ -26,6 +26,10 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
     if (expanded) inputRef.current?.focus();
   }, [expanded]);
 
+  useEffect(() => {
+    if (!listId && lists[0]?.id) setListId(lists[0].id);
+  }, [lists, listId]);
+
   function toggleTag(id: string) {
     setSelectedTagIds((prev) =>
       prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
