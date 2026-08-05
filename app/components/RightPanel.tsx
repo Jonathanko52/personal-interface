@@ -1,7 +1,7 @@
 "use client";
 
 import { ActivePanel } from "./AppShell";
-import NavigationPanel from "./NavigationPanel";
+import ToDoOptions from "./ToDoOptions";
 import JobsPanel from "./JobsPanel";
 
 interface RightPanelProps {
@@ -12,7 +12,7 @@ interface RightPanelProps {
 }
 
 const PANEL_LABELS: Record<NonNullable<ActivePanel>, string> = {
-  navigation: "Navigation",
+  todo: "Todo",
   jobs: "Jobs",
 };
 
@@ -48,7 +48,7 @@ export default function RightPanel({ activePanel, minimized, onMinimize, onResto
         </button>
       </div>
       <div className="flex-1 overflow-y-auto p-4">
-        {activePanel === "navigation" && <NavigationPanel />}
+        {activePanel === "todo" && <ToDoOptions />}
         {activePanel === "jobs" && <JobsPanel />}
       </div>
     </div>

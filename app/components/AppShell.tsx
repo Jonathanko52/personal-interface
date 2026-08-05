@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "./Sidebar";
+import NavigationPanel from "./NavigationPanel";
 import RightPanel from "./RightPanel";
 
-export type ActivePanel = "navigation" | "jobs" | null;
+export type ActivePanel = "todo" | "jobs" | null;
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const [activePanel, setActivePanel] = useState<ActivePanel>("navigation");
+  const [activePanel, setActivePanel] = useState<ActivePanel>("todo");
   const [minimized, setMinimized] = useState(false);
 
   function handleSelect(panel: ActivePanel) {
@@ -25,7 +25,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <span className="font-semibold tracking-tight text-slate-100">Todos</span>
       </header>
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar activePanel={activePanel} onSelect={handleSelect} />
+        <NavigationPanel activePanel={activePanel} onSelect={handleSelect} />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
         <RightPanel
           activePanel={activePanel}
