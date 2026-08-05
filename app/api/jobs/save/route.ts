@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSheetsClient } from "@/app/lib/googleSheets";
+import { getCurrentDateMMDDYY } from "@/app/lib/sheetDate";
 
 interface JobData {
   companyName: string;
@@ -57,14 +58,4 @@ export async function POST(req: Request) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({ error: `Failed to save to Sheets: ${message}` }, { status: 502 });
   }
-}
-
-function getCurrentDateMMDDYY() {
-  const today = new Date();
-
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  const year = String(today.getFullYear()).slice(-2);
-
-  return `${month}/${day}/${year}`;
 }
