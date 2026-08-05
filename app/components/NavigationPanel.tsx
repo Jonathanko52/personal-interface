@@ -41,6 +41,7 @@ export default function NavigationPanel() {
       <div className="flex flex-col gap-1">
         <Link href="/" className={linkClass("/")}>Today</Link>
         <Link href="/month" className={linkClass("/month")}>Month</Link>
+        <Link href="/metrics" className={linkClass("/metrics")}>Metrics</Link>
       </div>
 
       <section>
