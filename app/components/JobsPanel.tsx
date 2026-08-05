@@ -12,6 +12,7 @@ interface JobResult {
 export default function JobsPanel() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<JobResult | null>(null);
+  const [applyType, setApplyType] = useState<"quick" | "normal">("normal");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -26,6 +27,7 @@ export default function JobsPanel() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setApplyType("normal");
     setSaved(false);
     setConfirmDuplicate(false);
     setCheckFailed(false);
@@ -81,7 +83,7 @@ export default function JobsPanel() {
       const res = await fetch("/api/jobs/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dataOne: result }),
+        body: JSON.stringify({ dataOne: { ...result, applyType } }),
       });
       if (!res.ok) throw new Error(`Save failed (${res.status})`);
       setSaved(true);
@@ -109,6 +111,7 @@ export default function JobsPanel() {
           onChange={(e) => {
             setUrl(e.target.value);
             setResult(null);
+            setApplyType("normal");
             setSaved(false);
             setConfirmDuplicate(false);
             setCheckFailed(false);
@@ -154,6 +157,25 @@ export default function JobsPanel() {
             >
               {result.postingLink}
             </a>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs text-slate-400">Apply Type</span>
+            <div className="flex gap-1.5">
+              {(["normal", "quick"] as const).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setApplyType(type)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                    applyType === type
+                      ? "bg-indigo-500 text-white border-indigo-500"
+                      : "border-slate-600 text-slate-400 hover:border-slate-400"
+                  }`}
+                >
+                  {type === "quick" ? "Quick Apply" : "Normal Apply"}
+                </button>
+              ))}
+            </div>
           </div>
           {confirmDuplicate ? (
             <div className="flex flex-col gap-2 border border-yellow-600/40 bg-yellow-500/10 rounded-md p-3">

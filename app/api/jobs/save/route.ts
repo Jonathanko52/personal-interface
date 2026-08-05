@@ -7,6 +7,7 @@ interface JobData {
   jobPosting: string;
   location: string;
   postingLink: string;
+  applyType: "quick" | "normal";
 }
 
 function isJobData(value: unknown): value is JobData {
@@ -16,7 +17,8 @@ function isJobData(value: unknown): value is JobData {
     typeof v.companyName === "string" &&
     typeof v.jobPosting === "string" &&
     typeof v.location === "string" &&
-    typeof v.postingLink === "string"
+    typeof v.postingLink === "string" &&
+    (v.applyType === "quick" || v.applyType === "normal")
   );
 }
 
@@ -38,6 +40,7 @@ export async function POST(req: Request) {
     getCurrentDateMMDDYY(),
     dataOne.location,
     postingLinkAsHyperlink,
+    dataOne.applyType === "quick" ? "Quick Apply" : "Normal Apply",
   ];
 
   try {
@@ -49,7 +52,7 @@ export async function POST(req: Request) {
       spreadsheetId,
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
-      range: "Jobs!A:F",
+      range: "Jobs!A:G",
       requestBody: { values: [spreadSheetArray] },
     });
 

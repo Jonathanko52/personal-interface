@@ -24,6 +24,6 @@ Open [http://localhost:3000](http://localhost:3000).
 The Jobs panel's "Save to Sheets" feature requires:
 
 - `GOOGLE_SERVICE_ACCOUNT_JSON` — service account credentials JSON for a Google account with edit access to the target spreadsheet
-- `GOOGLE_SHEETS_ID` — the spreadsheet ID, expected to have a `Jobs` sheet with columns `A:F` (source, company, role, date, location, link)
+- `GOOGLE_SHEETS_ID` — the spreadsheet ID, expected to have a `Jobs` sheet with columns `A:G` (source, company, role, date, location, link, apply type)
 
 Without these set, scraping still works but saving will fail.
