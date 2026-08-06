@@ -31,10 +31,16 @@ interface Tag {
   color: string;
 }
 
+export interface Completion {
+  todoId: string;
+  date: string;
+}
+
 interface DataContextValue {
   todos: Todo[];
   lists: List[];
   tags: Tag[];
+  completions: Completion[];
   addTodo: (todo: Omit<Todo, "id">) => void;
   addList: (list: Omit<List, "id">) => void;
   addTag: (tag: Omit<Tag, "id">) => void;
@@ -68,6 +74,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [lists, setLists] = useState<List[]>(initialLists);
   const [tags, setTags] = useState<Tag[]>(initialTags);
+  const [completions, setCompletions] = useState<Completion[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const lastCheckedDateRef = useRef<string | null>(null);
 
@@ -78,6 +85,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setTodos(storedTodos);
     setLists(load("lists", initialLists));
     setTags(load("tags", initialTags));
+    setCompletions(load("completions", [] as Completion[]));
     lastCheckedDateRef.current = today;
     setHydrated(true);
   }, []);
@@ -105,6 +113,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => { if (hydrated) save("todos", todos); }, [todos, hydrated]);
   useEffect(() => { if (hydrated) save("lists", lists); }, [lists, hydrated]);
   useEffect(() => { if (hydrated) save("tags", tags); }, [tags, hydrated]);
+  useEffect(() => { if (hydrated) save("completions", completions); }, [completions, hydrated]);
 
   function addTodo(todo: Omit<Todo, "id">) {
     setTodos((prev) => [...prev, { ...todo, id: crypto.randomUUID() }]);
@@ -119,13 +128,23 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }
 
   function toggleTodo(id: string) {
+    let justCompleted = false;
     setTodos((prev) =>
       prev.map((t) => {
         if (t.id !== id) return t;
         const completed = !t.completed;
+        justCompleted = completed;
         return { ...t, completed, lastCompletedDate: completed ? todayStr() : t.lastCompletedDate };
       })
     );
+    if (justCompleted) {
+      const today = todayStr();
+      setCompletions((prev) =>
+        prev.some((c) => c.todoId === id && c.date === today)
+          ? prev
+          : [...prev, { todoId: id, date: today }]
+      );
+    }
   }
 
   function updateTodo(id: string, updates: Partial<Omit<Todo, "id">>) {
@@ -165,7 +184,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <DataContext.Provider value={{ todos, lists, tags, addTodo, addList, addTag, toggleTodo, updateTodo, deleteTodo, reorderTodos, updateList, deleteList, deleteTag }}>
+    <DataContext.Provider value={{ todos, lists, tags, completions, addTodo, addList, addTag, toggleTodo, updateTodo, deleteTodo, reorderTodos, updateList, deleteList, deleteTag }}>
       {children}
     </DataContext.Provider>
   );
