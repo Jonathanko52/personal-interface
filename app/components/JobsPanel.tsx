@@ -1,12 +1,18 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface JobResult {
   companyName: string;
   jobPosting: string;
   location: string;
   postingLink: string;
+}
+
+interface JobCounts {
+  total: number;
+  quickApply: number;
+  normalApply: number;
 }
 
 export default function JobsPanel() {
@@ -20,7 +26,22 @@ export default function JobsPanel() {
   const [confirmDuplicate, setConfirmDuplicate] = useState(false);
   const [checkFailed, setCheckFailed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [counts, setCounts] = useState<JobCounts | null>(null);
   const savingRef = useRef(false);
+
+  async function loadCounts() {
+    try {
+      const res = await fetch("/api/jobs/count");
+      if (!res.ok) return;
+      setCounts(await res.json());
+    } catch {
+      // Non-critical — leave counts as-is if this fails.
+    }
+  }
+
+  useEffect(() => {
+    loadCounts();
+  }, []);
 
   async function handleScrape() {
     if (!url.trim()) return;
@@ -88,6 +109,7 @@ export default function JobsPanel() {
       if (!res.ok) throw new Error(`Save failed (${res.status})`);
       setSaved(true);
       setUrl("");
+      loadCounts();
     } catch (err) {
       setError(
         (err instanceof Error ? err.message : "Something went wrong.") +
@@ -101,6 +123,12 @@ export default function JobsPanel() {
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-4 text-xs text-slate-400 border-b border-slate-700 pb-3">
+        <span>Today: <span className="text-slate-100 font-medium">{counts?.total ?? "—"}</span></span>
+        <span>Quick: <span className="text-slate-100 font-medium">{counts?.quickApply ?? "—"}</span></span>
+        <span>Normal: <span className="text-slate-100 font-medium">{counts?.normalApply ?? "—"}</span></span>
+      </div>
+
       <div className="flex flex-col gap-2">
         <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
           Job Posting URL
