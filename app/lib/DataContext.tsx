@@ -103,9 +103,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
       if (document.visibilityState === "visible") checkRollover();
     }
     document.addEventListener("visibilitychange", handleVisibility);
-    const intervalId = setInterval(checkRollover, 10 * 60 * 1000);
+    window.addEventListener("focus", checkRollover);
+    window.addEventListener("pageshow", checkRollover);
+    const intervalId = setInterval(checkRollover, 60 * 1000);
     return () => {
       document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", checkRollover);
+      window.removeEventListener("pageshow", checkRollover);
       clearInterval(intervalId);
     };
   }, [hydrated, checkRollover]);
