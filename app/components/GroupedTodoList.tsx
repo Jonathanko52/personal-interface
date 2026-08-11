@@ -15,9 +15,9 @@ export default function GroupedTodoList({ todos, onSelect }: GroupedTodoListProp
   return (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-2">
-        <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Repeating</h2>
+        <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Daily Tasks</h2>
         {repeating.length === 0 ? (
-          <p className="text-sm text-zinc-400">No repeating todos.</p>
+          <p className="text-sm text-zinc-400">No daily tasks.</p>
         ) : (
           <TodoList todos={repeating} onSelect={onSelect} />
         )}

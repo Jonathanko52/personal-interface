@@ -16,6 +16,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useData, Todo as FullTodo } from "@/app/lib/DataContext";
 import { priorityBadgeStyles } from "@/app/lib/priority";
+import { today as todayStr } from "@/app/lib/date";
 
 type Todo = Pick<FullTodo, "id" | "title" | "priority" | "dueDate" | "completed" | "tagIds">;
 
@@ -30,6 +31,7 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
     useSortable({ id: todo.id });
 
   const todoTags = tags.filter((t) => todo.tagIds.includes(t.id));
+  const isOverdue = !!todo.dueDate && todo.dueDate < todayStr() && !todo.completed;
 
   return (
     <li
@@ -50,8 +52,13 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
         onPointerDown={(e) => e.stopPropagation()}
         className="w-4 h-4 accent-indigo-500 shrink-0"
       />
-      <span className={`text-sm ${todo.completed ? "line-through text-zinc-400" : "text-zinc-800"}`}>
+      <span
+        className={`text-sm ${
+          todo.completed ? "line-through text-zinc-400" : isOverdue ? "text-red-600" : "text-zinc-800"
+        }`}
+      >
         {todo.title}
+        {isOverdue && " (OVERDUE)"}
       </span>
       {todoTags.map((tag) => (
         <span

@@ -54,7 +54,13 @@ export default function Home() {
     router.replace("/");
   }
 
-  const todosForDate = todos.filter((t) => t.dueDate === null || t.dueDate >= selectedDate);
+  const isViewingToday = selectedDate === todayStr();
+  const todosForDate = todos.filter(
+    (t) =>
+      t.dueDate === null ||
+      t.dueDate >= selectedDate ||
+      (isViewingToday && !t.completed)
+  );
   const { result, sort, setSort, filter, setFilter } = useSortFilter(todosForDate);
 
   const { selectedTodo, select, clear } = useSelectedTodo(todos);
@@ -62,8 +68,6 @@ export default function Home() {
   if (selectedTodo) {
     return <TodoDetail todo={selectedTodo} onClose={clear} />;
   }
-
-  const isToday = selectedDate === todayStr();
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -83,7 +87,7 @@ export default function Home() {
         >
           ▶
         </button>
-        {!isToday && (
+        {!isViewingToday && (
           <button
             onClick={goToday}
             className="ml-1 text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
