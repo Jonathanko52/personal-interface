@@ -30,7 +30,7 @@ export default function NavigationPanel({ activePanel, onSelect }: NavigationPan
           router.push("/");
           onSelect("todo");
         }}
-        className={itemClass(activePanel === "todo")}
+        className={itemClass(pathname === "/")}
       >
         Todo
       </button>

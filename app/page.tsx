@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import TodoList from "./components/TodoList";
+import GroupedTodoList from "./components/GroupedTodoList";
 import TodoDetail from "./components/TodoDetail";
 import TodoForm from "./components/TodoForm";
 import SortFilterBar from "./components/SortFilterBar";
@@ -94,7 +94,7 @@ export default function Home() {
       </div>
       <TodoForm key={selectedDate} defaultDueDate={selectedDate} />
       <SortFilterBar sort={sort} filter={filter} onSortChange={setSort} onFilterChange={setFilter} />
-      <TodoList todos={result} onSelect={select} />
+      <GroupedTodoList todos={result} onSelect={select} />
     </div>
   );
 }

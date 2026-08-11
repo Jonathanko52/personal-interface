@@ -3,7 +3,7 @@
 import { ReactNode } from "react";
 import TodoForm from "./TodoForm";
 import SortFilterBar from "./SortFilterBar";
-import TodoList from "./TodoList";
+import GroupedTodoList from "./GroupedTodoList";
 import { SortOption, FilterOption } from "@/app/lib/useSortFilter";
 import { Todo } from "@/app/lib/DataContext";
 
@@ -38,7 +38,7 @@ export default function TodoListPage({
       {todos.length === 0 ? (
         <p className="text-sm text-zinc-400">{emptyMessage}</p>
       ) : (
-        <TodoList todos={todos} onSelect={onSelect} />
+        <GroupedTodoList todos={todos} onSelect={onSelect} />
       )}
     </div>
   );
