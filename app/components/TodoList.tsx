@@ -77,7 +77,7 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
           onSelect(todo.id);
         }}
         onPointerDown={(e) => e.stopPropagation()}
-        className="shrink-0 text-xs text-zinc-400 hover:text-zinc-700 opacity-0 group-hover:opacity-100 transition-opacity ml-1 cursor-pointer"
+        className="shrink-0 text-xs px-2.5 py-1.5 rounded-md border border-zinc-200 text-zinc-500 hover:text-zinc-800 hover:border-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1 cursor-pointer"
       >
         Edit
       </button>
