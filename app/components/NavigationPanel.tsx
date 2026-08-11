@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ActivePanel } from "./AppShell";
 
 const NAV_ITEMS: { id: ActivePanel; label: string }[] = [
@@ -9,19 +9,13 @@ const NAV_ITEMS: { id: ActivePanel; label: string }[] = [
 ];
 
 interface NavigationPanelProps {
-  activePanel: ActivePanel;
   onSelect: (panel: ActivePanel) => void;
 }
 
-export default function NavigationPanel({ activePanel, onSelect }: NavigationPanelProps) {
-  const pathname = usePathname();
+const itemClass = "w-full text-left text-sm rounded-md px-3 py-2 transition-colors text-slate-400 hover:text-white hover:bg-slate-700";
+
+export default function NavigationPanel({ onSelect }: NavigationPanelProps) {
   const router = useRouter();
-  const itemClass = (active: boolean) =>
-    `w-full text-left text-sm rounded-md px-3 py-2 transition-colors ${
-      active
-        ? "bg-slate-700 text-white font-medium"
-        : "text-slate-400 hover:text-white hover:bg-slate-700"
-    }`;
 
   return (
     <nav className="w-44 shrink-0 border-r border-slate-700 bg-slate-900 flex flex-col py-4 px-3 gap-1">
@@ -30,7 +24,7 @@ export default function NavigationPanel({ activePanel, onSelect }: NavigationPan
           router.push("/");
           onSelect("todo");
         }}
-        className={itemClass(pathname === "/")}
+        className={itemClass}
       >
         Todo
       </button>
@@ -38,12 +32,12 @@ export default function NavigationPanel({ activePanel, onSelect }: NavigationPan
         <button
           key={item.id}
           onClick={() => onSelect(item.id)}
-          className={itemClass(activePanel === item.id)}
+          className={itemClass}
         >
           {item.label}
         </button>
       ))}
-      <Link href="/metrics" className={itemClass(pathname === "/metrics")}>
+      <Link href="/metrics" className={itemClass}>
         Metrics
       </Link>
     </nav>

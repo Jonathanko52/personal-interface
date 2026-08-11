@@ -25,7 +25,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <span className="font-semibold tracking-tight text-slate-100">Todos</span>
       </header>
       <div className="flex flex-1 overflow-hidden">
-        <NavigationPanel activePanel={activePanel} onSelect={handleSelect} />
+        <NavigationPanel onSelect={handleSelect} />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
         <RightPanel
           activePanel={activePanel}
