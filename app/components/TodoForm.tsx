@@ -99,7 +99,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={(e) => e.key === "Escape" && handleCancel()}
         placeholder="Todo title"
-        className="text-sm border border-zinc-200 text-zinc-700 rounded-md px-3 py-2 outline-none focus:border-indigo-400 transition-colors placeholder:text-zinc-400 w-full"
+        className="text-sm bg-white border border-zinc-200 text-zinc-700 rounded-md px-3 py-2 outline-none focus:border-indigo-400 transition-colors placeholder:text-zinc-400 w-full"
       />
       <div className="flex flex-wrap gap-3 items-center">
         <select
