@@ -99,13 +99,13 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={(e) => e.key === "Escape" && handleCancel()}
         placeholder="Todo title"
-        className="text-sm bg-white border border-zinc-200 text-zinc-700 rounded-md px-3 py-2 outline-none focus:border-indigo-400 transition-colors placeholder:text-zinc-400 w-full"
+        className="text-sm bg-slate-800 border border-slate-600 text-slate-100 rounded-md px-3 py-2 outline-none focus:border-indigo-400 transition-colors placeholder:text-slate-500 w-full"
       />
       <div className="flex flex-wrap gap-3 items-center">
         <select
           value={listId}
           onChange={(e) => setListId(e.target.value)}
-          className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white">
+          className="text-xs border border-slate-600 rounded-md px-2 py-1 outline-none text-slate-100 bg-slate-800">
           {lists.map((l) => (
             <option key={l.id} value={l.id}>
               {l.name}
@@ -116,7 +116,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value as Priority)}
-          className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white capitalize">
+          className="text-xs border border-slate-600 rounded-md px-2 py-1 outline-none text-slate-100 bg-slate-800 capitalize">
           {PRIORITIES.map((p) => (
             <option key={p} value={p} className="capitalize">
               {p}
@@ -128,7 +128,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
-          className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white"
+          className="text-xs border border-slate-600 rounded-md px-2 py-1 outline-none text-slate-100 bg-slate-800"
         />
         {dueDate && (
           <button

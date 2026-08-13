@@ -130,7 +130,7 @@ export default function JobsPanel() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
           Job Posting URL
         </label>
         <input
@@ -146,7 +146,7 @@ export default function JobsPanel() {
             setError(null);
           }}
           placeholder="Paste LinkedIn URL..."
-          className="text-sm border border-zinc-200 text-zinc-400 rounded-md px-3 py-2 outline-none focus:border-indigo-400 transition-colors w-full"
+          className="text-sm bg-slate-800 border border-slate-600 text-slate-100 rounded-md px-3 py-2 outline-none focus:border-indigo-400 transition-colors placeholder:text-slate-500 w-full"
         />
         <button
           onClick={handleScrape}

@@ -38,8 +38,8 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       onClick={() => toggleTodo(todo.id)}
-      className={`group flex items-center gap-3 bg-white border border-zinc-200 rounded-lg px-4 py-3 transition-colors cursor-grab active:cursor-grabbing ${
-        isDragging ? "opacity-50 border-indigo-300 shadow-md" : "hover:border-zinc-300"
+      className={`group flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 transition-colors cursor-grab active:cursor-grabbing ${
+        isDragging ? "opacity-50 border-indigo-400 shadow-md" : "hover:border-slate-600"
       }`}
       {...attributes}
       {...listeners}
@@ -54,7 +54,7 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
       />
       <span
         className={`text-sm ${
-          todo.completed ? "line-through text-zinc-400" : isOverdue ? "text-red-600" : "text-zinc-800"
+          todo.completed ? "line-through text-slate-500" : isOverdue ? "text-red-400" : "text-slate-100"
         }`}
       >
         {todo.title}
@@ -76,7 +76,7 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
         </span>
       )}
       {todo.dueDate && (
-        <span className="text-xs text-zinc-400 shrink-0">{todo.dueDate}</span>
+        <span className="text-xs text-slate-400 shrink-0">{todo.dueDate}</span>
       )}
       <button
         onClick={(e) => {
@@ -84,7 +84,7 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
           onSelect(todo.id);
         }}
         onPointerDown={(e) => e.stopPropagation()}
-        className="shrink-0 text-xs px-2.5 py-1.5 rounded-md border border-zinc-200 text-zinc-500 hover:text-zinc-800 hover:border-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1 cursor-pointer"
+        className="shrink-0 text-xs px-2.5 py-1.5 rounded-md border border-slate-600 text-slate-400 hover:text-white hover:border-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1 cursor-pointer"
       >
         Edit
       </button>

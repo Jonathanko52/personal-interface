@@ -56,7 +56,7 @@ export default function AddEntityForm({ label, placeholder, onAdd }: AddEntityFo
         onChange={(e) => setName(e.target.value)}
         onKeyDown={(e) => e.key === "Escape" && reset()}
         placeholder={placeholder}
-        className="text-sm text-zinc-900 border border-zinc-300 rounded-md px-2 py-1.5 outline-none focus:border-indigo-400 transition-colors"
+        className="text-sm bg-slate-800 text-slate-100 border border-slate-600 rounded-md px-2 py-1.5 outline-none focus:border-indigo-400 transition-colors placeholder:text-slate-500"
       />
       <div className="flex gap-1.5 flex-wrap">
         {COLOR_OPTIONS.map((c) => (

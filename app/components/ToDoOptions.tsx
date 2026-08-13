@@ -58,7 +58,7 @@ export default function ToDoOptions() {
                     if (e.key === "Enter") commitEditList(list.id);
                     if (e.key === "Escape") setEditingListId(null);
                   }}
-                  className="flex-1 text-sm border border-zinc-300 rounded-md px-2 py-1 outline-none focus:border-indigo-400"
+                  className="flex-1 text-sm bg-slate-800 text-slate-100 border border-slate-600 rounded-md px-2 py-1 outline-none focus:border-indigo-400"
                 />
               ) : (
                 <Link href={`/list/${list.id}`} className={`flex-1 ${linkClass(`/list/${list.id}`)}`}>
