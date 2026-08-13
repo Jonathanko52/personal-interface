@@ -84,6 +84,13 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
               className="flex-1 text-xl font-semibold text-zinc-900 outline-none border-b border-transparent focus:border-zinc-300 pb-1 transition-colors"
             />
             <button
+              onClick={commitChanges}
+              disabled={!isDirty}
+              className="shrink-0 text-xs bg-indigo-500 text-white rounded-md px-3 py-1.5 hover:bg-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Save
+            </button>
+            <button
               onClick={attemptClose}
               className="shrink-0 text-zinc-400 hover:text-zinc-700 transition-colors text-lg leading-none"
               aria-label="Close"
