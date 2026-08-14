@@ -29,6 +29,10 @@ export default function JobsPanel() {
   const [counts, setCounts] = useState<JobCounts | null>(null);
   const savingRef = useRef(false);
 
+  const isResultValid = Boolean(
+    result && result.companyName.trim() && result.jobPosting.trim() && result.location.trim()
+  );
+
   async function loadCounts() {
     try {
       const res = await fetch("/api/jobs/count");
@@ -104,7 +108,15 @@ export default function JobsPanel() {
       const res = await fetch("/api/jobs/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dataOne: { ...result, applyType } }),
+        body: JSON.stringify({
+          dataOne: {
+            ...result,
+            companyName: result.companyName.trim(),
+            jobPosting: result.jobPosting.trim(),
+            location: result.location.trim(),
+            applyType,
+          },
+        }),
       });
       if (!res.ok) throw new Error(`Save failed (${res.status})`);
       setSaved(true);
@@ -167,15 +179,39 @@ export default function JobsPanel() {
           <div className="flex flex-col gap-1.5 text-sm">
             <div>
               <span className="text-slate-400 text-xs">Company</span>
-              <p className="text-slate-100 font-medium">{result.companyName}</p>
+              <input
+                type="text"
+                value={result.companyName}
+                onChange={(e) =>
+                  setResult((prev) => (prev ? { ...prev, companyName: e.target.value } : prev))
+                }
+                disabled={saved}
+                className="text-sm bg-slate-800 border border-slate-600 text-slate-100 font-medium rounded-md px-2 py-1 outline-none focus:border-indigo-400 transition-colors disabled:opacity-60 w-full"
+              />
             </div>
             <div>
               <span className="text-slate-400 text-xs">Role</span>
-              <p className="text-slate-100">{result.jobPosting}</p>
+              <input
+                type="text"
+                value={result.jobPosting}
+                onChange={(e) =>
+                  setResult((prev) => (prev ? { ...prev, jobPosting: e.target.value } : prev))
+                }
+                disabled={saved}
+                className="text-sm bg-slate-800 border border-slate-600 text-slate-100 rounded-md px-2 py-1 outline-none focus:border-indigo-400 transition-colors disabled:opacity-60 w-full"
+              />
             </div>
             <div>
               <span className="text-slate-400 text-xs">Location</span>
-              <p className="text-slate-100">{result.location}</p>
+              <input
+                type="text"
+                value={result.location}
+                onChange={(e) =>
+                  setResult((prev) => (prev ? { ...prev, location: e.target.value } : prev))
+                }
+                disabled={saved}
+                className="text-sm bg-slate-800 border border-slate-600 text-slate-100 rounded-md px-2 py-1 outline-none focus:border-indigo-400 transition-colors disabled:opacity-60 w-full"
+              />
             </div>
             <a
               href={result.postingLink}
@@ -213,7 +249,7 @@ export default function JobsPanel() {
               <div className="flex gap-2">
                 <button
                   onClick={doSave}
-                  disabled={saving}
+                  disabled={saving || !isResultValid}
                   className="text-sm bg-indigo-500 text-white rounded-md px-3 py-1.5 hover:bg-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {saving ? "Saving..." : "Yes, save anyway"}
@@ -229,7 +265,7 @@ export default function JobsPanel() {
           ) : (
             <button
               onClick={handleSaveClick}
-              disabled={checking || saving || saved}
+              disabled={checking || saving || saved || !isResultValid}
               className="text-sm bg-zinc-800 text-white rounded-md px-4 py-2 hover:bg-zinc-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {checking ? "Checking..." : saving ? "Saving..." : saved ? "Saved to Sheets ✓" : "Save to Sheets"}
