@@ -96,7 +96,7 @@ export default function Home() {
           </button>
         )}
       </div>
-      <TodoForm key={selectedDate} defaultDueDate={selectedDate} />
+      <TodoForm key={selectedDate} />
       <SortFilterBar sort={sort} filter={filter} onSortChange={setSort} onFilterChange={setFilter} />
       <GroupedTodoList todos={result} onSelect={select} />
     </div>

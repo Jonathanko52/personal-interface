@@ -8,16 +8,15 @@ import RepeatDayPicker from "./RepeatDayPicker";
 
 interface TodoFormProps {
   defaultListId?: string;
-  defaultDueDate?: string;
 }
 
-export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProps) {
+export default function TodoForm({ defaultListId }: TodoFormProps) {
   const { lists, tags, addTodo } = useData();
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [listId, setListId] = useState(defaultListId ?? lists[0]?.id ?? "");
   const [priority, setPriority] = useState<Priority>("none");
-  const [dueDate, setDueDate] = useState(defaultDueDate ?? "");
+  const [dueDate, setDueDate] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [repeatDays, setRepeatDays] = useState<number[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,7 +54,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
     });
     setTitle("");
     setPriority("none");
-    setDueDate(defaultDueDate ?? "");
+    setDueDate("");
     setSelectedTagIds([]);
     setRepeatDays([]);
     setExpanded(false);
@@ -64,7 +63,7 @@ export default function TodoForm({ defaultListId, defaultDueDate }: TodoFormProp
   function handleCancel() {
     setTitle("");
     setPriority("none");
-    setDueDate(defaultDueDate ?? "");
+    setDueDate("");
     setSelectedTagIds([]);
     setRepeatDays([]);
     setExpanded(false);
