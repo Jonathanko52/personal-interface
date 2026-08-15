@@ -10,6 +10,14 @@ interface JobData {
   applyType: "quick" | "normal";
 }
 
+// Cells starting with these characters are interpreted as formulas by Sheets even
+// under USER_ENTERED input; a leading apostrophe forces literal-text interpretation.
+const SHEETS_FORMULA_PREFIX = /^[=+\-@\t\r]/;
+
+function sanitizeForSheets(value: string): string {
+  return SHEETS_FORMULA_PREFIX.test(value) ? `'${value}` : value;
+}
+
 function isJobData(value: unknown): value is JobData {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
@@ -35,10 +43,10 @@ export async function POST(req: Request) {
 
   const spreadSheetArray = [
     "LinkedIn",
-    dataOne.companyName,
-    dataOne.jobPosting,
+    sanitizeForSheets(dataOne.companyName),
+    sanitizeForSheets(dataOne.jobPosting),
     getCurrentDateMMDDYY(),
-    dataOne.location,
+    sanitizeForSheets(dataOne.location),
     postingLinkAsHyperlink,
     dataOne.applyType === "quick" ? "Quick Apply" : "Normal Apply",
   ];
