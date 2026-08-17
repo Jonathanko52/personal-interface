@@ -40,7 +40,10 @@ export default function MonthPage() {
   }
 
   function todosForDay(day: number) {
-    return todos.filter((t) => t.dueDate === dateStrFor(day));
+    const weekday = new Date(year, month, day).getDay();
+    return todos.filter(
+      (t) => t.dueDate === dateStrFor(day) || t.repeatDays?.includes(weekday)
+    );
   }
 
   const isToday = (day: number) =>
