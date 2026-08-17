@@ -58,7 +58,7 @@ export default function Home() {
   const todosForDate = todos.filter(
     (t) =>
       t.dueDate === null ||
-      t.dueDate >= selectedDate ||
+      t.dueDate === selectedDate ||
       (isViewingToday && !t.completed)
   );
   const { result, sort, setSort, filter, setFilter } = useSortFilter(todosForDate);
