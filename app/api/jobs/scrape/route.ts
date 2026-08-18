@@ -7,7 +7,9 @@ function extractJobInfo(html: string, postingLink: string) {
 
   const companyName = $('a[href*="linkedin.com/company"]').first().text();
   const jobPosting = $("h3").first().text();
-  const location = $("span").eq(5).text();
+  // ".topcard__flavor--bullet" is LinkedIn's semantic class for the location bullet on
+  // public job posting pages; fall back to the old positional guess if it's not present.
+  const location = $(".topcard__flavor--bullet").first().text().trim() || $("span").eq(5).text();
 
   return { companyName, jobPosting, location, postingLink };
 }
