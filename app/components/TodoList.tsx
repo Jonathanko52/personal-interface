@@ -23,12 +23,21 @@ type Todo = Pick<FullTodo, "id" | "title" | "priority" | "dueDate" | "completed"
 interface TodoListProps {
   todos: Todo[];
   onSelect: (id: string) => void;
+  dragEnabled?: boolean;
 }
 
-function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) => void }) {
+function SortableTodo({
+  todo,
+  onSelect,
+  dragEnabled,
+}: {
+  todo: Todo;
+  onSelect: (id: string) => void;
+  dragEnabled: boolean;
+}) {
   const { toggleTodo, tags } = useData();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: todo.id });
+    useSortable({ id: todo.id, disabled: !dragEnabled });
 
   const todoTags = tags.filter((t) => todo.tagIds.includes(t.id));
   const isOverdue = !!todo.dueDate && todo.dueDate < todayStr() && !todo.completed;
@@ -38,9 +47,9 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       onClick={() => toggleTodo(todo.id)}
-      className={`group flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 transition-colors cursor-grab active:cursor-grabbing ${
-        isDragging ? "opacity-50 border-indigo-400 shadow-md" : "hover:border-slate-600"
-      }`}
+      className={`group flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 transition-colors ${
+        dragEnabled ? "cursor-grab active:cursor-grabbing" : ""
+      } ${isDragging ? "opacity-50 border-indigo-400 shadow-md" : "hover:border-slate-600"}`}
       {...attributes}
       {...listeners}
     >
@@ -92,7 +101,7 @@ function SortableTodo({ todo, onSelect }: { todo: Todo; onSelect: (id: string) =
   );
 }
 
-export default function TodoList({ todos, onSelect }: TodoListProps) {
+export default function TodoList({ todos, onSelect, dragEnabled = true }: TodoListProps) {
   const { reorderTodos } = useData();
 
   const sensors = useSensors(
@@ -111,7 +120,7 @@ export default function TodoList({ todos, onSelect }: TodoListProps) {
       <SortableContext items={todos.map((t) => t.id)} strategy={verticalListSortingStrategy}>
         <ul className="flex flex-col gap-2">
           {todos.map((todo) => (
-            <SortableTodo key={todo.id} todo={todo} onSelect={onSelect} />
+            <SortableTodo key={todo.id} todo={todo} onSelect={onSelect} dragEnabled={dragEnabled} />
           ))}
         </ul>
       </SortableContext>

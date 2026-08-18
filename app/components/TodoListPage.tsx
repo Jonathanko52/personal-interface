@@ -38,7 +38,7 @@ export default function TodoListPage({
       {todos.length === 0 ? (
         <p className="text-sm text-zinc-400">{emptyMessage}</p>
       ) : (
-        <GroupedTodoList todos={todos} onSelect={onSelect} />
+        <GroupedTodoList todos={todos} onSelect={onSelect} dragEnabled={sort === "default"} />
       )}
     </div>
   );

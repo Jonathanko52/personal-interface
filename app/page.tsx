@@ -98,7 +98,7 @@ export default function Home() {
       </div>
       <TodoForm key={selectedDate} />
       <SortFilterBar sort={sort} filter={filter} onSortChange={setSort} onFilterChange={setFilter} />
-      <GroupedTodoList todos={result} onSelect={select} />
+      <GroupedTodoList todos={result} onSelect={select} dragEnabled={sort === "default"} />
     </div>
   );
 }

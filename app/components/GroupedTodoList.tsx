@@ -7,9 +7,10 @@ import { Todo } from "@/app/lib/DataContext";
 interface GroupedTodoListProps {
   todos: Todo[];
   onSelect: (id: string) => void;
+  dragEnabled?: boolean;
 }
 
-export default function GroupedTodoList({ todos, onSelect }: GroupedTodoListProps) {
+export default function GroupedTodoList({ todos, onSelect, dragEnabled = true }: GroupedTodoListProps) {
   const { repeating, oneOff } = groupByRepeat(todos);
 
   return (
@@ -19,7 +20,7 @@ export default function GroupedTodoList({ todos, onSelect }: GroupedTodoListProp
         {repeating.length === 0 ? (
           <p className="text-sm text-zinc-400">No daily tasks.</p>
         ) : (
-          <TodoList todos={repeating} onSelect={onSelect} />
+          <TodoList todos={repeating} onSelect={onSelect} dragEnabled={dragEnabled} />
         )}
       </section>
       <section className="flex flex-col gap-2">
@@ -27,7 +28,7 @@ export default function GroupedTodoList({ todos, onSelect }: GroupedTodoListProp
         {oneOff.length === 0 ? (
           <p className="text-sm text-zinc-400">No one-off todos.</p>
         ) : (
-          <TodoList todos={oneOff} onSelect={onSelect} />
+          <TodoList todos={oneOff} onSelect={onSelect} dragEnabled={dragEnabled} />
         )}
       </section>
     </div>
