@@ -33,7 +33,7 @@ export default function TodoListPage({
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center gap-2 mb-6">{heading}</div>
-      <TodoForm defaultListId={defaultListId} />
+      <TodoForm key={defaultListId} defaultListId={defaultListId} />
       <SortFilterBar sort={sort} filter={filter} onSortChange={onSortChange} onFilterChange={onFilterChange} />
       {todos.length === 0 ? (
         <p className="text-sm text-zinc-400">{emptyMessage}</p>
