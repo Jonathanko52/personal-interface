@@ -22,6 +22,7 @@ export async function GET(req: Request) {
 
     const rows = res.data.values ?? [];
     const cutoff = new Date();
+    cutoff.setHours(0, 0, 0, 0);
     cutoff.setDate(cutoff.getDate() - DAYS_WINDOW);
 
     const duplicate = rows.some((row) => {
