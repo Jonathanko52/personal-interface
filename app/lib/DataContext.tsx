@@ -68,6 +68,12 @@ function save(key: string, value: unknown) {
   } catch {}
 }
 
+function usePersistOnChange<T>(key: string, value: T, hydrated: boolean) {
+  useEffect(() => {
+    if (hydrated) save(key, value);
+  }, [key, value, hydrated]);
+}
+
 const DataContext = createContext<DataContextValue | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
@@ -114,10 +120,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     };
   }, [hydrated, checkRollover]);
 
-  useEffect(() => { if (hydrated) save("todos", todos); }, [todos, hydrated]);
-  useEffect(() => { if (hydrated) save("lists", lists); }, [lists, hydrated]);
-  useEffect(() => { if (hydrated) save("tags", tags); }, [tags, hydrated]);
-  useEffect(() => { if (hydrated) save("completions", completions); }, [completions, hydrated]);
+  usePersistOnChange("todos", todos, hydrated);
+  usePersistOnChange("lists", lists, hydrated);
+  usePersistOnChange("tags", tags, hydrated);
+  usePersistOnChange("completions", completions, hydrated);
 
   function addTodo(todo: Omit<Todo, "id">) {
     setTodos((prev) => [...prev, { ...todo, id: crypto.randomUUID() }]);
