@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import { NextResponse } from "next/server";
 
 type SheetsClient = { sheets: ReturnType<typeof google.sheets>; spreadsheetId: string };
 
@@ -23,4 +24,9 @@ export function getSheetsClient(): SheetsClient {
 
   cachedClient = { sheets: google.sheets({ version: "v4", auth }), spreadsheetId };
   return cachedClient;
+}
+
+export function sheetsErrorResponse(action: string, err: unknown) {
+  const message = err instanceof Error ? err.message : "Unknown error";
+  return NextResponse.json({ error: `Failed to ${action}: ${message}` }, { status: 502 });
 }

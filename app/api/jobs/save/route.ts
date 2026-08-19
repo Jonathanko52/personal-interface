@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSheetsClient } from "@/app/lib/googleSheets";
+import { getSheetsClient, sheetsErrorResponse } from "@/app/lib/googleSheets";
 import { getCurrentDateMMDDYY } from "@/app/lib/sheetDate";
 
 interface JobData {
@@ -66,7 +66,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(res.data);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json({ error: `Failed to save to Sheets: ${message}` }, { status: 502 });
+    return sheetsErrorResponse("save to Sheets", err);
   }
 }
