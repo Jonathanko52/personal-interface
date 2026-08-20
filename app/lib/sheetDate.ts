@@ -1,11 +1,8 @@
+import { dateParts } from "./date";
+
 export function getCurrentDateMMDDYY(): string {
-  const today = new Date();
-
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  const year = String(today.getFullYear()).slice(-2);
-
-  return `${month}/${day}/${year}`;
+  const { year, month, day } = dateParts(new Date());
+  return `${month}/${day}/${year.slice(-2)}`;
 }
 
 export function parseSheetDate(mmddyy: string): Date | null {
