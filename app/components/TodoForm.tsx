@@ -5,6 +5,7 @@ import { useData } from "@/app/lib/DataContext";
 import { PRIORITIES, Priority } from "@/app/lib/priority";
 import { toggleDay } from "@/app/lib/repeatDays";
 import RepeatDayPicker from "./RepeatDayPicker";
+import TagPicker from "./TagPicker";
 
 interface TodoFormProps {
   defaultListId?: string;
@@ -146,26 +147,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
       </div>
 
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {tags.map((tag) => (
-            <button
-              key={tag.id}
-              type="button"
-              onClick={() => toggleTag(tag.id)}
-              className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-                selectedTagIds.includes(tag.id)
-                  ? "text-white border-transparent"
-                  : "border-slate-600 text-slate-400 hover:border-slate-400"
-              }`}
-              style={
-                selectedTagIds.includes(tag.id)
-                  ? { backgroundColor: tag.color, borderColor: tag.color }
-                  : {}
-              }>
-              {tag.name}
-            </button>
-          ))}
-        </div>
+        <TagPicker tags={tags} selectedTagIds={selectedTagIds} onToggle={toggleTag} />
       )}
 
       <div className="flex gap-2">

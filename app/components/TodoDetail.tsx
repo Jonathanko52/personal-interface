@@ -5,6 +5,7 @@ import { useData, Todo } from "@/app/lib/DataContext";
 import { PRIORITIES, Priority } from "@/app/lib/priority";
 import { toggleDay } from "@/app/lib/repeatDays";
 import RepeatDayPicker from "./RepeatDayPicker";
+import TagPicker from "./TagPicker";
 
 interface TodoDetailProps {
   todo: Todo;
@@ -154,23 +155,7 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
             {tags.length === 0 ? (
               <span className="text-xs text-slate-400">No tags available — create one in Navigation.</span>
             ) : (
-              <div className="flex gap-2 flex-wrap">
-                {tags.map((tag) => {
-                  const active = tagIds.includes(tag.id);
-                  return (
-                    <button
-                      key={tag.id}
-                      onClick={() => toggleTag(tag.id)}
-                      className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                        active ? "text-white border-transparent" : "border-slate-600 text-slate-400 hover:border-slate-400"
-                      }`}
-                      style={active ? { backgroundColor: tag.color, borderColor: tag.color } : {}}
-                    >
-                      {tag.name}
-                    </button>
-                  );
-                })}
-              </div>
+              <TagPicker tags={tags} selectedTagIds={tagIds} onToggle={toggleTag} />
             )}
           </div>
 

@@ -25,7 +25,7 @@ interface List {
   color: string;
 }
 
-interface Tag {
+export interface Tag {
   id: string;
   name: string;
   color: string;
