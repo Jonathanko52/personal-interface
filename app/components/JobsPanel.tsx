@@ -15,10 +15,19 @@ interface JobCounts {
   normalApply: number;
 }
 
+type JobType = "internship" | "part-time" | "full-time";
+
+const JOB_TYPE_LABELS: Record<JobType, string> = {
+  internship: "Internship",
+  "part-time": "Part-time",
+  "full-time": "Full-time",
+};
+
 export default function JobsPanel() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<JobResult | null>(null);
   const [applyType, setApplyType] = useState<"quick" | "normal">("normal");
+  const [jobType, setJobType] = useState<JobType>("full-time");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -53,6 +62,7 @@ export default function JobsPanel() {
     setError(null);
     setResult(null);
     setApplyType("normal");
+    setJobType("full-time");
     setSaved(false);
     setConfirmDuplicate(false);
     setCheckFailed(false);
@@ -115,6 +125,7 @@ export default function JobsPanel() {
             jobPosting: result.jobPosting.trim(),
             location: result.location.trim(),
             applyType,
+            jobType,
           },
         }),
       });
@@ -152,6 +163,7 @@ export default function JobsPanel() {
             setUrl(e.target.value);
             setResult(null);
             setApplyType("normal");
+            setJobType("full-time");
             setSaved(false);
             setConfirmDuplicate(false);
             setCheckFailed(false);
@@ -237,6 +249,25 @@ export default function JobsPanel() {
                   }`}
                 >
                   {type === "quick" ? "Quick Apply" : "Normal Apply"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs text-slate-400">Job Type</span>
+            <div className="flex gap-1.5">
+              {(["internship", "part-time", "full-time"] as const).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setJobType(type)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                    jobType === type
+                      ? "bg-indigo-500 text-white border-indigo-500"
+                      : "border-slate-600 text-slate-400 hover:border-slate-400"
+                  }`}
+                >
+                  {JOB_TYPE_LABELS[type]}
                 </button>
               ))}
             </div>
