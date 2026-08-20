@@ -8,7 +8,14 @@ interface JobData {
   location: string;
   postingLink: string;
   applyType: "quick" | "normal";
+  jobType: "internship" | "part-time" | "full-time";
 }
+
+const JOB_TYPE_LABELS: Record<JobData["jobType"], string> = {
+  internship: "Internship",
+  "part-time": "Part-time",
+  "full-time": "Full-time",
+};
 
 // Cells starting with these characters are interpreted as formulas by Sheets even
 // under USER_ENTERED input; a leading apostrophe forces literal-text interpretation.
@@ -26,7 +33,8 @@ function isJobData(value: unknown): value is JobData {
     typeof v.jobPosting === "string" &&
     typeof v.location === "string" &&
     typeof v.postingLink === "string" &&
-    (v.applyType === "quick" || v.applyType === "normal")
+    (v.applyType === "quick" || v.applyType === "normal") &&
+    (v.jobType === "internship" || v.jobType === "part-time" || v.jobType === "full-time")
   );
 }
 
@@ -49,6 +57,7 @@ export async function POST(req: Request) {
     sanitizeForSheets(dataOne.location),
     postingLinkAsHyperlink,
     dataOne.applyType === "quick" ? "Quick Apply" : "Normal Apply",
+    JOB_TYPE_LABELS[dataOne.jobType],
   ];
 
   try {
@@ -60,7 +69,7 @@ export async function POST(req: Request) {
       spreadsheetId,
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
-      range: "Jobs!A:G",
+      range: "Jobs!A:H",
       requestBody: { values: [spreadSheetArray] },
     });
 
