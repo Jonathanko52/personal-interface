@@ -143,7 +143,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
 
       <div className="flex flex-col gap-1.5">
         <span className="text-xs text-slate-400">Repeat</span>
-        <RepeatDayPicker selectedDays={repeatDays} onToggle={toggleRepeatDay} variant="dark" />
+        <RepeatDayPicker selectedDays={repeatDays} onToggle={toggleRepeatDay} />
       </div>
 
       {tags.length > 0 && (

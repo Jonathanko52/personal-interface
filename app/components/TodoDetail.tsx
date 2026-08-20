@@ -164,7 +164,6 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
             <RepeatDayPicker
               selectedDays={repeatDays}
               onToggle={(day) => setRepeatDays((prev) => toggleDay(prev, day))}
-              variant="dark"
             />
           </div>
 
