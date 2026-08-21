@@ -40,6 +40,9 @@ export default function NavigationPanel({ onSelect }: NavigationPanelProps) {
       <Link href="/metrics" className={itemClass}>
         Metrics
       </Link>
+      <Link href="/applications" className={itemClass}>
+        Applications
+      </Link>
     </nav>
   );
 }
