@@ -93,39 +93,39 @@ export default function ApplicationsPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <h1 className="text-xl font-semibold text-sm text-slate-100 mb-6">
+      <h1 className="text-xl font-semibold text-sm text-slate-400 mb-6">
         Applications
       </h1>
 
       {jobs.length === 0 ? (
-        <p className="text-sm text-slate-100">No applications yet.</p>
+        <p className="text-sm text-slate-400">No applications yet.</p>
       ) : (
         <div className="overflow-x-auto border border-slate-700 bg-slate-900 rounded-md">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-700 bg-slate-900">
-                <th className="text-left font-semibold text-slate-100 uppercase tracking-wider text-xs px-3 py-2">
+                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Company
                 </th>
-                <th className="text-left font-semibold text-slate-100 uppercase tracking-wider text-xs px-3 py-2">
+                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Role
                 </th>
-                <th className="text-left font-semibold text-slate-100 uppercase tracking-wider text-xs px-3 py-2">
+                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Location
                 </th>
-                <th className="text-left font-semibold text-slate-100 uppercase tracking-wider text-xs px-3 py-2">
+                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Date
                 </th>
-                <th className="text-left font-semibold text-slate-100 uppercase tracking-wider text-xs px-3 py-2">
+                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Apply Type
                 </th>
-                <th className="text-left font-semibold text-slate-100 uppercase tracking-wider text-xs px-3 py-2">
+                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Job Type
                 </th>
-                <th className="text-left font-semibold text-slate-100 uppercase tracking-wider text-xs px-3 py-2">
+                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Posting
                 </th>
-                <th className="text-left font-semibold text-slate-100 uppercase tracking-wider text-xs px-3 py-2">
+                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Status
                 </th>
               </tr>
@@ -135,16 +135,16 @@ export default function ApplicationsPage() {
                 <tr
                   key={job.row}
                   className="border-b border-zinc-200 last:border-b-0 hover:bg-zinc-50 transition-colors">
-                  <td className="px-3 py-2 text-slate-100 font-medium">
+                  <td className="px-3 py-2 text-slate-400 font-medium">
                     {job.company}
                   </td>
-                  <td className="px-3 py-2 text-slate-100">{job.role}</td>
-                  <td className="px-3 py-2 text-slate-100">{job.location}</td>
-                  <td className="px-3 py-2 text-slate-100">
+                  <td className="px-3 py-2 text-slate-400">{job.role}</td>
+                  <td className="px-3 py-2 text-slate-400">{job.location}</td>
+                  <td className="px-3 py-2 text-slate-400">
                     {job.dateApplied}
                   </td>
-                  <td className="px-3 py-2 text-slate-100">{job.applyType}</td>
-                  <td className="px-3 py-2 text-slate-100">{job.jobType}</td>
+                  <td className="px-3 py-2 text-slate-400">{job.applyType}</td>
+                  <td className="px-3 py-2 text-slate-400">{job.jobType}</td>
                   <td className="px-3 py-2">
                     <a
                       href={job.postingLink}
