@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { JOB_STATUSES, JobStatus } from "@/app/lib/jobStatus";
 
 interface ApplicationRow {
@@ -15,80 +15,43 @@ interface ApplicationRow {
   status: JobStatus;
 }
 
-const DUMMY_JOBS: ApplicationRow[] = [
-  {
-    row: 2,
-    company: "Acme Corp",
-    role: "Frontend Engineer",
-    location: "Remote",
-    dateApplied: "08/01/26",
-    postingLink: "https://linkedin.com/jobs/view/1",
-    applyType: "Normal Apply",
-    jobType: "Full-time",
-    status: "Applied",
-  },
-  {
-    row: 3,
-    company: "Globex",
-    role: "Product Designer",
-    location: "New York, NY",
-    dateApplied: "08/05/26",
-    postingLink: "https://linkedin.com/jobs/view/2",
-    applyType: "Quick Apply",
-    jobType: "Full-time",
-    status: "Interviewing",
-  },
-  {
-    row: 4,
-    company: "Initech",
-    role: "Backend Intern",
-    location: "Austin, TX",
-    dateApplied: "08/08/26",
-    postingLink: "https://linkedin.com/jobs/view/3",
-    applyType: "Normal Apply",
-    jobType: "Internship",
-    status: "Applied",
-  },
-  {
-    row: 5,
-    company: "Umbrella Inc",
-    role: "Data Analyst",
-    location: "Chicago, IL",
-    dateApplied: "08/10/26",
-    postingLink: "https://linkedin.com/jobs/view/4",
-    applyType: "Quick Apply",
-    jobType: "Part-time",
-    status: "Offer",
-  },
-  {
-    row: 6,
-    company: "Soylent Co",
-    role: "QA Engineer",
-    location: "Remote",
-    dateApplied: "08/12/26",
-    postingLink: "https://linkedin.com/jobs/view/5",
-    applyType: "Normal Apply",
-    jobType: "Full-time",
-    status: "Rejected",
-  },
-  {
-    row: 7,
-    company: "Hooli",
-    role: "Mobile Developer",
-    location: "San Francisco, CA",
-    dateApplied: "08/15/26",
-    postingLink: "https://linkedin.com/jobs/view/6",
-    applyType: "Quick Apply",
-    jobType: "Full-time",
-    status: "Applied",
-  },
-];
-
 export default function ApplicationsPage() {
-  const [jobs, setJobs] = useState<ApplicationRow[]>(DUMMY_JOBS);
+  const [jobs, setJobs] = useState<ApplicationRow[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [savingRows, setSavingRows] = useState<Set<number>>(new Set());
 
-  function handleStatusChange(row: number, status: JobStatus) {
-    setJobs((prev) => prev.map((j) => (j.row === row ? { ...j, status } : j)));
+  useEffect(() => {
+    fetch("/api/jobs/list")
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to load (${res.status})`);
+        return res.json();
+      })
+      .then((data) => setJobs([...data.jobs].reverse()))
+      .catch((err) => setError(err instanceof Error ? err.message : "Something went wrong."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function handleStatusChange(row: number, status: JobStatus) {
+    const prevJobs = jobs;
+    setJobs((cur) => cur?.map((j) => (j.row === row ? { ...j, status } : j)) ?? cur);
+    setSavingRows((prev) => new Set(prev).add(row));
+    try {
+      const res = await fetch("/api/jobs/status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ row, status }),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      setJobs(prevJobs);
+    } finally {
+      setSavingRows((prev) => {
+        const next = new Set(prev);
+        next.delete(row);
+        return next;
+      });
+    }
   }
 
   return (
@@ -97,7 +60,11 @@ export default function ApplicationsPage() {
         Applications
       </h1>
 
-      {jobs.length === 0 ? (
+      {loading ? (
+        <p className="text-sm text-slate-400">Loading...</p>
+      ) : error ? (
+        <p className="text-sm text-red-500">{error}</p>
+      ) : !jobs || jobs.length === 0 ? (
         <p className="text-sm text-slate-400">No applications yet.</p>
       ) : (
         <div className="overflow-x-auto border border-slate-700 bg-slate-900 rounded-md">
@@ -146,13 +113,17 @@ export default function ApplicationsPage() {
                   <td className="px-3 py-2 text-slate-400">{job.applyType}</td>
                   <td className="px-3 py-2 text-slate-400">{job.jobType}</td>
                   <td className="px-3 py-2">
-                    <a
-                      href={job.postingLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-indigo-500 hover:underline">
-                      Link
-                    </a>
+                    {job.postingLink ? (
+                      <a
+                        href={job.postingLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-indigo-500 hover:underline">
+                        Link
+                      </a>
+                    ) : (
+                      <span className="text-slate-500">—</span>
+                    )}
                   </td>
                   <td className="px-3 py-2">
                     <select
@@ -160,7 +131,8 @@ export default function ApplicationsPage() {
                       onChange={(e) =>
                         handleStatusChange(job.row, e.target.value as JobStatus)
                       }
-                      className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white">
+                      disabled={savingRows.has(job.row)}
+                      className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white disabled:opacity-60">
                       {JOB_STATUSES.map((status) => (
                         <option key={status} value={status}>
                           {status}
