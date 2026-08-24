@@ -15,11 +15,25 @@ interface ApplicationRow {
   status: JobStatus;
 }
 
+type SortField = "company" | "role" | "location" | "dateApplied" | "applyType" | "jobType" | "status";
+type SortDirection = "asc" | "desc";
+
 export default function ApplicationsPage() {
   const [jobs, setJobs] = useState<ApplicationRow[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [savingRows, setSavingRows] = useState<Set<number>>(new Set());
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
+  function handleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  }
 
   useEffect(() => {
     fetch("/api/jobs/list")
