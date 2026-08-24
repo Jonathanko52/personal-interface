@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSheetsClient, sheetsErrorResponse } from "@/app/lib/googleSheets";
 import { getCurrentDateMMDDYY } from "@/app/lib/sheetDate";
+import { DEFAULT_JOB_STATUS } from "@/app/lib/jobStatus";
 
 interface JobData {
   companyName: string;
@@ -58,6 +59,7 @@ export async function POST(req: Request) {
     postingLinkAsHyperlink,
     dataOne.applyType === "quick" ? "Quick Apply" : "Normal Apply",
     JOB_TYPE_LABELS[dataOne.jobType],
+    DEFAULT_JOB_STATUS,
   ];
 
   try {
@@ -69,7 +71,7 @@ export async function POST(req: Request) {
       spreadsheetId,
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
-      range: "Jobs!A:H",
+      range: "Jobs!A:I",
       requestBody: { values: [spreadSheetArray] },
     });
 
