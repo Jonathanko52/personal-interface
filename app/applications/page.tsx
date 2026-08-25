@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { JOB_STATUSES, JobStatus } from "@/app/lib/jobStatus";
 import { parseSheetDate } from "@/app/lib/sheetDate";
+import { startOfWeek, startOfMonth, startOfYear } from "@/app/lib/completionStats";
 
 interface ApplicationRow {
   row: number;
@@ -18,6 +19,7 @@ interface ApplicationRow {
 
 type SortField = "company" | "role" | "location" | "dateApplied" | "applyType" | "jobType" | "status";
 type SortDirection = "asc" | "desc";
+type DateFilter = "all" | "week" | "month" | "year";
 
 interface SortableHeaderProps {
   label: string;
@@ -44,6 +46,7 @@ export default function ApplicationsPage() {
   const [savingRows, setSavingRows] = useState<Set<number>>(new Set());
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
 
   function handleSort(field: SortField) {
     if (sortField === field) {
