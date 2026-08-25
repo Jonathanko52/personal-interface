@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { JOB_STATUSES, JobStatus } from "@/app/lib/jobStatus";
+import { parseSheetDate } from "@/app/lib/sheetDate";
 
 interface ApplicationRow {
   row: number;
@@ -34,6 +35,23 @@ export default function ApplicationsPage() {
       setSortDirection("asc");
     }
   }
+
+  const sortedJobs = useMemo(() => {
+    if (!jobs || !sortField) return jobs;
+    const items = [...jobs];
+    items.sort((a, b) => {
+      let cmp: number;
+      if (sortField === "dateApplied") {
+        const da = parseSheetDate(a.dateApplied);
+        const db = parseSheetDate(b.dateApplied);
+        cmp = (da?.getTime() ?? 0) - (db?.getTime() ?? 0);
+      } else {
+        cmp = a[sortField].localeCompare(b[sortField]);
+      }
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+    return items;
+  }, [jobs, sortField, sortDirection]);
 
   useEffect(() => {
     fetch("/api/jobs/list")
