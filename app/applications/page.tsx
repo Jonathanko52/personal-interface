@@ -64,22 +64,39 @@ export default function ApplicationsPage() {
     }
   }
 
-  const sortedJobs = useMemo(() => {
-    if (!jobs || !sortField) return jobs;
-    const items = [...jobs];
-    items.sort((a, b) => {
-      let cmp: number;
-      if (sortField === "dateApplied") {
-        const da = parseSheetDate(a.dateApplied);
-        const db = parseSheetDate(b.dateApplied);
-        cmp = (da?.getTime() ?? 0) - (db?.getTime() ?? 0);
-      } else {
-        cmp = a[sortField].localeCompare(b[sortField]);
-      }
-      return sortDirection === "asc" ? cmp : -cmp;
-    });
+  const filteredAndSortedJobs = useMemo(() => {
+    if (!jobs) return jobs;
+
+    const now = new Date();
+    const cutoff =
+      dateFilter === "week" ? startOfWeek(now) :
+      dateFilter === "month" ? startOfMonth(now) :
+      dateFilter === "year" ? startOfYear(now) :
+      null;
+
+    const items = cutoff
+      ? jobs.filter((j) => {
+          const applied = parseSheetDate(j.dateApplied);
+          return applied ? applied >= cutoff : false;
+        })
+      : [...jobs];
+
+    if (sortField) {
+      items.sort((a, b) => {
+        let cmp: number;
+        if (sortField === "dateApplied") {
+          const da = parseSheetDate(a.dateApplied);
+          const db = parseSheetDate(b.dateApplied);
+          cmp = (da?.getTime() ?? 0) - (db?.getTime() ?? 0);
+        } else {
+          cmp = a[sortField].localeCompare(b[sortField]);
+        }
+        return sortDirection === "asc" ? cmp : -cmp;
+      });
+    }
+
     return items;
-  }, [jobs, sortField, sortDirection]);
+  }, [jobs, dateFilter, sortField, sortDirection]);
 
   useEffect(() => {
     fetch("/api/jobs/list")
@@ -197,7 +214,7 @@ export default function ApplicationsPage() {
               </tr>
             </thead>
             <tbody>
-              {(sortedJobs ?? []).map((job) => (
+              {(filteredAndSortedJobs ?? []).map((job) => (
                 <tr
                   key={job.row}
                   className="border-b border-zinc-200 last:border-b-0 hover:bg-zinc-50 transition-colors">
