@@ -121,34 +121,55 @@ export default function ApplicationsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-700 bg-slate-900">
-                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
-                  Company
-                </th>
-                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
-                  Role
-                </th>
-                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
-                  Location
-                </th>
-                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
-                  Date
-                </th>
-                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
-                  Apply Type
-                </th>
-                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
-                  Job Type
-                </th>
+                <SortableHeader
+                  label="Company"
+                  active={sortField === "company"}
+                  direction={sortDirection}
+                  onClick={() => handleSort("company")}
+                />
+                <SortableHeader
+                  label="Role"
+                  active={sortField === "role"}
+                  direction={sortDirection}
+                  onClick={() => handleSort("role")}
+                />
+                <SortableHeader
+                  label="Location"
+                  active={sortField === "location"}
+                  direction={sortDirection}
+                  onClick={() => handleSort("location")}
+                />
+                <SortableHeader
+                  label="Date"
+                  active={sortField === "dateApplied"}
+                  direction={sortDirection}
+                  onClick={() => handleSort("dateApplied")}
+                />
+                <SortableHeader
+                  label="Apply Type"
+                  active={sortField === "applyType"}
+                  direction={sortDirection}
+                  onClick={() => handleSort("applyType")}
+                />
+                <SortableHeader
+                  label="Job Type"
+                  active={sortField === "jobType"}
+                  direction={sortDirection}
+                  onClick={() => handleSort("jobType")}
+                />
                 <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Posting
                 </th>
-                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
-                  Status
-                </th>
+                <SortableHeader
+                  label="Status"
+                  active={sortField === "status"}
+                  direction={sortDirection}
+                  onClick={() => handleSort("status")}
+                />
               </tr>
             </thead>
             <tbody>
-              {jobs.map((job) => (
+              {(sortedJobs ?? []).map((job) => (
                 <tr
                   key={job.row}
                   className="border-b border-zinc-200 last:border-b-0 hover:bg-zinc-50 transition-colors">
