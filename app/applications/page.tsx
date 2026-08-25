@@ -39,6 +39,13 @@ function SortableHeader({ label, active, direction, onClick }: SortableHeaderPro
   );
 }
 
+const DATE_FILTER_OPTIONS: { value: DateFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "week", label: "Past week" },
+  { value: "month", label: "Past month" },
+  { value: "year", label: "Past year" },
+];
+
 export default function ApplicationsPage() {
   const [jobs, setJobs] = useState<ApplicationRow[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -112,6 +119,24 @@ export default function ApplicationsPage() {
       <h1 className="text-xl font-semibold text-sm text-slate-400 mb-6">
         Applications
       </h1>
+
+      <div className="flex items-center gap-1.5 mb-4">
+        <span className="text-xs text-slate-400 font-medium">Date</span>
+        <div className="flex gap-1">
+          {DATE_FILTER_OPTIONS.map((o) => (
+            <button
+              key={o.value}
+              onClick={() => setDateFilter(o.value)}
+              className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
+                dateFilter === o.value
+                  ? "bg-slate-700 text-white"
+                  : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
+              }`}>
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {loading ? (
         <p className="text-sm text-slate-400">Loading...</p>
