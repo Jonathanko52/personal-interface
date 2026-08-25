@@ -161,6 +161,8 @@ export default function ApplicationsPage() {
         <p className="text-sm text-red-500">{error}</p>
       ) : !jobs || jobs.length === 0 ? (
         <p className="text-sm text-slate-400">No applications yet.</p>
+      ) : !filteredAndSortedJobs || filteredAndSortedJobs.length === 0 ? (
+        <p className="text-sm text-slate-400">No applications in this range.</p>
       ) : (
         <div className="overflow-x-auto border border-slate-700 bg-slate-900 rounded-md">
           <table className="w-full text-sm">
