@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useRef, useCallback, Re
 import { todos as initialTodos, lists as initialLists, tags as initialTags } from "./data";
 import { today as todayStr } from "./date";
 import { Priority } from "./priority";
+import { Weight } from "./weight";
 import { rolloverTodos } from "./rollover";
 
 export interface Todo {
@@ -11,6 +12,7 @@ export interface Todo {
   title: string;
   notes: string;
   priority: Priority;
+  weight: Weight | null;
   dueDate: string | null;
   completed: boolean;
   listId: string;

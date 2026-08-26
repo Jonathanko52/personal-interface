@@ -47,6 +47,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
       title: title.trim(),
       listId,
       priority,
+      weight: null,
       dueDate: dueDate || null,
       completed: false,
       tagIds: selectedTagIds,
