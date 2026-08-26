@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useData } from "@/app/lib/DataContext";
 import { PRIORITIES, Priority } from "@/app/lib/priority";
+import { WEIGHTS, Weight } from "@/app/lib/weight";
 import { toggleDay } from "@/app/lib/repeatDays";
 import RepeatDayPicker from "./RepeatDayPicker";
 import TagPicker from "./TagPicker";
@@ -17,6 +18,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
   const [title, setTitle] = useState("");
   const [listId, setListId] = useState(defaultListId ?? lists[0]?.id ?? "");
   const [priority, setPriority] = useState<Priority>("none");
+  const [weight, setWeight] = useState<Weight | null>(null);
   const [dueDate, setDueDate] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [repeatDays, setRepeatDays] = useState<number[]>([]);
@@ -47,7 +49,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
       title: title.trim(),
       listId,
       priority,
-      weight: null,
+      weight,
       dueDate: dueDate || null,
       completed: false,
       tagIds: selectedTagIds,
@@ -56,6 +58,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
     });
     setTitle("");
     setPriority("none");
+    setWeight(null);
     setDueDate("");
     setSelectedTagIds([]);
     setRepeatDays([]);
@@ -65,6 +68,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
   function handleCancel() {
     setTitle("");
     setPriority("none");
+    setWeight(null);
     setDueDate("");
     setSelectedTagIds([]);
     setRepeatDays([]);
@@ -121,6 +125,18 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
           {PRIORITIES.map((p) => (
             <option key={p} value={p} className="capitalize">
               {p}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={weight === null ? "" : String(weight)}
+          onChange={(e) => setWeight(e.target.value ? (Number(e.target.value) as Weight) : null)}
+          className="text-xs border border-slate-600 rounded-md px-2 py-1 outline-none text-slate-100 bg-slate-800">
+          <option value="">Weight</option>
+          {WEIGHTS.map((w) => (
+            <option key={w} value={w}>
+              {w}
             </option>
           ))}
         </select>
