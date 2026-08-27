@@ -10,7 +10,7 @@ import { useData } from "./lib/DataContext";
 import { useSortFilter } from "./lib/useSortFilter";
 import { useSelectedTodo } from "./lib/useSelectedTodo";
 import { today as todayStr, toDateString } from "./lib/date";
-import { completedTasks, formatCompletedTasksBlock, CompletionRange } from "./lib/completionStats";
+import { completedTasks, uncompletedTasksToday, formatTasksSummaryBlock, CompletionRange } from "./lib/completionStats";
 
 function dateLabel(dateStr: string): string {
   const today = todayStr();
@@ -31,8 +31,9 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
 
   const completedBlock = useMemo(() => {
-    const tasks = completedTasks(completions, todos, completedRange);
-    return formatCompletedTasksBlock(tasks, completedRange);
+    const completed = completedTasks(completions, todos, completedRange);
+    const uncompleted = uncompletedTasksToday(todos);
+    return formatTasksSummaryBlock(completed, uncompleted, completedRange);
   }, [completions, todos, completedRange]);
 
   async function handleCopy() {
@@ -78,7 +79,8 @@ export default function Home() {
     (t) =>
       t.dueDate === null ||
       t.dueDate === selectedDate ||
-      (isViewingToday && !t.completed)
+      (isViewingToday && !t.completed) ||
+      (isViewingToday && t.lastCompletedDate === todayStr())
   );
   const { result, sort, setSort, filter, setFilter } = useSortFilter(todosForDate);
 

@@ -39,9 +39,10 @@ export function completionCounts(completions: Completion[], referenceDate: Date 
 
 export type CompletionRange = "day" | "week";
 
-export interface CompletedTask {
+export interface WeightedTask {
   title: string;
   weight: Weight | null;
+  isDaily: boolean;
 }
 
 // A completion whose todoId no longer matches any todo (deleted after being
@@ -52,20 +53,70 @@ export function completedTasks(
   todos: Todo[],
   range: CompletionRange,
   referenceDate: Date = new Date()
-): CompletedTask[] {
-  const cutoff = toDateString(range === "day" ? referenceDate : startOfWeek(referenceDate));
+): WeightedTask[] {
+  const today = toDateString(referenceDate);
+  const cutoff = range === "day" ? today : toDateString(startOfWeek(referenceDate));
   const todoById = new Map(todos.map((t) => [t.id, t]));
   return completions
     .filter((c) => c.date >= cutoff)
+    .filter((c) => {
+      // A completion logged today is only still valid if the todo is still
+      // currently completed — if it's been unchecked since, this is a stale
+      // log entry from a same-day check-then-uncheck, not a real completion.
+      // Entries from earlier days are left alone: a repeating todo may have
+      // legitimately been reset to incomplete by rollover's normal daily
+      // cycle since then, which isn't the same thing as the user undoing it.
+      if (c.date !== today) return true;
+      const todo = todoById.get(c.todoId);
+      return !todo || todo.completed;
+    })
     .map((c) => {
       const todo = todoById.get(c.todoId);
-      return { title: todo?.title ?? "(deleted task)", weight: todo?.weight ?? null };
+      return {
+        title: todo?.title ?? "(deleted task)",
+        weight: todo?.weight ?? null,
+        isDaily: todo ? todo.repeatDays.length > 0 : false,
+      };
     });
 }
 
-export function formatCompletedTasksBlock(tasks: CompletedTask[], range: CompletionRange): string {
-  const header = range === "day" ? "Completed today:" : "Completed this week:";
-  if (tasks.length === 0) return `${header}\n(none)`;
-  const lines = tasks.map((t) => (t.weight !== null ? `- ${t.title} (${t.weight})` : `- ${t.title}`));
-  return [header, ...lines].join("\n");
+// Scoped to the current day regardless of the completed-tasks day/week toggle:
+// no due date (indefinite, always "on your plate"), due today, or overdue —
+// excludes todos due in the future, since those aren't relevant yet.
+export function uncompletedTasksToday(todos: Todo[], referenceDate: Date = new Date()): WeightedTask[] {
+  const today = toDateString(referenceDate);
+  return todos
+    .filter((t) => !t.completed && (t.dueDate === null || t.dueDate <= today))
+    .map((t) => ({ title: t.title, weight: t.weight }));
+}
+
+function sumWeights(tasks: WeightedTask[]): number {
+  return tasks.reduce((sum, t) => sum + (t.weight ?? 0), 0);
+}
+
+function formatTaskLines(tasks: WeightedTask[]): string[] {
+  if (tasks.length === 0) return ["(none)"];
+  return tasks.map((t) => (t.weight !== null ? `- ${t.title} (${t.weight})` : `- ${t.title}`));
+}
+
+export function formatTasksSummaryBlock(
+  completed: WeightedTask[],
+  uncompleted: WeightedTask[],
+  range: CompletionRange
+): string {
+  const completedHeader = range === "day" ? "Completed today:" : "Completed this week:";
+  const completedPoints = sumWeights(completed);
+  const uncompletedPoints = sumWeights(uncompleted);
+
+  return [
+    completedHeader,
+    ...formatTaskLines(completed),
+    `Completed points: ${completedPoints}`,
+    "",
+    "Uncompleted:",
+    ...formatTaskLines(uncompleted),
+    `Uncompleted points: ${uncompletedPoints}`,
+    "",
+    `Grand total: ${completedPoints + uncompletedPoints}`,
+  ].join("\n");
 }
