@@ -1,5 +1,6 @@
 import { Completion, Todo } from "./DataContext";
 import { toDateString } from "./date";
+import { Weight } from "./weight";
 
 export function startOfWeek(d: Date): Date {
   const date = new Date(d);
@@ -38,18 +39,33 @@ export function completionCounts(completions: Completion[], referenceDate: Date 
 
 export type CompletionRange = "day" | "week";
 
+export interface CompletedTask {
+  title: string;
+  weight: Weight | null;
+}
+
 // A completion whose todoId no longer matches any todo (deleted after being
 // completed) still shows up as a placeholder, rather than silently vanishing
 // from the list and understating what was actually completed.
-export function completedTaskTitles(
+export function completedTasks(
   completions: Completion[],
   todos: Todo[],
   range: CompletionRange,
   referenceDate: Date = new Date()
-): string[] {
+): CompletedTask[] {
   const cutoff = toDateString(range === "day" ? referenceDate : startOfWeek(referenceDate));
   const todoById = new Map(todos.map((t) => [t.id, t]));
   return completions
     .filter((c) => c.date >= cutoff)
-    .map((c) => todoById.get(c.todoId)?.title ?? "(deleted task)");
+    .map((c) => {
+      const todo = todoById.get(c.todoId);
+      return { title: todo?.title ?? "(deleted task)", weight: todo?.weight ?? null };
+    });
+}
+
+export function formatCompletedTasksBlock(tasks: CompletedTask[], range: CompletionRange): string {
+  const header = range === "day" ? "Completed today:" : "Completed this week:";
+  if (tasks.length === 0) return `${header}\n(none)`;
+  const lines = tasks.map((t) => (t.weight !== null ? `- ${t.title} (${t.weight})` : `- ${t.title}`));
+  return [header, ...lines].join("\n");
 }
