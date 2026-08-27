@@ -20,6 +20,7 @@ interface ApplicationRow {
 type SortField = "company" | "role" | "location" | "dateApplied" | "applyType" | "jobType" | "status";
 type SortDirection = "asc" | "desc";
 type DateFilter = "all" | "week" | "month" | "year";
+type EntryLimit = 5 | 10 | 15 | 25 | 50;
 
 interface SortableHeaderProps {
   label: string;
@@ -54,6 +55,7 @@ export default function ApplicationsPage() {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
+  const [entryLimit, setEntryLimit] = useState<EntryLimit>(25);
 
   function handleSort(field: SortField) {
     if (sortField === field) {
