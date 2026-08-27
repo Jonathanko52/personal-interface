@@ -68,7 +68,7 @@ export default function ApplicationsPage() {
     }
   }
 
-  const displayedJobs = useMemo(() => {
+  const filteredAndSortedJobs = useMemo(() => {
     if (!jobs) return jobs;
 
     const now = new Date();
@@ -99,8 +99,12 @@ export default function ApplicationsPage() {
       });
     }
 
-    return items.slice(0, entryLimit);
-  }, [jobs, dateFilter, sortField, sortDirection, entryLimit]);
+    return items;
+  }, [jobs, dateFilter, sortField, sortDirection]);
+
+  const displayedJobs = useMemo(() => {
+    return filteredAndSortedJobs?.slice(0, entryLimit) ?? filteredAndSortedJobs;
+  }, [filteredAndSortedJobs, entryLimit]);
 
   useEffect(() => {
     fetch("/api/jobs/list")
@@ -175,6 +179,11 @@ export default function ApplicationsPage() {
             </button>
           ))}
         </div>
+        {filteredAndSortedJobs && filteredAndSortedJobs.length > entryLimit && (
+          <span className="text-xs text-slate-500">
+            Showing {entryLimit} of {filteredAndSortedJobs.length}
+          </span>
+        )}
       </div>
 
       {loading ? (
