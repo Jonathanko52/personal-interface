@@ -87,11 +87,18 @@ export function uncompletedTasksToday(todos: Todo[], referenceDate: Date = new D
   const today = toDateString(referenceDate);
   return todos
     .filter((t) => !t.completed && (t.dueDate === null || t.dueDate <= today))
-    .map((t) => ({ title: t.title, weight: t.weight }));
+    .map((t) => ({ title: t.title, weight: t.weight, isDaily: t.repeatDays.length > 0 }));
 }
 
-function sumWeights(tasks: WeightedTask[]): number {
-  return tasks.reduce((sum, t) => sum + (t.weight ?? 0), 0);
+function sumWeightsSplit(tasks: WeightedTask[]): { daily: number; oneOff: number } {
+  return tasks.reduce(
+    (acc, t) => {
+      if (t.isDaily) acc.daily += t.weight ?? 0;
+      else acc.oneOff += t.weight ?? 0;
+      return acc;
+    },
+    { daily: 0, oneOff: 0 }
+  );
 }
 
 function formatTaskLines(tasks: WeightedTask[]): string[] {
@@ -105,18 +112,19 @@ export function formatTasksSummaryBlock(
   range: CompletionRange
 ): string {
   const completedHeader = range === "day" ? "Completed today:" : "Completed this week:";
-  const completedPoints = sumWeights(completed);
-  const uncompletedPoints = sumWeights(uncompleted);
+  const completedSplit = sumWeightsSplit(completed);
+  const uncompletedSplit = sumWeightsSplit(uncompleted);
+  const totalCount = completed.length + uncompleted.length;
 
   return [
     completedHeader,
     ...formatTaskLines(completed),
-    `Completed points: ${completedPoints}`,
+    `Completed points — Daily: ${completedSplit.daily}, One-off: ${completedSplit.oneOff}`,
     "",
     "Uncompleted:",
     ...formatTaskLines(uncompleted),
-    `Uncompleted points: ${uncompletedPoints}`,
+    `Uncompleted points — Daily: ${uncompletedSplit.daily}, One-off: ${uncompletedSplit.oneOff}`,
     "",
-    `Grand total: ${completedPoints + uncompletedPoints}`,
+    `${completed.length} completed / ${totalCount} completed+uncompleted`,
   ].join("\n");
 }
