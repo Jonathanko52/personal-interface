@@ -68,7 +68,7 @@ export default function ApplicationsPage() {
     }
   }
 
-  const filteredAndSortedJobs = useMemo(() => {
+  const displayedJobs = useMemo(() => {
     if (!jobs) return jobs;
 
     const now = new Date();
@@ -99,8 +99,8 @@ export default function ApplicationsPage() {
       });
     }
 
-    return items;
-  }, [jobs, dateFilter, sortField, sortDirection]);
+    return items.slice(0, entryLimit);
+  }, [jobs, dateFilter, sortField, sortDirection, entryLimit]);
 
   useEffect(() => {
     fetch("/api/jobs/list")
@@ -183,7 +183,7 @@ export default function ApplicationsPage() {
         <p className="text-sm text-red-500">{error}</p>
       ) : !jobs || jobs.length === 0 ? (
         <p className="text-sm text-slate-400">No applications yet.</p>
-      ) : !filteredAndSortedJobs || filteredAndSortedJobs.length === 0 ? (
+      ) : !displayedJobs || displayedJobs.length === 0 ? (
         <p className="text-sm text-slate-400">No applications in this range.</p>
       ) : (
         <div className="overflow-x-auto border border-slate-700 bg-slate-900 rounded-md">
@@ -238,7 +238,7 @@ export default function ApplicationsPage() {
               </tr>
             </thead>
             <tbody>
-              {(filteredAndSortedJobs ?? []).map((job) => (
+              {(displayedJobs ?? []).map((job) => (
                 <tr
                   key={job.row}
                   className="border-b border-zinc-200 last:border-b-0 hover:bg-zinc-50 transition-colors">
