@@ -16,9 +16,10 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useData, Todo as FullTodo } from "@/app/lib/DataContext";
 import { priorityBadgeStyles } from "@/app/lib/priority";
+import { weightBadgeStyles } from "@/app/lib/weight";
 import { today as todayStr } from "@/app/lib/date";
 
-type Todo = Pick<FullTodo, "id" | "title" | "priority" | "dueDate" | "completed" | "tagIds">;
+type Todo = Pick<FullTodo, "id" | "title" | "priority" | "weight" | "dueDate" | "completed" | "tagIds">;
 
 interface TodoListProps {
   todos: Todo[];
@@ -82,6 +83,11 @@ function SortableTodo({
       {todo.priority !== "none" && (
         <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 capitalize ${priorityBadgeStyles[todo.priority]}`}>
           {todo.priority}
+        </span>
+      )}
+      {todo.weight !== null && (
+        <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${weightBadgeStyles[todo.weight]}`}>
+          {todo.weight}
         </span>
       )}
       {todo.dueDate && (
