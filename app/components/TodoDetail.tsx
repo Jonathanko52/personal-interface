@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useData, Todo } from "@/app/lib/DataContext";
 import { PRIORITIES, Priority } from "@/app/lib/priority";
+import { WEIGHTS, Weight } from "@/app/lib/weight";
 import { toggleDay } from "@/app/lib/repeatDays";
 import RepeatDayPicker from "./RepeatDayPicker";
 import TagPicker from "./TagPicker";
@@ -21,6 +22,7 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
   const [title, setTitle] = useState(todo.title);
   const [notes, setNotes] = useState(todo.notes);
   const [priority, setPriority] = useState<Priority>(todo.priority);
+  const [weight, setWeight] = useState<Weight | null>(todo.weight);
   const [dueDate, setDueDate] = useState(todo.dueDate ?? "");
   const [tagIds, setTagIds] = useState(todo.tagIds);
   const [repeatDays, setRepeatDays] = useState(todo.repeatDays ?? []);
@@ -30,12 +32,13 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
     title !== todo.title ||
     notes !== todo.notes ||
     priority !== todo.priority ||
+    weight !== todo.weight ||
     (dueDate || null) !== todo.dueDate ||
     !sameSet(tagIds, todo.tagIds) ||
     !sameSet(repeatDays, todo.repeatDays ?? []);
 
   function commitChanges() {
-    updateTodo(todo.id, { title, notes, priority, dueDate: dueDate || null, tagIds, repeatDays });
+    updateTodo(todo.id, { title, notes, priority, weight, dueDate: dueDate || null, tagIds, repeatDays });
   }
 
   function attemptClose() {
@@ -125,6 +128,25 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
                   }`}
                 >
                   {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Weight</label>
+            <div className="flex gap-2">
+              {WEIGHTS.map((w) => (
+                <button
+                  key={w}
+                  onClick={() => setWeight(weight === w ? null : w)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                    weight === w
+                      ? "bg-indigo-500 text-white border-indigo-500"
+                      : "border-slate-600 text-slate-400 hover:border-slate-400 hover:text-white"
+                  }`}
+                >
+                  {w}
                 </button>
               ))}
             </div>
