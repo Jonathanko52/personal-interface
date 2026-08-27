@@ -47,6 +47,8 @@ const DATE_FILTER_OPTIONS: { value: DateFilter; label: string }[] = [
   { value: "year", label: "Past year" },
 ];
 
+const ENTRY_LIMIT_OPTIONS: EntryLimit[] = [5, 10, 15, 25, 50];
+
 export default function ApplicationsPage() {
   const [jobs, setJobs] = useState<ApplicationRow[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -152,6 +154,24 @@ export default function ApplicationsPage() {
                   : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
               }`}>
               {o.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1.5 mb-4">
+        <span className="text-xs text-slate-400 font-medium">Show</span>
+        <div className="flex gap-1">
+          {ENTRY_LIMIT_OPTIONS.map((limit) => (
+            <button
+              key={limit}
+              onClick={() => setEntryLimit(limit)}
+              className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
+                entryLimit === limit
+                  ? "bg-slate-700 text-white"
+                  : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
+              }`}>
+              {limit}
             </button>
           ))}
         </div>
