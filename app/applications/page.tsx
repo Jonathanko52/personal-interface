@@ -49,6 +49,23 @@ const DATE_FILTER_OPTIONS: { value: DateFilter; label: string }[] = [
 
 const ENTRY_LIMIT_OPTIONS: EntryLimit[] = [5, 10, 15, 25, 50];
 
+const JOB_TYPE_OPTIONS = ["Internship", "Part-time", "Full-time"] as const;
+const APPLY_TYPE_OPTIONS = ["Quick Apply", "Normal Apply"] as const;
+
+function toggleFilterValue(
+  current: Set<string>,
+  value: string,
+  update: (next: Set<string>) => void,
+) {
+  const next = new Set(current);
+  if (next.has(value)) {
+    next.delete(value);
+  } else {
+    next.add(value);
+  }
+  update(next);
+}
+
 export default function ApplicationsPage() {
   const [jobs, setJobs] = useState<ApplicationRow[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,6 +75,9 @@ export default function ApplicationsPage() {
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [entryLimit, setEntryLimit] = useState<EntryLimit>(25);
+  const [statusFilter, setStatusFilter] = useState<Set<string>>(new Set());
+  const [jobTypeFilter, setJobTypeFilter] = useState<Set<string>>(new Set());
+  const [applyTypeFilter, setApplyTypeFilter] = useState<Set<string>>(new Set());
 
   function handleSort(field: SortField) {
     if (sortField === field) {
@@ -85,8 +105,14 @@ export default function ApplicationsPage() {
         })
       : [...jobs];
 
+    const filteredItems = items.filter((job) =>
+      (statusFilter.size === 0 || statusFilter.has(job.status)) &&
+      (jobTypeFilter.size === 0 || jobTypeFilter.has(job.jobType)) &&
+      (applyTypeFilter.size === 0 || applyTypeFilter.has(job.applyType)),
+    );
+
     if (sortField) {
-      items.sort((a, b) => {
+      filteredItems.sort((a, b) => {
         let cmp: number;
         if (sortField === "dateApplied") {
           const da = parseSheetDate(a.dateApplied);
@@ -99,12 +125,18 @@ export default function ApplicationsPage() {
       });
     }
 
-    return items;
-  }, [jobs, dateFilter, sortField, sortDirection]);
+    return filteredItems;
+  }, [jobs, dateFilter, statusFilter, jobTypeFilter, applyTypeFilter, sortField, sortDirection]);
 
   const displayedJobs = useMemo(() => {
     return filteredAndSortedJobs?.slice(0, entryLimit) ?? filteredAndSortedJobs;
   }, [filteredAndSortedJobs, entryLimit]);
+
+  const hasActiveFilters =
+    dateFilter !== "all" ||
+    statusFilter.size > 0 ||
+    jobTypeFilter.size > 0 ||
+    applyTypeFilter.size > 0;
 
   useEffect(() => {
     fetch("/api/jobs/list")
@@ -145,46 +177,73 @@ export default function ApplicationsPage() {
         Applications
       </h1>
 
-      <div className="flex items-center gap-1.5 mb-4">
-        <span className="text-xs text-slate-400 font-medium">Date</span>
-        <div className="flex gap-1">
-          {DATE_FILTER_OPTIONS.map((o) => (
-            <button
-              key={o.value}
-              onClick={() => setDateFilter(o.value)}
-              className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
-                dateFilter === o.value
-                  ? "bg-slate-700 text-white"
-                  : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
-              }`}>
-              {o.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <section className="mb-5 border border-slate-700 rounded-md bg-slate-900 p-4">
+        <div className="flex flex-wrap gap-x-8 gap-y-4">
+          <fieldset>
+            <legend className="text-xs text-slate-300 font-semibold mb-2">Date applied</legend>
+            <div className="flex flex-wrap gap-1">
+              {DATE_FILTER_OPTIONS.map((o) => (
+                <button
+                  key={o.value}
+                  onClick={() => setDateFilter(o.value)}
+                  className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
+                    dateFilter === o.value
+                      ? "bg-slate-700 text-white"
+                      : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
+                  }`}>
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
 
-      <div className="flex items-center gap-1.5 mb-4">
-        <span className="text-xs text-slate-400 font-medium">Show</span>
-        <div className="flex gap-1">
-          {ENTRY_LIMIT_OPTIONS.map((limit) => (
-            <button
-              key={limit}
-              onClick={() => setEntryLimit(limit)}
-              className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
-                entryLimit === limit
-                  ? "bg-slate-700 text-white"
-                  : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
-              }`}>
-              {limit}
-            </button>
+          <fieldset>
+            <legend className="text-xs text-slate-300 font-semibold mb-2">Show entries</legend>
+            <div className="flex flex-wrap gap-1">
+              {ENTRY_LIMIT_OPTIONS.map((limit) => (
+                <button
+                  key={limit}
+                  onClick={() => setEntryLimit(limit)}
+                  className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
+                    entryLimit === limit
+                      ? "bg-slate-700 text-white"
+                      : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
+                  }`}>
+                  {limit}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          {[
+            ["Status", JOB_STATUSES, statusFilter, setStatusFilter],
+            ["Job type", JOB_TYPE_OPTIONS, jobTypeFilter, setJobTypeFilter],
+            ["Apply type", APPLY_TYPE_OPTIONS, applyTypeFilter, setApplyTypeFilter],
+          ].map(([label, options, selected, setSelected]) => (
+            <fieldset key={label as string}>
+              <legend className="text-xs text-slate-300 font-semibold mb-2">{label as string}</legend>
+              <div className="flex flex-wrap gap-x-3 gap-y-2">
+                {(options as readonly string[]).map((option) => (
+                  <label key={option} className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={(selected as Set<string>).has(option)}
+                      onChange={() => toggleFilterValue(selected as Set<string>, option, setSelected as (next: Set<string>) => void)}
+                      className="accent-slate-500"
+                    />
+                    {option}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
           ))}
         </div>
         {filteredAndSortedJobs && filteredAndSortedJobs.length > entryLimit && (
-          <span className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 mt-4">
             Showing {entryLimit} of {filteredAndSortedJobs.length}
-          </span>
+          </p>
         )}
-      </div>
+      </section>
 
       {loading ? (
         <p className="text-sm text-slate-400">Loading...</p>
@@ -193,7 +252,9 @@ export default function ApplicationsPage() {
       ) : !jobs || jobs.length === 0 ? (
         <p className="text-sm text-slate-400">No applications yet.</p>
       ) : !displayedJobs || displayedJobs.length === 0 ? (
-        <p className="text-sm text-slate-400">No applications in this range.</p>
+        <p className="text-sm text-slate-400">
+          {hasActiveFilters ? "No applications match the selected filters." : "No applications to display."}
+        </p>
       ) : (
         <div className="overflow-x-auto border border-slate-700 bg-slate-900 rounded-md">
           <table className="w-full text-sm">
