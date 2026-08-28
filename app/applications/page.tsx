@@ -183,6 +183,34 @@ export default function ApplicationsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  async function handleFieldChange(
+    row: number,
+    field: "applyType" | "jobType",
+    value: string,
+  ) {
+    const prevJobs = jobs;
+    setJobs(
+      (cur) => cur?.map((j) => (j.row === row ? { ...j, [field]: value } : j)) ?? cur,
+    );
+    setSavingRows((prev) => new Set(prev).add(row));
+    try {
+      const res = await fetch("/api/jobs/field", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ row, field, value }),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      setJobs(prevJobs);
+    } finally {
+      setSavingRows((prev) => {
+        const next = new Set(prev);
+        next.delete(row);
+        return next;
+      });
+    }
+  }
+
   async function handleStatusChange(row: number, status: JobStatus) {
     const prevJobs = jobs;
     setJobs(
@@ -377,8 +405,36 @@ export default function ApplicationsPage() {
                   <td className="px-3 py-2 text-slate-400">
                     {job.dateApplied}
                   </td>
-                  <td className="px-3 py-2 text-slate-400">{job.applyType}</td>
-                  <td className="px-3 py-2 text-slate-400">{job.jobType}</td>
+                  <td className="px-3 py-2">
+                    <select
+                      value={job.applyType}
+                      onChange={(e) =>
+                        handleFieldChange(job.row, "applyType", e.target.value)
+                      }
+                      disabled={savingRows.has(job.row)}
+                      className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white disabled:opacity-60">
+                      {APPLY_TYPE_OPTIONS.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-3 py-2">
+                    <select
+                      value={job.jobType}
+                      onChange={(e) =>
+                        handleFieldChange(job.row, "jobType", e.target.value)
+                      }
+                      disabled={savingRows.has(job.row)}
+                      className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white disabled:opacity-60">
+                      {JOB_TYPE_OPTIONS.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                   <td className="px-3 py-2">
                     {job.postingLink ? (
                       <a
