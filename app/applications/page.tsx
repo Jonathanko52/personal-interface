@@ -185,7 +185,7 @@ export default function ApplicationsPage() {
 
   async function handleFieldChange(
     row: number,
-    field: "applyType" | "jobType",
+    field: "applyType" | "jobType" | "status",
     value: string,
   ) {
     const prevJobs = jobs;
@@ -194,35 +194,16 @@ export default function ApplicationsPage() {
     );
     setSavingRows((prev) => new Set(prev).add(row));
     try {
-      const res = await fetch("/api/jobs/field", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ row, field, value }),
-      });
-      if (!res.ok) throw new Error();
-    } catch {
-      setJobs(prevJobs);
-    } finally {
-      setSavingRows((prev) => {
-        const next = new Set(prev);
-        next.delete(row);
-        return next;
-      });
-    }
-  }
-
-  async function handleStatusChange(row: number, status: JobStatus) {
-    const prevJobs = jobs;
-    setJobs(
-      (cur) => cur?.map((j) => (j.row === row ? { ...j, status } : j)) ?? cur,
-    );
-    setSavingRows((prev) => new Set(prev).add(row));
-    try {
-      const res = await fetch("/api/jobs/status", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ row, status }),
-      });
+      const res = await fetch(
+        field === "status" ? "/api/jobs/status" : "/api/jobs/field",
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+            field === "status" ? { row, status: value } : { row, field, value },
+          ),
+        },
+      );
       if (!res.ok) throw new Error();
     } catch {
       setJobs(prevJobs);
@@ -452,7 +433,7 @@ export default function ApplicationsPage() {
                     <select
                       value={job.status}
                       onChange={(e) =>
-                        handleStatusChange(job.row, e.target.value as JobStatus)
+                        handleFieldChange(job.row, "status", e.target.value)
                       }
                       disabled={savingRows.has(job.row)}
                       className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white disabled:opacity-60">
