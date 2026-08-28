@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { JOB_STATUSES, JobStatus } from "@/app/lib/jobStatus";
 import { parseSheetDate } from "@/app/lib/sheetDate";
-import { startOfWeek, startOfMonth, startOfYear } from "@/app/lib/completionStats";
+import {
+  startOfWeek,
+  startOfMonth,
+  startOfYear,
+} from "@/app/lib/completionStats";
 
 interface ApplicationRow {
   row: number;
@@ -17,7 +21,14 @@ interface ApplicationRow {
   status: JobStatus;
 }
 
-type SortField = "company" | "role" | "location" | "dateApplied" | "applyType" | "jobType" | "status";
+type SortField =
+  | "company"
+  | "role"
+  | "location"
+  | "dateApplied"
+  | "applyType"
+  | "jobType"
+  | "status";
 type SortDirection = "asc" | "desc";
 type DateFilter = "all" | "week" | "month" | "year";
 type EntryLimit = 5 | 10 | 15 | 25 | 50;
@@ -29,13 +40,20 @@ interface SortableHeaderProps {
   onClick: () => void;
 }
 
-function SortableHeader({ label, active, direction, onClick }: SortableHeaderProps) {
+function SortableHeader({
+  label,
+  active,
+  direction,
+  onClick,
+}: SortableHeaderProps) {
   return (
     <th
       onClick={onClick}
       className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2 cursor-pointer select-none hover:text-slate-200 transition-colors">
       {label}
-      {active && <span className="ml-1">{direction === "asc" ? "▲" : "▼"}</span>}
+      {active && (
+        <span className="ml-1">{direction === "asc" ? "▲" : "▼"}</span>
+      )}
     </th>
   );
 }
@@ -77,7 +95,9 @@ export default function ApplicationsPage() {
   const [entryLimit, setEntryLimit] = useState<EntryLimit>(25);
   const [statusFilter, setStatusFilter] = useState<Set<string>>(new Set());
   const [jobTypeFilter, setJobTypeFilter] = useState<Set<string>>(new Set());
-  const [applyTypeFilter, setApplyTypeFilter] = useState<Set<string>>(new Set());
+  const [applyTypeFilter, setApplyTypeFilter] = useState<Set<string>>(
+    new Set(),
+  );
 
   function handleSort(field: SortField) {
     if (sortField === field) {
@@ -93,10 +113,13 @@ export default function ApplicationsPage() {
 
     const now = new Date();
     const cutoff =
-      dateFilter === "week" ? startOfWeek(now) :
-      dateFilter === "month" ? startOfMonth(now) :
-      dateFilter === "year" ? startOfYear(now) :
-      null;
+      dateFilter === "week"
+        ? startOfWeek(now)
+        : dateFilter === "month"
+          ? startOfMonth(now)
+          : dateFilter === "year"
+            ? startOfYear(now)
+            : null;
 
     const items = cutoff
       ? jobs.filter((j) => {
@@ -105,10 +128,11 @@ export default function ApplicationsPage() {
         })
       : [...jobs];
 
-    const filteredItems = items.filter((job) =>
-      (statusFilter.size === 0 || statusFilter.has(job.status)) &&
-      (jobTypeFilter.size === 0 || jobTypeFilter.has(job.jobType)) &&
-      (applyTypeFilter.size === 0 || applyTypeFilter.has(job.applyType)),
+    const filteredItems = items.filter(
+      (job) =>
+        (statusFilter.size === 0 || statusFilter.has(job.status)) &&
+        (jobTypeFilter.size === 0 || jobTypeFilter.has(job.jobType)) &&
+        (applyTypeFilter.size === 0 || applyTypeFilter.has(job.applyType)),
     );
 
     if (sortField) {
@@ -126,7 +150,15 @@ export default function ApplicationsPage() {
     }
 
     return filteredItems;
-  }, [jobs, dateFilter, statusFilter, jobTypeFilter, applyTypeFilter, sortField, sortDirection]);
+  }, [
+    jobs,
+    dateFilter,
+    statusFilter,
+    jobTypeFilter,
+    applyTypeFilter,
+    sortField,
+    sortDirection,
+  ]);
 
   const displayedJobs = useMemo(() => {
     return filteredAndSortedJobs?.slice(0, entryLimit) ?? filteredAndSortedJobs;
@@ -145,13 +177,17 @@ export default function ApplicationsPage() {
         return res.json();
       })
       .then((data) => setJobs([...data.jobs].reverse()))
-      .catch((err) => setError(err instanceof Error ? err.message : "Something went wrong."))
+      .catch((err) =>
+        setError(err instanceof Error ? err.message : "Something went wrong."),
+      )
       .finally(() => setLoading(false));
   }, []);
 
   async function handleStatusChange(row: number, status: JobStatus) {
     const prevJobs = jobs;
-    setJobs((cur) => cur?.map((j) => (j.row === row ? { ...j, status } : j)) ?? cur);
+    setJobs(
+      (cur) => cur?.map((j) => (j.row === row ? { ...j, status } : j)) ?? cur,
+    );
     setSavingRows((prev) => new Set(prev).add(row));
     try {
       const res = await fetch("/api/jobs/status", {
@@ -180,7 +216,9 @@ export default function ApplicationsPage() {
       <section className="mb-5 border border-slate-700 rounded-md bg-slate-900 p-4">
         <div className="flex flex-wrap gap-x-8 gap-y-4">
           <fieldset>
-            <legend className="text-xs text-slate-300 font-semibold mb-2">Date applied</legend>
+            <legend className="text-xs text-slate-300 font-semibold mb-2">
+              Date applied
+            </legend>
             <div className="flex flex-wrap gap-1">
               {DATE_FILTER_OPTIONS.map((o) => (
                 <button
@@ -198,7 +236,9 @@ export default function ApplicationsPage() {
           </fieldset>
 
           <fieldset>
-            <legend className="text-xs text-slate-300 font-semibold mb-2">Show entries</legend>
+            <legend className="text-xs text-slate-300 font-semibold mb-2">
+              Show entries
+            </legend>
             <div className="flex flex-wrap gap-1">
               {ENTRY_LIMIT_OPTIONS.map((limit) => (
                 <button
@@ -218,17 +258,32 @@ export default function ApplicationsPage() {
           {[
             ["Status", JOB_STATUSES, statusFilter, setStatusFilter],
             ["Job type", JOB_TYPE_OPTIONS, jobTypeFilter, setJobTypeFilter],
-            ["Apply type", APPLY_TYPE_OPTIONS, applyTypeFilter, setApplyTypeFilter],
+            [
+              "Apply type",
+              APPLY_TYPE_OPTIONS,
+              applyTypeFilter,
+              setApplyTypeFilter,
+            ],
           ].map(([label, options, selected, setSelected]) => (
             <fieldset key={label as string}>
-              <legend className="text-xs text-slate-300 font-semibold mb-2">{label as string}</legend>
+              <legend className="text-xs text-slate-300 font-semibold mb-2">
+                {label as string}
+              </legend>
               <div className="flex flex-wrap gap-x-3 gap-y-2">
                 {(options as readonly string[]).map((option) => (
-                  <label key={option} className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
+                  <label
+                    key={option}
+                    className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={(selected as Set<string>).has(option)}
-                      onChange={() => toggleFilterValue(selected as Set<string>, option, setSelected as (next: Set<string>) => void)}
+                      onChange={() =>
+                        toggleFilterValue(
+                          selected as Set<string>,
+                          option,
+                          setSelected as (next: Set<string>) => void,
+                        )
+                      }
                       className="accent-slate-500"
                     />
                     {option}
@@ -253,7 +308,9 @@ export default function ApplicationsPage() {
         <p className="text-sm text-slate-400">No applications yet.</p>
       ) : !displayedJobs || displayedJobs.length === 0 ? (
         <p className="text-sm text-slate-400">
-          {hasActiveFilters ? "No applications match the selected filters." : "No applications to display."}
+          {hasActiveFilters
+            ? "No applications match the selected filters."
+            : "No applications to display."}
         </p>
       ) : (
         <div className="overflow-x-auto border border-slate-700 bg-slate-900 rounded-md">
