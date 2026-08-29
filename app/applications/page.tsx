@@ -88,7 +88,7 @@ export default function ApplicationsPage() {
   const [jobs, setJobs] = useState<ApplicationRow[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [savingRows, setSavingRows] = useState<Set<number>>(new Set());
+  const [savingCells, setSavingCells] = useState<Set<string>>(new Set());
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
@@ -189,10 +189,11 @@ export default function ApplicationsPage() {
     value: string,
   ) {
     const prevJobs = jobs;
+    const cellKey = `${row}:${field}`;
     setJobs(
       (cur) => cur?.map((j) => (j.row === row ? { ...j, [field]: value } : j)) ?? cur,
     );
-    setSavingRows((prev) => new Set(prev).add(row));
+    setSavingCells((prev) => new Set(prev).add(cellKey));
     try {
       const res = await fetch(
         field === "status" ? "/api/jobs/status" : "/api/jobs/field",
@@ -208,9 +209,9 @@ export default function ApplicationsPage() {
     } catch {
       setJobs(prevJobs);
     } finally {
-      setSavingRows((prev) => {
+      setSavingCells((prev) => {
         const next = new Set(prev);
-        next.delete(row);
+        next.delete(cellKey);
         return next;
       });
     }
@@ -392,7 +393,7 @@ export default function ApplicationsPage() {
                       onChange={(e) =>
                         handleFieldChange(job.row, "applyType", e.target.value)
                       }
-                      disabled={savingRows.has(job.row)}
+                      disabled={savingCells.has(`${job.row}:applyType`)}
                       className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white disabled:opacity-60">
                       {APPLY_TYPE_OPTIONS.map((type) => (
                         <option key={type} value={type}>
@@ -407,7 +408,7 @@ export default function ApplicationsPage() {
                       onChange={(e) =>
                         handleFieldChange(job.row, "jobType", e.target.value)
                       }
-                      disabled={savingRows.has(job.row)}
+                      disabled={savingCells.has(`${job.row}:jobType`)}
                       className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white disabled:opacity-60">
                       {JOB_TYPE_OPTIONS.map((type) => (
                         <option key={type} value={type}>
@@ -435,7 +436,7 @@ export default function ApplicationsPage() {
                       onChange={(e) =>
                         handleFieldChange(job.row, "status", e.target.value)
                       }
-                      disabled={savingRows.has(job.row)}
+                      disabled={savingCells.has(`${job.row}:status`)}
                       className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white disabled:opacity-60">
                       {JOB_STATUSES.map((status) => (
                         <option key={status} value={status}>
