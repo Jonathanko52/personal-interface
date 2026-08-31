@@ -217,6 +217,39 @@ export default function ApplicationsPage() {
     }
   }
 
+  async function handleTextFieldChange(
+    row: number,
+    field: "company" | "role" | "location",
+    value: string,
+  ) {
+    const trimmed = value.trim();
+    const current = jobs?.find((j) => j.row === row)?.[field];
+    if (!trimmed || trimmed === current) return;
+
+    const prevJobs = jobs;
+    const cellKey = `${row}:${field}`;
+    setJobs(
+      (cur) => cur?.map((j) => (j.row === row ? { ...j, [field]: trimmed } : j)) ?? cur,
+    );
+    setSavingCells((prev) => new Set(prev).add(cellKey));
+    try {
+      const res = await fetch("/api/jobs/field", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ row, field, value: trimmed }),
+      });
+      if (!res.ok) throw new Error();
+    } catch {
+      setJobs(prevJobs);
+    } finally {
+      setSavingCells((prev) => {
+        const next = new Set(prev);
+        next.delete(cellKey);
+        return next;
+      });
+    }
+  }
+
   return (
     <div className="max-w-5xl mx-auto">
       <h1 className="text-xl font-semibold text-sm text-slate-400 mb-6">
@@ -380,10 +413,62 @@ export default function ApplicationsPage() {
                   key={job.row}
                   className="border-b border-zinc-200 last:border-b-0 hover:bg-zinc-50 transition-colors">
                   <td className="px-3 py-2 text-slate-400 font-medium">
-                    {job.company}
+                    <input
+                      key={`${job.row}-company-${job.company}`}
+                      type="text"
+                      defaultValue={job.company}
+                      disabled={savingCells.has(`${job.row}:company`)}
+                      onBlur={(e) =>
+                        handleTextFieldChange(job.row, "company", e.target.value)
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") e.currentTarget.blur();
+                        if (e.key === "Escape") {
+                          e.currentTarget.value = job.company;
+                          e.currentTarget.blur();
+                        }
+                      }}
+                      className="w-full bg-transparent outline-none focus:ring-1 focus:ring-indigo-300 rounded px-1 disabled:opacity-60"
+                    />
                   </td>
-                  <td className="px-3 py-2 text-slate-400">{job.role}</td>
-                  <td className="px-3 py-2 text-slate-400">{job.location}</td>
+                  <td className="px-3 py-2 text-slate-400">
+                    <input
+                      key={`${job.row}-role-${job.role}`}
+                      type="text"
+                      defaultValue={job.role}
+                      disabled={savingCells.has(`${job.row}:role`)}
+                      onBlur={(e) =>
+                        handleTextFieldChange(job.row, "role", e.target.value)
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") e.currentTarget.blur();
+                        if (e.key === "Escape") {
+                          e.currentTarget.value = job.role;
+                          e.currentTarget.blur();
+                        }
+                      }}
+                      className="w-full bg-transparent outline-none focus:ring-1 focus:ring-indigo-300 rounded px-1 disabled:opacity-60"
+                    />
+                  </td>
+                  <td className="px-3 py-2 text-slate-400">
+                    <input
+                      key={`${job.row}-location-${job.location}`}
+                      type="text"
+                      defaultValue={job.location}
+                      disabled={savingCells.has(`${job.row}:location`)}
+                      onBlur={(e) =>
+                        handleTextFieldChange(job.row, "location", e.target.value)
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") e.currentTarget.blur();
+                        if (e.key === "Escape") {
+                          e.currentTarget.value = job.location;
+                          e.currentTarget.blur();
+                        }
+                      }}
+                      className="w-full bg-transparent outline-none focus:ring-1 focus:ring-indigo-300 rounded px-1 disabled:opacity-60"
+                    />
+                  </td>
                   <td className="px-3 py-2 text-slate-400">
                     {job.dateApplied}
                   </td>
