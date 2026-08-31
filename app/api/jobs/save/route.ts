@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSheetsClient, sheetsErrorResponse } from "@/app/lib/googleSheets";
+import { getSheetsClient, sheetsErrorResponse, sanitizeForSheets } from "@/app/lib/googleSheets";
 import { getCurrentDateMMDDYY } from "@/app/lib/sheetDate";
 import { DEFAULT_JOB_STATUS } from "@/app/lib/jobStatus";
 
@@ -17,14 +17,6 @@ const JOB_TYPE_LABELS: Record<JobData["jobType"], string> = {
   "part-time": "Part-time",
   "full-time": "Full-time",
 };
-
-// Cells starting with these characters are interpreted as formulas by Sheets even
-// under USER_ENTERED input; a leading apostrophe forces literal-text interpretation.
-const SHEETS_FORMULA_PREFIX = /^[=+\-@\t\r]/;
-
-function sanitizeForSheets(value: string): string {
-  return SHEETS_FORMULA_PREFIX.test(value) ? `'${value}` : value;
-}
 
 function isJobData(value: unknown): value is JobData {
   if (!value || typeof value !== "object") return false;

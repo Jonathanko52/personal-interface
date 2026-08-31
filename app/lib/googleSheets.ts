@@ -30,3 +30,11 @@ export function sheetsErrorResponse(action: string, err: unknown) {
   const message = err instanceof Error ? err.message : "Unknown error";
   return NextResponse.json({ error: `Failed to ${action}: ${message}` }, { status: 502 });
 }
+
+// Cells starting with these characters are interpreted as formulas by Sheets even
+// under USER_ENTERED input; a leading apostrophe forces literal-text interpretation.
+const SHEETS_FORMULA_PREFIX = /^[=+\-@\t\r]/;
+
+export function sanitizeForSheets(value: string): string {
+  return SHEETS_FORMULA_PREFIX.test(value) ? `'${value}` : value;
+}
