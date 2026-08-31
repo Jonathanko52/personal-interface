@@ -101,6 +101,17 @@ function sumWeightsSplit(tasks: WeightedTask[]): { daily: number; oneOff: number
   );
 }
 
+function countSplit(tasks: WeightedTask[]): { daily: number; oneOff: number } {
+  return tasks.reduce(
+    (acc, t) => {
+      if (t.isDaily) acc.daily += 1;
+      else acc.oneOff += 1;
+      return acc;
+    },
+    { daily: 0, oneOff: 0 }
+  );
+}
+
 function formatTaskLines(tasks: WeightedTask[]): string[] {
   if (tasks.length === 0) return ["(none)"];
   return tasks.map((t) => (t.weight !== null ? `- ${t.title} (${t.weight})` : `- ${t.title}`));
@@ -114,7 +125,8 @@ export function formatTasksSummaryBlock(
   const completedHeader = range === "day" ? "Completed today:" : "Completed this week:";
   const completedSplit = sumWeightsSplit(completed);
   const uncompletedSplit = sumWeightsSplit(uncompleted);
-  const totalCount = completed.length + uncompleted.length;
+  const completedCountSplit = countSplit(completed);
+  const uncompletedCountSplit = countSplit(uncompleted);
 
   return [
     completedHeader,
@@ -125,6 +137,7 @@ export function formatTasksSummaryBlock(
     ...formatTaskLines(uncompleted),
     `Uncompleted points — Daily: ${uncompletedSplit.daily}, One-off: ${uncompletedSplit.oneOff}`,
     "",
-    `${completed.length} completed / ${totalCount} completed+uncompleted`,
+    `One-off: ${completedCountSplit.oneOff} completed / ${completedCountSplit.oneOff + uncompletedCountSplit.oneOff} completed+uncompleted`,
+    `Daily: ${completedCountSplit.daily} completed / ${completedCountSplit.daily + uncompletedCountSplit.daily} completed+uncompleted`,
   ].join("\n");
 }
