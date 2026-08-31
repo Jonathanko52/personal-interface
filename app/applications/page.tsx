@@ -70,6 +70,9 @@ const ENTRY_LIMIT_OPTIONS: EntryLimit[] = [5, 10, 15, 25, 50];
 const JOB_TYPE_OPTIONS = ["Internship", "Part-time", "Full-time"] as const;
 const APPLY_TYPE_OPTIONS = ["Quick Apply", "Normal Apply"] as const;
 
+type EditableField = "applyType" | "jobType" | "status" | "company" | "role" | "location";
+const FREE_TEXT_FIELDS = new Set<EditableField>(["company", "role", "location"]);
+
 function toggleFilterValue(
   current: Set<string>,
   value: string,
@@ -185,9 +188,16 @@ export default function ApplicationsPage() {
 
   async function handleFieldChange(
     row: number,
-    field: "applyType" | "jobType" | "status",
+    field: EditableField,
     value: string,
   ) {
+    if (FREE_TEXT_FIELDS.has(field)) {
+      const trimmed = value.trim();
+      const current = jobs?.find((j) => j.row === row)?.[field];
+      if (!trimmed || trimmed === current) return;
+      value = trimmed;
+    }
+
     const prevJobs = jobs;
     const cellKey = `${row}:${field}`;
     setJobs(
@@ -205,39 +215,6 @@ export default function ApplicationsPage() {
           ),
         },
       );
-      if (!res.ok) throw new Error();
-    } catch {
-      setJobs(prevJobs);
-    } finally {
-      setSavingCells((prev) => {
-        const next = new Set(prev);
-        next.delete(cellKey);
-        return next;
-      });
-    }
-  }
-
-  async function handleTextFieldChange(
-    row: number,
-    field: "company" | "role" | "location",
-    value: string,
-  ) {
-    const trimmed = value.trim();
-    const current = jobs?.find((j) => j.row === row)?.[field];
-    if (!trimmed || trimmed === current) return;
-
-    const prevJobs = jobs;
-    const cellKey = `${row}:${field}`;
-    setJobs(
-      (cur) => cur?.map((j) => (j.row === row ? { ...j, [field]: trimmed } : j)) ?? cur,
-    );
-    setSavingCells((prev) => new Set(prev).add(cellKey));
-    try {
-      const res = await fetch("/api/jobs/field", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ row, field, value: trimmed }),
-      });
       if (!res.ok) throw new Error();
     } catch {
       setJobs(prevJobs);
@@ -419,7 +396,7 @@ export default function ApplicationsPage() {
                       defaultValue={job.company}
                       disabled={savingCells.has(`${job.row}:company`)}
                       onBlur={(e) =>
-                        handleTextFieldChange(job.row, "company", e.target.value)
+                        handleFieldChange(job.row, "company", e.target.value)
                       }
                       onKeyDown={(e) => {
                         if (e.key === "Enter") e.currentTarget.blur();
@@ -438,7 +415,7 @@ export default function ApplicationsPage() {
                       defaultValue={job.role}
                       disabled={savingCells.has(`${job.row}:role`)}
                       onBlur={(e) =>
-                        handleTextFieldChange(job.row, "role", e.target.value)
+                        handleFieldChange(job.row, "role", e.target.value)
                       }
                       onKeyDown={(e) => {
                         if (e.key === "Enter") e.currentTarget.blur();
@@ -457,7 +434,7 @@ export default function ApplicationsPage() {
                       defaultValue={job.location}
                       disabled={savingCells.has(`${job.row}:location`)}
                       onBlur={(e) =>
-                        handleTextFieldChange(job.row, "location", e.target.value)
+                        handleFieldChange(job.row, "location", e.target.value)
                       }
                       onKeyDown={(e) => {
                         if (e.key === "Enter") e.currentTarget.blur();
