@@ -74,7 +74,8 @@ export default function Home() {
     router.replace("/");
   }
 
-  const isViewingToday = selectedDate === todayStr();
+  const todayValue = todayStr();
+  const isViewingToday = selectedDate === todayValue;
   const todosForDate = useMemo(
     () =>
       todos.filter(
@@ -82,9 +83,9 @@ export default function Home() {
           t.dueDate === null ||
           t.dueDate === selectedDate ||
           (isViewingToday && !t.completed) ||
-          (isViewingToday && t.lastCompletedDate === todayStr())
+          (isViewingToday && t.lastCompletedDate === todayValue)
       ),
-    [todos, selectedDate, isViewingToday]
+    [todos, selectedDate, isViewingToday, todayValue]
   );
   const { result, sort, setSort, filter, setFilter } = useSortFilter(todosForDate);
 
