@@ -90,22 +90,11 @@ export function uncompletedTasksToday(todos: Todo[], referenceDate: Date = new D
     .map((t) => ({ title: t.title, weight: t.weight, isDaily: !!t.repeatDays?.length }));
 }
 
-function sumWeightsSplit(tasks: WeightedTask[]): { daily: number; oneOff: number } {
+function splitBy(tasks: WeightedTask[], valueOf: (t: WeightedTask) => number): { daily: number; oneOff: number } {
   return tasks.reduce(
     (acc, t) => {
-      if (t.isDaily) acc.daily += t.weight ?? 0;
-      else acc.oneOff += t.weight ?? 0;
-      return acc;
-    },
-    { daily: 0, oneOff: 0 }
-  );
-}
-
-function countSplit(tasks: WeightedTask[]): { daily: number; oneOff: number } {
-  return tasks.reduce(
-    (acc, t) => {
-      if (t.isDaily) acc.daily += 1;
-      else acc.oneOff += 1;
+      if (t.isDaily) acc.daily += valueOf(t);
+      else acc.oneOff += valueOf(t);
       return acc;
     },
     { daily: 0, oneOff: 0 }
@@ -123,10 +112,10 @@ export function formatTasksSummaryBlock(
   range: CompletionRange
 ): string {
   const completedHeader = range === "day" ? "Completed today:" : "Completed this week:";
-  const completedSplit = sumWeightsSplit(completed);
-  const uncompletedSplit = sumWeightsSplit(uncompleted);
-  const completedCountSplit = countSplit(completed);
-  const uncompletedCountSplit = countSplit(uncompleted);
+  const completedSplit = splitBy(completed, (t) => t.weight ?? 0);
+  const uncompletedSplit = splitBy(uncompleted, (t) => t.weight ?? 0);
+  const completedCountSplit = splitBy(completed, () => 1);
+  const uncompletedCountSplit = splitBy(uncompleted, () => 1);
 
   return [
     completedHeader,
