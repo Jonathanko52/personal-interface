@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useData } from "@/app/lib/DataContext";
 import { useSortFilter } from "@/app/lib/useSortFilter";
@@ -12,7 +13,7 @@ export default function ListPage() {
   const { todos, lists } = useData();
 
   const list = lists.find((l) => l.id === id);
-  const listTodos = todos.filter((t) => t.listId === id);
+  const listTodos = useMemo(() => todos.filter((t) => t.listId === id), [todos, id]);
   const { result, sort, setSort, filter, setFilter } = useSortFilter(listTodos);
   const { selectedTodo, select, clear } = useSelectedTodo(listTodos);
 

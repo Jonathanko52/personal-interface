@@ -75,12 +75,16 @@ export default function Home() {
   }
 
   const isViewingToday = selectedDate === todayStr();
-  const todosForDate = todos.filter(
-    (t) =>
-      t.dueDate === null ||
-      t.dueDate === selectedDate ||
-      (isViewingToday && !t.completed) ||
-      (isViewingToday && t.lastCompletedDate === todayStr())
+  const todosForDate = useMemo(
+    () =>
+      todos.filter(
+        (t) =>
+          t.dueDate === null ||
+          t.dueDate === selectedDate ||
+          (isViewingToday && !t.completed) ||
+          (isViewingToday && t.lastCompletedDate === todayStr())
+      ),
+    [todos, selectedDate, isViewingToday]
   );
   const { result, sort, setSort, filter, setFilter } = useSortFilter(todosForDate);
 

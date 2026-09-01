@@ -75,7 +75,7 @@ export function completedTasks(
       return {
         title: todo?.title ?? "(deleted task)",
         weight: todo?.weight ?? null,
-        isDaily: todo ? todo.repeatDays.length > 0 : false,
+        isDaily: !!todo?.repeatDays?.length,
       };
     });
 }
@@ -87,7 +87,7 @@ export function uncompletedTasksToday(todos: Todo[], referenceDate: Date = new D
   const today = toDateString(referenceDate);
   return todos
     .filter((t) => !t.completed && (t.dueDate === null || t.dueDate <= today))
-    .map((t) => ({ title: t.title, weight: t.weight, isDaily: t.repeatDays.length > 0 }));
+    .map((t) => ({ title: t.title, weight: t.weight, isDaily: !!t.repeatDays?.length }));
 }
 
 function sumWeightsSplit(tasks: WeightedTask[]): { daily: number; oneOff: number } {

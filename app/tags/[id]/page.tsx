@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useData } from "@/app/lib/DataContext";
 import { useSortFilter } from "@/app/lib/useSortFilter";
@@ -12,7 +13,7 @@ export default function TagPage() {
   const { todos, tags } = useData();
 
   const tag = tags.find((t) => t.id === id);
-  const tagTodos = todos.filter((t) => t.tagIds.includes(id));
+  const tagTodos = useMemo(() => todos.filter((t) => t.tagIds.includes(id)), [todos, id]);
   const { result, sort, setSort, filter, setFilter } = useSortFilter(tagTodos);
   const { selectedTodo, select, clear } = useSelectedTodo(tagTodos);
 
