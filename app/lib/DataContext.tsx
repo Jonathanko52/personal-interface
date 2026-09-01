@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef, useCallback, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, useCallback, useMemo, ReactNode } from "react";
 import { todos as initialTodos, lists as initialLists, tags as initialTags } from "./data";
 import { today as todayStr } from "./date";
 import { Priority } from "./priority";
@@ -127,19 +127,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
   usePersistOnChange("tags", tags, hydrated);
   usePersistOnChange("completions", completions, hydrated);
 
-  function addTodo(todo: Omit<Todo, "id">) {
+  const addTodo = useCallback((todo: Omit<Todo, "id">) => {
     setTodos((prev) => [...prev, { ...todo, id: crypto.randomUUID() }]);
-  }
+  }, []);
 
-  function addList(list: Omit<List, "id">) {
+  const addList = useCallback((list: Omit<List, "id">) => {
     setLists((prev) => [...prev, { ...list, id: crypto.randomUUID() }]);
-  }
+  }, []);
 
-  function addTag(tag: Omit<Tag, "id">) {
+  const addTag = useCallback((tag: Omit<Tag, "id">) => {
     setTags((prev) => [...prev, { ...tag, id: crypto.randomUUID() }]);
-  }
+  }, []);
 
-  function toggleTodo(id: string) {
+  const toggleTodo = useCallback((id: string) => {
     let justCompleted = false;
     setTodos((prev) =>
       prev.map((t) => {
@@ -157,19 +157,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
           : [...prev, { todoId: id, date: today }]
       );
     }
-  }
+  }, []);
 
-  function updateTodo(id: string, updates: Partial<Omit<Todo, "id">>) {
+  const updateTodo = useCallback((id: string, updates: Partial<Omit<Todo, "id">>) => {
     setTodos((prev) =>
       prev.map((t) => (t.id === id ? { ...t, ...updates } : t))
     );
-  }
+  }, []);
 
-  function deleteTodo(id: string) {
+  const deleteTodo = useCallback((id: string) => {
     setTodos((prev) => prev.filter((t) => t.id !== id));
-  }
+  }, []);
 
-  function reorderTodos(activeId: string, overId: string) {
+  const reorderTodos = useCallback((activeId: string, overId: string) => {
     setTodos((prev) => {
       const oldIndex = prev.findIndex((t) => t.id === activeId);
       const newIndex = prev.findIndex((t) => t.id === overId);
@@ -179,24 +179,44 @@ export function DataProvider({ children }: { children: ReactNode }) {
       next.splice(newIndex, 0, moved);
       return next;
     });
-  }
+  }, []);
 
-  function updateList(id: string, updates: Partial<Omit<List, "id">>) {
+  const updateList = useCallback((id: string, updates: Partial<Omit<List, "id">>) => {
     setLists((prev) => prev.map((l) => (l.id === id ? { ...l, ...updates } : l)));
-  }
+  }, []);
 
-  function deleteList(id: string) {
+  const deleteList = useCallback((id: string) => {
     setLists((prev) => prev.filter((l) => l.id !== id));
     setTodos((prev) => prev.filter((t) => t.listId !== id));
-  }
+  }, []);
 
-  function deleteTag(id: string) {
+  const deleteTag = useCallback((id: string) => {
     setTags((prev) => prev.filter((t) => t.id !== id));
     setTodos((prev) => prev.map((t) => ({ ...t, tagIds: t.tagIds.filter((tid) => tid !== id) })));
-  }
+  }, []);
+
+  const value = useMemo<DataContextValue>(
+    () => ({
+      todos,
+      lists,
+      tags,
+      completions,
+      addTodo,
+      addList,
+      addTag,
+      toggleTodo,
+      updateTodo,
+      deleteTodo,
+      reorderTodos,
+      updateList,
+      deleteList,
+      deleteTag,
+    }),
+    [todos, lists, tags, completions, addTodo, addList, addTag, toggleTodo, updateTodo, deleteTodo, reorderTodos, updateList, deleteList, deleteTag]
+  );
 
   return (
-    <DataContext.Provider value={{ todos, lists, tags, completions, addTodo, addList, addTag, toggleTodo, updateTodo, deleteTodo, reorderTodos, updateList, deleteList, deleteTag }}>
+    <DataContext.Provider value={value}>
       {children}
     </DataContext.Provider>
   );
