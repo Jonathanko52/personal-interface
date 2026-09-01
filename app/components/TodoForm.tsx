@@ -22,6 +22,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
   const [dueDate, setDueDate] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [repeatDays, setRepeatDays] = useState<number[]>([]);
+  const [isOneOff, setIsOneOff] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -40,6 +41,11 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
 
   function toggleRepeatDay(day: number) {
     setRepeatDays((prev) => toggleDay(prev, day));
+  }
+
+  function handleOneOffChange(checked: boolean) {
+    setIsOneOff(checked);
+    if (checked) setRepeatDays([]);
   }
 
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
@@ -62,6 +68,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
     setDueDate("");
     setSelectedTagIds([]);
     setRepeatDays([]);
+    setIsOneOff(true);
     setExpanded(false);
   }
 
@@ -72,6 +79,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
     setDueDate("");
     setSelectedTagIds([]);
     setRepeatDays([]);
+    setIsOneOff(true);
     setExpanded(false);
   }
 
@@ -159,8 +167,19 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs text-slate-400">Repeat</span>
-        <RepeatDayPicker selectedDays={repeatDays} onToggle={toggleRepeatDay} />
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-slate-400">Repeat</span>
+          <label className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isOneOff}
+              onChange={(e) => handleOneOffChange(e.target.checked)}
+              className="accent-indigo-500"
+            />
+            One-off
+          </label>
+        </div>
+        <RepeatDayPicker selectedDays={repeatDays} onToggle={toggleRepeatDay} disabled={isOneOff} />
       </div>
 
       {tags.length > 0 && (
