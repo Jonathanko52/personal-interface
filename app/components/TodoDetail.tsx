@@ -7,6 +7,7 @@ import { WEIGHTS, Weight } from "@/app/lib/weight";
 import { toggleDay } from "@/app/lib/repeatDays";
 import RepeatDayPicker from "./RepeatDayPicker";
 import TagPicker from "./TagPicker";
+import PillPicker from "./PillPicker";
 
 interface TodoDetailProps {
   todo: Todo;
@@ -116,40 +117,16 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
 
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Priority</label>
-            <div className="flex gap-2">
-              {PRIORITIES.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPriority(p)}
-                  className={`text-xs px-3 py-1 rounded-full border transition-colors capitalize ${
-                    priority === p
-                      ? "bg-indigo-500 text-white border-indigo-500"
-                      : "border-slate-600 text-slate-400 hover:border-slate-400 hover:text-white"
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
+            <PillPicker options={PRIORITIES} selected={priority} onSelect={setPriority} capitalize />
           </div>
 
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Weight</label>
-            <div className="flex gap-2">
-              {WEIGHTS.map((w) => (
-                <button
-                  key={w}
-                  onClick={() => setWeight(weight === w ? null : w)}
-                  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                    weight === w
-                      ? "bg-indigo-500 text-white border-indigo-500"
-                      : "border-slate-600 text-slate-400 hover:border-slate-400 hover:text-white"
-                  }`}
-                >
-                  {w}
-                </button>
-              ))}
-            </div>
+            <PillPicker
+              options={WEIGHTS}
+              selected={weight}
+              onSelect={(w) => setWeight(weight === w ? null : w)}
+            />
           </div>
 
           <div className="flex flex-col gap-1">
