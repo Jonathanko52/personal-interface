@@ -27,6 +27,7 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
   const [dueDate, setDueDate] = useState(todo.dueDate ?? "");
   const [tagIds, setTagIds] = useState(todo.tagIds);
   const [repeatDays, setRepeatDays] = useState(todo.repeatDays ?? []);
+  const [isOneOff, setIsOneOff] = useState(!(todo.repeatDays?.length));
   const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   const isDirty =
@@ -70,6 +71,11 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
     setTagIds((prev) =>
       prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
     );
+  }
+
+  function handleOneOffChange(checked: boolean) {
+    setIsOneOff(checked);
+    if (checked) setRepeatDays([]);
   }
 
   return (
@@ -159,10 +165,22 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Repeat</label>
+            <div className="flex items-center gap-3">
+              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Repeat</label>
+              <label className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isOneOff}
+                  onChange={(e) => handleOneOffChange(e.target.checked)}
+                  className="accent-indigo-500"
+                />
+                One-off
+              </label>
+            </div>
             <RepeatDayPicker
               selectedDays={repeatDays}
               onToggle={(day) => setRepeatDays((prev) => toggleDay(prev, day))}
+              disabled={isOneOff}
             />
           </div>
 
