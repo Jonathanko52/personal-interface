@@ -49,6 +49,7 @@ interface DataContextValue {
   toggleTodo: (id: string) => void;
   updateTodo: (id: string, updates: Partial<Omit<Todo, "id">>) => void;
   deleteTodo: (id: string) => void;
+  duplicateTodo: (id: string) => void;
   reorderTodos: (activeId: string, overId: string) => void;
   updateList: (id: string, updates: Partial<Omit<List, "id">>) => void;
   deleteList: (id: string) => void;
@@ -169,6 +170,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setTodos((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const duplicateTodo = useCallback((id: string) => {
+    setTodos((prev) => {
+      const source = prev.find((t) => t.id === id);
+      if (!source) return prev;
+      return [
+        ...prev,
+        { ...source, id: crypto.randomUUID(), title: `${source.title} (copy)`, completed: false, lastCompletedDate: null },
+      ];
+    });
+  }, []);
+
   const reorderTodos = useCallback((activeId: string, overId: string) => {
     setTodos((prev) => {
       const oldIndex = prev.findIndex((t) => t.id === activeId);
@@ -207,12 +219,29 @@ export function DataProvider({ children }: { children: ReactNode }) {
       toggleTodo,
       updateTodo,
       deleteTodo,
+      duplicateTodo,
       reorderTodos,
       updateList,
       deleteList,
       deleteTag,
     }),
-    [todos, lists, tags, completions, addTodo, addList, addTag, toggleTodo, updateTodo, deleteTodo, reorderTodos, updateList, deleteList, deleteTag]
+    [
+      todos,
+      lists,
+      tags,
+      completions,
+      addTodo,
+      addList,
+      addTag,
+      toggleTodo,
+      updateTodo,
+      deleteTodo,
+      duplicateTodo,
+      reorderTodos,
+      updateList,
+      deleteList,
+      deleteTag,
+    ]
   );
 
   return (
