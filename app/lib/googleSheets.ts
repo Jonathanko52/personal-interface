@@ -38,3 +38,19 @@ const SHEETS_FORMULA_PREFIX = /^[=+\-@\t\r]/;
 export function sanitizeForSheets(value: string): string {
   return SHEETS_FORMULA_PREFIX.test(value) ? `'${value}` : value;
 }
+
+// 1-based sheet row; row 1 is the header, row 2 is the first data row.
+export function parseRow(body: unknown): number | null {
+  const row = Number((body as { row?: unknown } | null)?.row);
+  return Number.isInteger(row) && row >= 2 ? row : null;
+}
+
+export async function updateSheetCell(column: string, row: number, value: unknown): Promise<void> {
+  const { sheets, spreadsheetId } = getSheetsClient();
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: `Jobs!${column}${row}:${column}${row}`,
+    valueInputOption: "RAW",
+    requestBody: { values: [[value]] },
+  });
+}
