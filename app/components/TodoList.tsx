@@ -25,16 +25,19 @@ interface TodoListProps {
   todos: Todo[];
   onSelect: (id: string) => void;
   dragEnabled?: boolean;
+  readOnly?: boolean;
 }
 
 function SortableTodo({
   todo,
   onSelect,
   dragEnabled,
+  readOnly,
 }: {
   todo: Todo;
   onSelect: (id: string) => void;
   dragEnabled: boolean;
+  readOnly?: boolean;
 }) {
   const { toggleTodo, tags } = useData();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -47,7 +50,7 @@ function SortableTodo({
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      onClick={() => toggleTodo(todo.id)}
+      onClick={() => !readOnly && toggleTodo(todo.id)}
       className={`group flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 transition-colors ${
         dragEnabled ? "cursor-grab active:cursor-grabbing" : ""
       } ${isDragging ? "opacity-50 border-indigo-400 shadow-md" : "hover:border-slate-600"}`}
@@ -57,10 +60,11 @@ function SortableTodo({
       <input
         type="checkbox"
         checked={todo.completed}
-        onChange={() => toggleTodo(todo.id)}
+        onChange={() => !readOnly && toggleTodo(todo.id)}
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
-        className="w-4 h-4 accent-indigo-500 shrink-0"
+        disabled={readOnly}
+        className="w-4 h-4 accent-indigo-500 shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
       />
       <span
         className={`text-sm ${
@@ -107,7 +111,7 @@ function SortableTodo({
   );
 }
 
-export default function TodoList({ todos, onSelect, dragEnabled = true }: TodoListProps) {
+export default function TodoList({ todos, onSelect, dragEnabled = true, readOnly }: TodoListProps) {
   const { reorderTodos } = useData();
 
   const sensors = useSensors(
@@ -126,7 +130,7 @@ export default function TodoList({ todos, onSelect, dragEnabled = true }: TodoLi
       <SortableContext items={todos.map((t) => t.id)} strategy={verticalListSortingStrategy}>
         <ul className="flex flex-col gap-2">
           {todos.map((todo) => (
-            <SortableTodo key={todo.id} todo={todo} onSelect={onSelect} dragEnabled={dragEnabled} />
+            <SortableTodo key={todo.id} todo={todo} onSelect={onSelect} dragEnabled={dragEnabled} readOnly={readOnly} />
           ))}
         </ul>
       </SortableContext>
