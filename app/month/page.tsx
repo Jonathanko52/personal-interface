@@ -11,7 +11,7 @@ const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function MonthPage() {
   const router = useRouter();
-  const { todos } = useData();
+  const { todos, completions } = useData();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -41,9 +41,17 @@ export default function MonthPage() {
 
   function todosForDay(day: number) {
     const weekday = new Date(year, month, day).getDay();
-    return todos.filter(
-      (t) => t.dueDate === dateStrFor(day) || t.repeatDays?.includes(weekday)
-    );
+    const dateStr = dateStrFor(day);
+    return todos
+      .filter((t) => t.dueDate === dateStr || t.repeatDays?.includes(weekday))
+      .map((t) =>
+        // Same fix as app/page.tsx's date-navigator: a repeating todo shares one
+        // live `completed` field with no per-day history, so a past cell needs to
+        // derive that day's actual state from the completions log instead.
+        !isToday(day) && !!t.repeatDays?.length
+          ? { ...t, completed: completions.some((c) => c.todoId === t.id && c.date === dateStr) }
+          : t
+      );
   }
 
   const isToday = (day: number) =>
