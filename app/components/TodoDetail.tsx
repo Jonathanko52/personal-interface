@@ -19,7 +19,7 @@ function sameSet(a: (string | number)[], b: (string | number)[]) {
 }
 
 export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
-  const { updateTodo, deleteTodo, tags } = useData();
+  const { updateTodo, deleteTodo, duplicateTodo, tags } = useData();
   const [title, setTitle] = useState(todo.title);
   const [notes, setNotes] = useState(todo.notes);
   const [priority, setPriority] = useState<Priority>(todo.priority);
@@ -64,6 +64,11 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
 
   function handleDelete() {
     deleteTodo(todo.id);
+    onClose();
+  }
+
+  function handleDuplicate() {
+    duplicateTodo(todo.id);
     onClose();
   }
 
@@ -184,12 +189,20 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
             />
           </div>
 
-          <button
-            onClick={handleDelete}
-            className="self-start text-xs text-red-400 hover:text-red-300 transition-colors mt-2"
-          >
-            Delete todo
-          </button>
+          <div className="flex gap-4 mt-2">
+            <button
+              onClick={handleDuplicate}
+              className="self-start text-xs text-slate-400 hover:text-white transition-colors"
+            >
+              Duplicate
+            </button>
+            <button
+              onClick={handleDelete}
+              className="self-start text-xs text-red-400 hover:text-red-300 transition-colors"
+            >
+              Delete todo
+            </button>
+          </div>
         </div>
       </div>
 

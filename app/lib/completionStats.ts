@@ -101,9 +101,18 @@ function splitBy(tasks: WeightedTask[], valueOf: (t: WeightedTask) => number): {
   );
 }
 
+function formatTaskLine(t: WeightedTask): string {
+  return t.weight !== null ? `- ${t.title} (${t.weight})` : `- ${t.title}`;
+}
+
+function formatTaskGroup(tasks: WeightedTask[]): string[] {
+  return tasks.length === 0 ? ["(none)"] : tasks.map(formatTaskLine);
+}
+
 function formatTaskLines(tasks: WeightedTask[]): string[] {
-  if (tasks.length === 0) return ["(none)"];
-  return tasks.map((t) => (t.weight !== null ? `- ${t.title} (${t.weight})` : `- ${t.title}`));
+  const daily = tasks.filter((t) => t.isDaily);
+  const oneOff = tasks.filter((t) => !t.isDaily);
+  return ["Daily:", ...formatTaskGroup(daily), "One-off:", ...formatTaskGroup(oneOff)];
 }
 
 export function formatTasksSummaryBlock(
