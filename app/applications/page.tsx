@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { JOB_STATUSES, JobStatus } from "@/app/lib/jobStatus";
+import { JOB_TYPES, APPLY_TYPES, JobTypeLabel, ApplyType } from "@/app/lib/jobFields";
 import { parseSheetDate } from "@/app/lib/sheetDate";
 import {
   startOfWeek,
@@ -16,8 +17,8 @@ interface ApplicationRow {
   location: string;
   dateApplied: string;
   postingLink: string;
-  applyType: string;
-  jobType: string;
+  applyType: ApplyType;
+  jobType: JobTypeLabel;
   status: JobStatus;
 }
 
@@ -66,9 +67,6 @@ const DATE_FILTER_OPTIONS: { value: DateFilter; label: string }[] = [
 ];
 
 const ENTRY_LIMIT_OPTIONS: EntryLimit[] = [5, 10, 15, 25, 50];
-
-const JOB_TYPE_OPTIONS = ["Internship", "Part-time", "Full-time"] as const;
-const APPLY_TYPE_OPTIONS = ["Quick Apply", "Normal Apply"] as const;
 
 type EditableField = "applyType" | "jobType" | "status" | "company" | "role" | "location";
 const FREE_TEXT_FIELDS = new Set<EditableField>(["company", "role", "location"]);
@@ -277,10 +275,10 @@ export default function ApplicationsPage() {
 
           {[
             ["Status", JOB_STATUSES, statusFilter, setStatusFilter],
-            ["Job type", JOB_TYPE_OPTIONS, jobTypeFilter, setJobTypeFilter],
+            ["Job type", JOB_TYPES, jobTypeFilter, setJobTypeFilter],
             [
               "Apply type",
-              APPLY_TYPE_OPTIONS,
+              APPLY_TYPES,
               applyTypeFilter,
               setApplyTypeFilter,
             ],
@@ -457,7 +455,7 @@ export default function ApplicationsPage() {
                       }
                       disabled={savingCells.has(`${job.row}:applyType`)}
                       className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white disabled:opacity-60">
-                      {APPLY_TYPE_OPTIONS.map((type) => (
+                      {APPLY_TYPES.map((type) => (
                         <option key={type} value={type}>
                           {type}
                         </option>
@@ -472,7 +470,7 @@ export default function ApplicationsPage() {
                       }
                       disabled={savingCells.has(`${job.row}:jobType`)}
                       className="text-xs border border-zinc-200 rounded-md px-2 py-1 outline-none text-zinc-700 bg-white disabled:opacity-60">
-                      {JOB_TYPE_OPTIONS.map((type) => (
+                      {JOB_TYPES.map((type) => (
                         <option key={type} value={type}>
                           {type}
                         </option>
