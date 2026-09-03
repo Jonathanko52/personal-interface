@@ -78,14 +78,23 @@ export default function Home() {
   const isViewingToday = selectedDate === todayValue;
   const todosForDate = useMemo(
     () =>
-      todos.filter(
-        (t) =>
-          t.dueDate === null ||
-          t.dueDate === selectedDate ||
-          (isViewingToday && !t.completed) ||
-          (isViewingToday && t.lastCompletedDate === todayValue)
-      ),
-    [todos, selectedDate, isViewingToday, todayValue]
+      todos
+        .filter(
+          (t) =>
+            t.dueDate === null ||
+            t.dueDate === selectedDate ||
+            (isViewingToday && !t.completed) ||
+            (isViewingToday && t.lastCompletedDate === todayValue)
+        )
+        .map((t) =>
+          // Repeating todos share one live `completed` field with no per-day history —
+          // rollover already reset it for today by the time you browse back to a past
+          // day, so derive that day's actual state from the completions log instead.
+          !isViewingToday && !!t.repeatDays?.length
+            ? { ...t, completed: completions.some((c) => c.todoId === t.id && c.date === selectedDate) }
+            : t
+        ),
+    [todos, selectedDate, isViewingToday, todayValue, completions]
   );
   const { result, sort, setSort, filter, setFilter } = useSortFilter(todosForDate);
 
