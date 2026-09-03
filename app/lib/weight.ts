@@ -2,6 +2,10 @@ export const WEIGHTS = [1, 2, 3, 5, 8] as const;
 
 export type Weight = (typeof WEIGHTS)[number];
 
+export function isWeight(value: unknown): value is Weight {
+  return typeof value === "number" && (WEIGHTS as readonly number[]).includes(value);
+}
+
 export const weightBadgeStyles: Record<Weight, string> = {
   1: "bg-slate-700 text-slate-400",
   2: "bg-blue-500/10 text-blue-400",

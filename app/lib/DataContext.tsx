@@ -3,8 +3,8 @@
 import { createContext, useContext, useEffect, useState, useRef, useCallback, useMemo, ReactNode } from "react";
 import { todos as initialTodos, lists as initialLists, tags as initialTags } from "./data";
 import { today as todayStr } from "./date";
-import { Priority } from "./priority";
-import { Weight } from "./weight";
+import { Priority, isPriority, DEFAULT_PRIORITY } from "./priority";
+import { Weight, isWeight } from "./weight";
 import { rolloverTodos } from "./rollover";
 
 export interface Todo {
@@ -77,6 +77,14 @@ function usePersistOnChange<T>(key: string, value: T, hydrated: boolean) {
   }, [key, value, hydrated]);
 }
 
+function sanitizeTodos(todos: Todo[]): Todo[] {
+  return todos.map((t) => ({
+    ...t,
+    priority: isPriority(t.priority) ? t.priority : DEFAULT_PRIORITY,
+    weight: t.weight === null || isWeight(t.weight) ? t.weight : null,
+  }));
+}
+
 const DataContext = createContext<DataContextValue | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
@@ -89,7 +97,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const today = todayStr();
-    const storedTodos = rolloverTodos(load("todos", initialTodos), today);
+    const storedTodos = rolloverTodos(sanitizeTodos(load("todos", initialTodos)), today);
     save("todos", storedTodos);
     setTodos(storedTodos);
     setLists(load("lists", initialLists));

@@ -2,6 +2,12 @@ export const PRIORITIES = ["none", "low", "medium", "high"] as const;
 
 export type Priority = (typeof PRIORITIES)[number];
 
+export const DEFAULT_PRIORITY: Priority = "none";
+
+export function isPriority(value: unknown): value is Priority {
+  return typeof value === "string" && (PRIORITIES as readonly string[]).includes(value);
+}
+
 export const priorityRank: Record<Priority, number> = { high: 0, medium: 1, low: 2, none: 3 };
 
 export const priorityBadgeStyles: Record<Priority, string> = {
