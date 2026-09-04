@@ -20,6 +20,7 @@ interface ApplicationRow {
   applyType: ApplyType;
   jobType: JobTypeLabel;
   status: JobStatus;
+  categories: string[];
 }
 
 type SortField =
