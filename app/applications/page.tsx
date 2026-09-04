@@ -162,7 +162,7 @@ export default function ApplicationsPage() {
   ]);
 
   const displayedJobs = useMemo(() => {
-    return filteredAndSortedJobs?.slice(0, entryLimit) ?? filteredAndSortedJobs;
+    return filteredAndSortedJobs?.slice(0, entryLimit) ?? null;
   }, [filteredAndSortedJobs, entryLimit]);
 
   const hasActiveFilters =
