@@ -225,6 +225,17 @@ export default function ApplicationsPage() {
     }
   }
 
+  const filterGroups: {
+    label: string;
+    options: readonly string[];
+    selected: Set<string>;
+    setSelected: (next: Set<string>) => void;
+  }[] = [
+    { label: "Status", options: JOB_STATUSES, selected: statusFilter, setSelected: setStatusFilter },
+    { label: "Job type", options: JOB_TYPES, selected: jobTypeFilter, setSelected: setJobTypeFilter },
+    { label: "Apply type", options: APPLY_TYPES, selected: applyTypeFilter, setSelected: setApplyTypeFilter },
+  ];
+
   return (
     <div className="max-w-5xl mx-auto">
       <h1 className="text-xl font-semibold text-sm text-slate-400 mb-6">
@@ -273,34 +284,21 @@ export default function ApplicationsPage() {
             </div>
           </fieldset>
 
-          {[
-            ["Status", JOB_STATUSES, statusFilter, setStatusFilter],
-            ["Job type", JOB_TYPES, jobTypeFilter, setJobTypeFilter],
-            [
-              "Apply type",
-              APPLY_TYPES,
-              applyTypeFilter,
-              setApplyTypeFilter,
-            ],
-          ].map(([label, options, selected, setSelected]) => (
-            <fieldset key={label as string}>
+          {filterGroups.map((group) => (
+            <fieldset key={group.label}>
               <legend className="text-xs text-slate-300 font-semibold mb-2">
-                {label as string}
+                {group.label}
               </legend>
               <div className="flex flex-wrap gap-x-3 gap-y-2">
-                {(options as readonly string[]).map((option) => (
+                {group.options.map((option) => (
                   <label
                     key={option}
                     className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={(selected as Set<string>).has(option)}
+                      checked={group.selected.has(option)}
                       onChange={() =>
-                        toggleFilterValue(
-                          selected as Set<string>,
-                          option,
-                          setSelected as (next: Set<string>) => void,
-                        )
+                        toggleFilterValue(group.selected, option, group.setSelected)
                       }
                       className="accent-slate-500"
                     />

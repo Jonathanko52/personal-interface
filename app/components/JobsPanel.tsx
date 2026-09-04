@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ApplyTypeCode, JobTypeCode, APPLY_TYPE_LABELS, JOB_TYPE_LABELS } from "@/app/lib/jobFields";
 
 interface JobResult {
   companyName: string;
@@ -15,19 +16,11 @@ interface JobCounts {
   normalApply: number;
 }
 
-type JobType = "internship" | "part-time" | "full-time";
-
-const JOB_TYPE_LABELS: Record<JobType, string> = {
-  internship: "Internship",
-  "part-time": "Part-time",
-  "full-time": "Full-time",
-};
-
 export default function JobsPanel() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<JobResult | null>(null);
-  const [applyType, setApplyType] = useState<"quick" | "normal">("normal");
-  const [jobType, setJobType] = useState<JobType>("full-time");
+  const [applyType, setApplyType] = useState<ApplyTypeCode>("normal");
+  const [jobType, setJobType] = useState<JobTypeCode>("full-time");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -248,7 +241,7 @@ export default function JobsPanel() {
                       : "border-slate-600 text-slate-400 hover:border-slate-400"
                   }`}
                 >
-                  {type === "quick" ? "Quick Apply" : "Normal Apply"}
+                  {APPLY_TYPE_LABELS[type]}
                 </button>
               ))}
             </div>

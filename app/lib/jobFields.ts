@@ -11,3 +11,18 @@ export function isApplyType(value: unknown): value is ApplyType {
 export function isJobTypeLabel(value: unknown): value is JobTypeLabel {
   return typeof value === "string" && (JOB_TYPES as readonly string[]).includes(value);
 }
+
+// Internal short-codes used by the pre-save scrape/edit UI (JobsPanel.tsx), distinct
+// from the label strings above (which are what's actually stored/displayed post-save).
+export type ApplyTypeCode = "quick" | "normal";
+export const APPLY_TYPE_LABELS: Record<ApplyTypeCode, ApplyType> = {
+  quick: "Quick Apply",
+  normal: "Normal Apply",
+};
+
+export type JobTypeCode = "internship" | "part-time" | "full-time";
+export const JOB_TYPE_LABELS: Record<JobTypeCode, JobTypeLabel> = {
+  internship: "Internship",
+  "part-time": "Part-time",
+  "full-time": "Full-time",
+};

@@ -2,21 +2,16 @@ import { NextResponse } from "next/server";
 import { getSheetsClient, sheetsErrorResponse, sanitizeForSheets } from "@/app/lib/googleSheets";
 import { getCurrentDateMMDDYY } from "@/app/lib/sheetDate";
 import { DEFAULT_JOB_STATUS } from "@/app/lib/jobStatus";
+import { ApplyTypeCode, JobTypeCode, APPLY_TYPE_LABELS, JOB_TYPE_LABELS } from "@/app/lib/jobFields";
 
 interface JobData {
   companyName: string;
   jobPosting: string;
   location: string;
   postingLink: string;
-  applyType: "quick" | "normal";
-  jobType: "internship" | "part-time" | "full-time";
+  applyType: ApplyTypeCode;
+  jobType: JobTypeCode;
 }
-
-const JOB_TYPE_LABELS: Record<JobData["jobType"], string> = {
-  internship: "Internship",
-  "part-time": "Part-time",
-  "full-time": "Full-time",
-};
 
 function isJobData(value: unknown): value is JobData {
   if (!value || typeof value !== "object") return false;
@@ -49,7 +44,7 @@ export async function POST(req: Request) {
     getCurrentDateMMDDYY(),
     sanitizeForSheets(dataOne.location),
     postingLinkAsHyperlink,
-    dataOne.applyType === "quick" ? "Quick Apply" : "Normal Apply",
+    APPLY_TYPE_LABELS[dataOne.applyType],
     JOB_TYPE_LABELS[dataOne.jobType],
     DEFAULT_JOB_STATUS,
   ];
