@@ -371,6 +371,9 @@ export default function ApplicationsPage() {
                   onClick={() => handleSort("jobType")}
                 />
                 <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
+                  Category
+                </th>
+                <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Posting
                 </th>
                 <SortableHeader
@@ -475,6 +478,13 @@ export default function ApplicationsPage() {
                         </option>
                       ))}
                     </select>
+                  </td>
+                  <td className="px-3 py-2 text-slate-400">
+                    {job.categories.length > 0 ? (
+                      job.categories.join(", ")
+                    ) : (
+                      <span className="text-slate-500">—</span>
+                    )}
                   </td>
                   <td className="px-3 py-2">
                     {job.postingLink ? (
