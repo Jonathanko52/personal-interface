@@ -8,7 +8,7 @@ export async function GET() {
   try {
     const { sheets, spreadsheetId } = getSheetsClient();
 
-    const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: "Jobs!A:I" });
+    const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: "Jobs!A:J" });
     const rows = res.data.values ?? [];
     const dataRowCount = Math.max(0, rows.length - 1); // rows.length includes the header row
 
@@ -25,6 +25,7 @@ export async function GET() {
     const jobs = rows.slice(1).map((row, i) => {
       const match = LINK_FORMULA_RE.exec(linkFormulas[i] ?? "");
       const rawStatus = row[8];
+      const rawCategories: string = row[9] ?? "";
       return {
         row: i + 2, // 1-based sheet row; row 1 is the header, row 2 is the first data row
         company: row[1] ?? "",
@@ -35,6 +36,9 @@ export async function GET() {
         applyType: row[6] ?? "",
         jobType: row[7] ?? "",
         status: isJobStatus(rawStatus) ? rawStatus : DEFAULT_JOB_STATUS,
+        categories: rawCategories
+          ? rawCategories.split(",").map((c) => c.trim()).filter(Boolean)
+          : [],
       };
     });
 
