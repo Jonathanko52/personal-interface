@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSheetsClient, sheetsErrorResponse, sanitizeForSheets } from "@/app/lib/googleSheets";
 import { getCurrentDateMMDDYY } from "@/app/lib/sheetDate";
 import { DEFAULT_JOB_STATUS } from "@/app/lib/jobStatus";
-import { ApplyTypeCode, JobTypeCode, APPLY_TYPE_LABELS, JOB_TYPE_LABELS } from "@/app/lib/jobFields";
+import { ApplyTypeCode, JobTypeCode, APPLY_TYPE_LABELS, JOB_TYPE_LABELS, isJobCategory } from "@/app/lib/jobFields";
 
 interface JobData {
   companyName: string;
@@ -11,6 +11,7 @@ interface JobData {
   postingLink: string;
   applyType: ApplyTypeCode;
   jobType: JobTypeCode;
+  categories: string[];
 }
 
 function isJobData(value: unknown): value is JobData {
@@ -22,7 +23,8 @@ function isJobData(value: unknown): value is JobData {
     typeof v.location === "string" &&
     typeof v.postingLink === "string" &&
     (v.applyType === "quick" || v.applyType === "normal") &&
-    (v.jobType === "internship" || v.jobType === "part-time" || v.jobType === "full-time")
+    (v.jobType === "internship" || v.jobType === "part-time" || v.jobType === "full-time") &&
+    Array.isArray(v.categories) && v.categories.every(isJobCategory)
   );
 }
 
@@ -47,6 +49,7 @@ export async function POST(req: Request) {
     APPLY_TYPE_LABELS[dataOne.applyType],
     JOB_TYPE_LABELS[dataOne.jobType],
     DEFAULT_JOB_STATUS,
+    dataOne.categories.join(", "),
   ];
 
   try {
@@ -58,7 +61,7 @@ export async function POST(req: Request) {
       spreadsheetId,
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
-      range: "Jobs!A:I",
+      range: "Jobs!A:J",
       requestBody: { values: [spreadSheetArray] },
     });
 
