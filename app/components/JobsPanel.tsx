@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ApplyTypeCode, JobTypeCode, APPLY_TYPE_LABELS, JOB_TYPE_LABELS } from "@/app/lib/jobFields";
+import { ApplyTypeCode, JobTypeCode, JobCategory, APPLY_TYPE_LABELS, JOB_TYPE_LABELS, JOB_CATEGORIES } from "@/app/lib/jobFields";
 
 interface JobResult {
   companyName: string;
@@ -21,6 +21,7 @@ export default function JobsPanel() {
   const [result, setResult] = useState<JobResult | null>(null);
   const [applyType, setApplyType] = useState<ApplyTypeCode>("normal");
   const [jobType, setJobType] = useState<JobTypeCode>("full-time");
+  const [categories, setCategories] = useState<JobCategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -34,6 +35,12 @@ export default function JobsPanel() {
   const isResultValid = Boolean(
     result && result.companyName.trim() && result.jobPosting.trim() && result.location.trim()
   );
+
+  function toggleCategory(category: JobCategory) {
+    setCategories((prev) =>
+      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
+    );
+  }
 
   async function loadCounts() {
     try {
@@ -56,6 +63,7 @@ export default function JobsPanel() {
     setResult(null);
     setApplyType("normal");
     setJobType("full-time");
+    setCategories([]);
     setSaved(false);
     setConfirmDuplicate(false);
     setCheckFailed(false);
@@ -119,6 +127,7 @@ export default function JobsPanel() {
             location: result.location.trim(),
             applyType,
             jobType,
+            categories,
           },
         }),
       });
@@ -157,6 +166,7 @@ export default function JobsPanel() {
             setResult(null);
             setApplyType("normal");
             setJobType("full-time");
+            setCategories([]);
             setSaved(false);
             setConfirmDuplicate(false);
             setCheckFailed(false);
@@ -261,6 +271,25 @@ export default function JobsPanel() {
                   }`}
                 >
                   {JOB_TYPE_LABELS[type]}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs text-slate-400">Category</span>
+            <div className="flex gap-1.5 flex-wrap">
+              {JOB_CATEGORIES.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => toggleCategory(category)}
+                  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                    categories.includes(category)
+                      ? "bg-indigo-500 text-white border-indigo-500"
+                      : "border-slate-600 text-slate-400 hover:border-slate-400"
+                  }`}
+                >
+                  {category}
                 </button>
               ))}
             </div>
