@@ -26,3 +26,19 @@ export const JOB_TYPE_LABELS: Record<JobTypeCode, JobTypeLabel> = {
   "part-time": "Part-time",
   "full-time": "Full-time",
 };
+
+export const JOB_CATEGORIES = [
+  "Frontend",
+  "Backend",
+  "Fullstack",
+  "Data Science",
+  "Machine Learning",
+  "Translation",
+  "Copywriting",
+  "Other",
+] as const;
+export type JobCategory = (typeof JOB_CATEGORIES)[number];
+
+export function isJobCategory(value: unknown): value is JobCategory {
+  return typeof value === "string" && (JOB_CATEGORIES as readonly string[]).includes(value);
+}
