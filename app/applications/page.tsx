@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { JOB_STATUSES, JobStatus } from "@/app/lib/jobStatus";
-import { JOB_TYPES, APPLY_TYPES, JobTypeLabel, ApplyType } from "@/app/lib/jobFields";
+import { JOB_TYPES, APPLY_TYPES, JOB_CATEGORIES, JobTypeLabel, ApplyType } from "@/app/lib/jobFields";
 import { parseSheetDate } from "@/app/lib/sheetDate";
 import {
   startOfWeek,
@@ -100,6 +100,7 @@ export default function ApplicationsPage() {
   const [applyTypeFilter, setApplyTypeFilter] = useState<Set<string>>(
     new Set(),
   );
+  const [categoryFilter, setCategoryFilter] = useState<Set<string>>(new Set());
 
   function handleSort(field: SortField) {
     if (sortField === field) {
@@ -134,7 +135,8 @@ export default function ApplicationsPage() {
       (job) =>
         (statusFilter.size === 0 || statusFilter.has(job.status)) &&
         (jobTypeFilter.size === 0 || jobTypeFilter.has(job.jobType)) &&
-        (applyTypeFilter.size === 0 || applyTypeFilter.has(job.applyType)),
+        (applyTypeFilter.size === 0 || applyTypeFilter.has(job.applyType)) &&
+        (categoryFilter.size === 0 || job.categories.some((c) => categoryFilter.has(c))),
     );
 
     if (sortField) {
@@ -158,6 +160,7 @@ export default function ApplicationsPage() {
     statusFilter,
     jobTypeFilter,
     applyTypeFilter,
+    categoryFilter,
     sortField,
     sortDirection,
   ]);
@@ -170,7 +173,8 @@ export default function ApplicationsPage() {
     dateFilter !== "all" ||
     statusFilter.size > 0 ||
     jobTypeFilter.size > 0 ||
-    applyTypeFilter.size > 0;
+    applyTypeFilter.size > 0 ||
+    categoryFilter.size > 0;
 
   useEffect(() => {
     fetch("/api/jobs/list")
@@ -235,6 +239,7 @@ export default function ApplicationsPage() {
     { label: "Status", options: JOB_STATUSES, selected: statusFilter, setSelected: setStatusFilter },
     { label: "Job type", options: JOB_TYPES, selected: jobTypeFilter, setSelected: setJobTypeFilter },
     { label: "Apply type", options: APPLY_TYPES, selected: applyTypeFilter, setSelected: setApplyTypeFilter },
+    { label: "Category", options: JOB_CATEGORIES, selected: categoryFilter, setSelected: setCategoryFilter },
   ];
 
   return (
