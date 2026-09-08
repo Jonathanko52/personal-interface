@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { getSheetsClient, sheetsErrorResponse } from "@/app/lib/googleSheets";
-import { getCurrentDateMMDDYY } from "@/app/lib/sheetDate";
+import { parseSheetDate } from "@/app/lib/sheetDate";
+import { today as todayStr } from "@/app/lib/date";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const since = searchParams.get("since") ?? todayStr();
+    const sinceDate = new Date(`${since}T00:00:00`);
+
     const { sheets, spreadsheetId } = getSheetsClient();
 
     const res = await sheets.spreadsheets.values.get({
@@ -12,7 +17,6 @@ export async function GET() {
     });
 
     const rows = res.data.values ?? [];
-    const today = getCurrentDateMMDDYY();
 
     let total = 0;
     let quickApply = 0;
@@ -20,7 +24,8 @@ export async function GET() {
 
     for (const row of rows) {
       const [, , , rowDate, , , rowApplyType] = row;
-      if (rowDate !== today) continue;
+      const parsedDate = parseSheetDate(rowDate ?? "");
+      if (!parsedDate || parsedDate < sinceDate) continue;
       total++;
       if (rowApplyType === "Quick Apply") quickApply++;
       else if (rowApplyType === "Normal Apply") normalApply++;
