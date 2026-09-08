@@ -171,7 +171,7 @@ export default function JobsPanel() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4 text-xs text-slate-400 border-b border-slate-700 pb-3">
-        <span>Today: <span className="text-slate-100 font-medium">{counts?.total ?? "—"}</span></span>
+        <span>Count: <span className="text-slate-100 font-medium">{counts?.total ?? "—"}</span></span>
         <span>Quick: <span className="text-slate-100 font-medium">{counts?.quickApply ?? "—"}</span></span>
         <span>Normal: <span className="text-slate-100 font-medium">{counts?.normalApply ?? "—"}</span></span>
         <button
