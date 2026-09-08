@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ApplyTypeCode, JobTypeCode, JobCategory, APPLY_TYPE_LABELS, JOB_TYPE_LABELS, JOB_CATEGORIES } from "@/app/lib/jobFields";
+import { today } from "@/app/lib/date";
 
 interface JobResult {
   companyName: string;
@@ -14,6 +15,22 @@ interface JobCounts {
   total: number;
   quickApply: number;
   normalApply: number;
+}
+
+const JOB_COUNT_RESET_KEY = "jobCountResetDate";
+
+function getResetDate(): string {
+  try {
+    return localStorage.getItem(JOB_COUNT_RESET_KEY) ?? today();
+  } catch {
+    return today();
+  }
+}
+
+function setResetDate(date: string) {
+  try {
+    localStorage.setItem(JOB_COUNT_RESET_KEY, date);
+  } catch {}
 }
 
 export default function JobsPanel() {
@@ -44,12 +61,17 @@ export default function JobsPanel() {
 
   async function loadCounts() {
     try {
-      const res = await fetch("/api/jobs/count");
+      const res = await fetch(`/api/jobs/count?since=${getResetDate()}`);
       if (!res.ok) return;
       setCounts(await res.json());
     } catch {
       // Non-critical — leave counts as-is if this fails.
     }
+  }
+
+  async function handleResetCount() {
+    setResetDate(today());
+    await loadCounts();
   }
 
   useEffect(() => {
@@ -152,6 +174,12 @@ export default function JobsPanel() {
         <span>Today: <span className="text-slate-100 font-medium">{counts?.total ?? "—"}</span></span>
         <span>Quick: <span className="text-slate-100 font-medium">{counts?.quickApply ?? "—"}</span></span>
         <span>Normal: <span className="text-slate-100 font-medium">{counts?.normalApply ?? "—"}</span></span>
+        <button
+          onClick={handleResetCount}
+          className="ml-auto text-slate-400 hover:text-white transition-colors"
+        >
+          Reset
+        </button>
       </div>
 
       <div className="flex flex-col gap-2">
