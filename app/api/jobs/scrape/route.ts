@@ -22,10 +22,15 @@ export async function POST(req: Request) {
   }
 
   let cleanUrl: string;
+  let source: "LinkedIn" | "Indeed";
   try {
     const url = new URL(value);
-    if (url.hostname !== "linkedin.com" && !url.hostname.endsWith(".linkedin.com")) {
-      return NextResponse.json({ error: "Only linkedin.com URLs are allowed" }, { status: 400 });
+    if (url.hostname === "linkedin.com" || url.hostname.endsWith(".linkedin.com")) {
+      source = "LinkedIn";
+    } else if (url.hostname === "indeed.com" || url.hostname.endsWith(".indeed.com")) {
+      source = "Indeed";
+    } else {
+      return NextResponse.json({ error: "Only linkedin.com or indeed.com URLs are allowed" }, { status: 400 });
     }
     cleanUrl = `${url.origin}${url.pathname}`;
   } catch {
@@ -47,5 +52,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Failed to fetch page: ${message}` }, { status: 502 });
   }
 
-  return NextResponse.json(extractJobInfo(data, cleanUrl));
+  return NextResponse.json({ ...extractJobInfo(data, cleanUrl), source });
 }
