@@ -36,8 +36,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing or invalid dataOne" }, { status: 400 });
   }
 
-  const safePostingLink = dataOne.postingLink.replace(/"/g, "");
-  const postingLinkAsHyperlink = `=HYPERLINK("${safePostingLink}", "Link")`;
+  // Posting Link is optional for manually-entered jobs (no scrape to source it from) — skip
+  // wrapping a blank value in a broken HYPERLINK formula and just write an empty cell instead.
+  const trimmedPostingLink = dataOne.postingLink.trim();
+  const safePostingLink = trimmedPostingLink.replace(/"/g, "");
+  const postingLinkCell = trimmedPostingLink ? `=HYPERLINK("${safePostingLink}", "Link")` : "";
 
   const spreadSheetArray = [
     "LinkedIn",
@@ -45,7 +48,7 @@ export async function POST(req: Request) {
     sanitizeForSheets(dataOne.jobPosting),
     getCurrentDateMMDDYY(),
     sanitizeForSheets(dataOne.location),
-    postingLinkAsHyperlink,
+    postingLinkCell,
     APPLY_TYPE_LABELS[dataOne.applyType],
     JOB_TYPE_LABELS[dataOne.jobType],
     DEFAULT_JOB_STATUS,

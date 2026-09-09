@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { ApplyTypeCode, JobTypeCode, JobCategory, APPLY_TYPE_LABELS, JOB_TYPE_LABELS, JOB_CATEGORIES } from "@/app/lib/jobFields";
 import { today } from "@/app/lib/date";
 
@@ -210,6 +211,12 @@ export default function JobsPanel() {
         >
           {loading ? "Scraping..." : "Scrape"}
         </button>
+        <Link
+          href="/jobs/new"
+          className="text-xs text-slate-400 hover:text-white transition-colors self-start"
+        >
+          Enter manually instead
+        </Link>
       </div>
 
       {error && (
