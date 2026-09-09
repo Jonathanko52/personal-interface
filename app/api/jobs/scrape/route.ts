@@ -2,7 +2,7 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { NextResponse } from "next/server";
 
-function extractJobInfo(html: string, postingLink: string) {
+function extractLinkedInJobInfo(html: string, postingLink: string) {
   const $ = cheerio.load(html);
 
   const companyName = $('a[href*="linkedin.com/company"]').first().text();
@@ -10,6 +10,26 @@ function extractJobInfo(html: string, postingLink: string) {
   // ".topcard__flavor--bullet" is LinkedIn's semantic class for the location bullet on
   // public job posting pages; fall back to the old positional guess if it's not present.
   const location = $(".topcard__flavor--bullet").first().text().trim() || $("span").eq(5).text();
+
+  return { companyName, jobPosting, location, postingLink };
+}
+
+// Best-effort selectors based on Indeed's commonly-documented `data-testid` markup —
+// not verified against a live page. Indeed also runs heavier anti-scraping/bot-detection
+// than LinkedIn's static public pages, so this may need real-world adjustment or simply
+// not work at all depending on what HTML actually comes back.
+function extractIndeedJobInfo(html: string, postingLink: string) {
+  const $ = cheerio.load(html);
+
+  const companyName =
+    $('[data-testid="inline-company-name"]').first().text().trim() ||
+    $(".jobsearch-InlineCompanyRating > div").first().text().trim();
+  const jobPosting =
+    $('[data-testid="jobsearch-JobInfoHeader-title"]').first().text().trim() ||
+    $("h1.jobsearch-JobInfoHeader-title").first().text().trim();
+  const location =
+    $('[data-testid="inline-company-location"]').first().text().trim() ||
+    $(".jobsearch-JobInfoHeader-subtitle > div").eq(1).text().trim();
 
   return { companyName, jobPosting, location, postingLink };
 }
@@ -52,5 +72,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Failed to fetch page: ${message}` }, { status: 502 });
   }
 
-  return NextResponse.json({ ...extractJobInfo(data, cleanUrl), source });
+  const extracted =
+    source === "Indeed" ? extractIndeedJobInfo(data, cleanUrl) : extractLinkedInJobInfo(data, cleanUrl);
+
+  return NextResponse.json({ ...extracted, source });
 }
