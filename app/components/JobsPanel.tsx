@@ -96,8 +96,8 @@ export default function JobsPanel() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ value: url.trim() }),
       });
-      if (!res.ok) throw new Error(`Scrape failed (${res.status})`);
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `Scrape failed (${res.status})`);
       setResult(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");

@@ -75,5 +75,24 @@ export async function POST(req: Request) {
   const extracted =
     source === "Indeed" ? extractIndeedJobInfo(data, cleanUrl) : extractLinkedInJobInfo(data, cleanUrl);
 
+  const foundNothing =
+    !extracted.companyName.trim() && !extracted.jobPosting.trim() && !extracted.location.trim();
+  if (foundNothing) {
+    // A page that loaded but yielded nothing usually means the selectors didn't match what
+    // came back — a bot-block/CAPTCHA page or a login wall instead of the real posting are
+    // common causes. The fetched page's <title> is a cheap, often very telling diagnostic
+    // (e.g. "Just a moment..." or "Sign in") for figuring out which.
+    const pageTitle = cheerio.load(data)("title").first().text().trim();
+    return NextResponse.json(
+      {
+        error:
+          `Scrape found no usable data on the ${source} page — it may have blocked the request or served unexpected content` +
+          (pageTitle ? ` (page title: "${pageTitle}")` : "") +
+          ".",
+      },
+      { status: 422 }
+    );
+  }
+
   return NextResponse.json({ ...extracted, source });
 }
