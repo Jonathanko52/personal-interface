@@ -12,7 +12,6 @@ interface JobData {
   applyType: ApplyTypeCode;
   jobType: JobTypeCode;
   categories: string[];
-  source: "LinkedIn" | "Indeed";
 }
 
 function isJobData(value: unknown): value is JobData {
@@ -25,8 +24,7 @@ function isJobData(value: unknown): value is JobData {
     typeof v.postingLink === "string" &&
     (v.applyType === "quick" || v.applyType === "normal") &&
     (v.jobType === "internship" || v.jobType === "part-time" || v.jobType === "full-time") &&
-    Array.isArray(v.categories) && v.categories.every(isJobCategory) &&
-    (v.source === "LinkedIn" || v.source === "Indeed")
+    Array.isArray(v.categories) && v.categories.every(isJobCategory)
   );
 }
 
@@ -42,7 +40,7 @@ export async function POST(req: Request) {
   const postingLinkAsHyperlink = `=HYPERLINK("${safePostingLink}", "Link")`;
 
   const spreadSheetArray = [
-    dataOne.source,
+    "LinkedIn",
     sanitizeForSheets(dataOne.companyName),
     sanitizeForSheets(dataOne.jobPosting),
     getCurrentDateMMDDYY(),

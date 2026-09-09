@@ -2,7 +2,7 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { NextResponse } from "next/server";
 
-function extractLinkedInJobInfo(html: string, postingLink: string) {
+function extractJobInfo(html: string, postingLink: string) {
   const $ = cheerio.load(html);
 
   const companyName = $('a[href*="linkedin.com/company"]').first().text();
@@ -10,26 +10,6 @@ function extractLinkedInJobInfo(html: string, postingLink: string) {
   // ".topcard__flavor--bullet" is LinkedIn's semantic class for the location bullet on
   // public job posting pages; fall back to the old positional guess if it's not present.
   const location = $(".topcard__flavor--bullet").first().text().trim() || $("span").eq(5).text();
-
-  return { companyName, jobPosting, location, postingLink };
-}
-
-// Best-effort selectors based on Indeed's commonly-documented `data-testid` markup —
-// not verified against a live page. Indeed also runs heavier anti-scraping/bot-detection
-// than LinkedIn's static public pages, so this may need real-world adjustment or simply
-// not work at all depending on what HTML actually comes back.
-function extractIndeedJobInfo(html: string, postingLink: string) {
-  const $ = cheerio.load(html);
-
-  const companyName =
-    $('[data-testid="inline-company-name"]').first().text().trim() ||
-    $(".jobsearch-InlineCompanyRating > div").first().text().trim();
-  const jobPosting =
-    $('[data-testid="jobsearch-JobInfoHeader-title"]').first().text().trim() ||
-    $("h1.jobsearch-JobInfoHeader-title").first().text().trim();
-  const location =
-    $('[data-testid="inline-company-location"]').first().text().trim() ||
-    $(".jobsearch-JobInfoHeader-subtitle > div").eq(1).text().trim();
 
   return { companyName, jobPosting, location, postingLink };
 }
@@ -42,15 +22,10 @@ export async function POST(req: Request) {
   }
 
   let cleanUrl: string;
-  let source: "LinkedIn" | "Indeed";
   try {
     const url = new URL(value);
-    if (url.hostname === "linkedin.com" || url.hostname.endsWith(".linkedin.com")) {
-      source = "LinkedIn";
-    } else if (url.hostname === "indeed.com" || url.hostname.endsWith(".indeed.com")) {
-      source = "Indeed";
-    } else {
-      return NextResponse.json({ error: "Only linkedin.com or indeed.com URLs are allowed" }, { status: 400 });
+    if (url.hostname !== "linkedin.com" && !url.hostname.endsWith(".linkedin.com")) {
+      return NextResponse.json({ error: "Only linkedin.com URLs are allowed" }, { status: 400 });
     }
     cleanUrl = `${url.origin}${url.pathname}`;
   } catch {
@@ -72,8 +47,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Failed to fetch page: ${message}` }, { status: 502 });
   }
 
-  const extracted =
-    source === "Indeed" ? extractIndeedJobInfo(data, cleanUrl) : extractLinkedInJobInfo(data, cleanUrl);
+  const extracted = extractJobInfo(data, cleanUrl);
 
   const foundNothing =
     !extracted.companyName.trim() && !extracted.jobPosting.trim() && !extracted.location.trim();
@@ -86,7 +60,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         error:
-          `Scrape found no usable data on the ${source} page — it may have blocked the request or served unexpected content` +
+          `Scrape found no usable data on the page — it may have blocked the request or served unexpected content` +
           (pageTitle ? ` (page title: "${pageTitle}")` : "") +
           ".",
       },
@@ -94,5 +68,5 @@ export async function POST(req: Request) {
     );
   }
 
-  return NextResponse.json({ ...extracted, source });
+  return NextResponse.json(extracted);
 }
