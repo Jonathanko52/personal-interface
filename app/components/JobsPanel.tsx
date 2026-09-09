@@ -9,6 +9,7 @@ interface JobResult {
   jobPosting: string;
   location: string;
   postingLink: string;
+  source: "LinkedIn" | "Indeed";
 }
 
 interface JobCounts {
