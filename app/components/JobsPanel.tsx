@@ -22,7 +22,13 @@ const JOB_COUNT_RESET_KEY = "jobCountResetDate";
 
 function getResetDate(): string {
   try {
-    return localStorage.getItem(JOB_COUNT_RESET_KEY) ?? today();
+    const stored = localStorage.getItem(JOB_COUNT_RESET_KEY);
+    if (stored) return stored;
+    // No cutoff persisted yet — lock one in now instead of silently recomputing
+    // "today" on every call, which would drift forward every day on its own.
+    const initial = today();
+    localStorage.setItem(JOB_COUNT_RESET_KEY, initial);
+    return initial;
   } catch {
     return today();
   }
