@@ -5,7 +5,7 @@ import { useData, Todo } from "@/app/lib/DataContext";
 import { PRIORITIES, Priority } from "@/app/lib/priority";
 import { WEIGHTS, Weight } from "@/app/lib/weight";
 import { toggleDay, makeOneOffChangeHandler } from "@/app/lib/repeatDays";
-import RepeatDayPicker from "./RepeatDayPicker";
+import RepeatDaysField from "./RepeatDaysField";
 import TagPicker from "./TagPicker";
 import PillPicker from "./PillPicker";
 
@@ -166,25 +166,15 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
             )}
           </div>
 
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-3">
+          <RepeatDaysField
+            label={
               <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Repeat</label>
-              <label className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isOneOff}
-                  onChange={(e) => handleOneOffChange(e.target.checked)}
-                  className="accent-indigo-500"
-                />
-                One-off
-              </label>
-            </div>
-            <RepeatDayPicker
-              selectedDays={repeatDays}
-              onToggle={(day) => setRepeatDays((prev) => toggleDay(prev, day))}
-              disabled={isOneOff}
-            />
-          </div>
+            }
+            repeatDays={repeatDays}
+            onToggleDay={(day) => setRepeatDays((prev) => toggleDay(prev, day))}
+            isOneOff={isOneOff}
+            onOneOffChange={handleOneOffChange}
+          />
 
           <div className="flex gap-4 mt-2">
             <button

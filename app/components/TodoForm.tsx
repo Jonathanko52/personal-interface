@@ -5,7 +5,7 @@ import { useData } from "@/app/lib/DataContext";
 import { PRIORITIES, Priority } from "@/app/lib/priority";
 import { WEIGHTS, Weight } from "@/app/lib/weight";
 import { toggleDay, makeOneOffChangeHandler } from "@/app/lib/repeatDays";
-import RepeatDayPicker from "./RepeatDayPicker";
+import RepeatDaysField from "./RepeatDaysField";
 import TagPicker from "./TagPicker";
 
 interface TodoFormProps {
@@ -163,21 +163,14 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
         )}
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-slate-400">Repeat</span>
-          <label className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isOneOff}
-              onChange={(e) => handleOneOffChange(e.target.checked)}
-              className="accent-indigo-500"
-            />
-            One-off
-          </label>
-        </div>
-        <RepeatDayPicker selectedDays={repeatDays} onToggle={toggleRepeatDay} disabled={isOneOff} />
-      </div>
+      <RepeatDaysField
+        label={<span className="text-xs text-slate-400">Repeat</span>}
+        wrapperClassName="flex flex-col gap-1.5"
+        repeatDays={repeatDays}
+        onToggleDay={toggleRepeatDay}
+        isOneOff={isOneOff}
+        onOneOffChange={handleOneOffChange}
+      />
 
       {tags.length > 0 && (
         <TagPicker tags={tags} selectedTagIds={selectedTagIds} onToggle={toggleTag} />
