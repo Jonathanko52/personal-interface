@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useData } from "@/app/lib/DataContext";
 import { PRIORITIES, Priority } from "@/app/lib/priority";
 import { WEIGHTS, Weight } from "@/app/lib/weight";
-import { toggleDay } from "@/app/lib/repeatDays";
+import { toggleDay, makeOneOffChangeHandler } from "@/app/lib/repeatDays";
 import RepeatDayPicker from "./RepeatDayPicker";
 import TagPicker from "./TagPicker";
 
@@ -43,10 +43,7 @@ export default function TodoForm({ defaultListId }: TodoFormProps) {
     setRepeatDays((prev) => toggleDay(prev, day));
   }
 
-  function handleOneOffChange(checked: boolean) {
-    setIsOneOff(checked);
-    if (checked) setRepeatDays([]);
-  }
+  const handleOneOffChange = makeOneOffChangeHandler(setIsOneOff, setRepeatDays);
 
   function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();

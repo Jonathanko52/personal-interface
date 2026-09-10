@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useData, Todo } from "@/app/lib/DataContext";
 import { PRIORITIES, Priority } from "@/app/lib/priority";
 import { WEIGHTS, Weight } from "@/app/lib/weight";
-import { toggleDay } from "@/app/lib/repeatDays";
+import { toggleDay, makeOneOffChangeHandler } from "@/app/lib/repeatDays";
 import RepeatDayPicker from "./RepeatDayPicker";
 import TagPicker from "./TagPicker";
 import PillPicker from "./PillPicker";
@@ -78,10 +78,7 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
     );
   }
 
-  function handleOneOffChange(checked: boolean) {
-    setIsOneOff(checked);
-    if (checked) setRepeatDays([]);
-  }
+  const handleOneOffChange = makeOneOffChangeHandler(setIsOneOff, setRepeatDays);
 
   return (
     <div
