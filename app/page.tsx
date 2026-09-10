@@ -10,7 +10,7 @@ import { useData } from "./lib/DataContext";
 import { useSortFilter } from "./lib/useSortFilter";
 import { useSelectedTodo } from "./lib/useSelectedTodo";
 import { today as todayStr, toDateString } from "./lib/date";
-import { completedTasks, uncompletedTasksToday, formatTasksSummaryBlock, CompletionRange } from "./lib/completionStats";
+import { completedTasks, uncompletedTasksToday, formatTasksSummaryBlock, overrideCompletedFromLog, CompletionRange } from "./lib/completionStats";
 
 function dateLabel(dateStr: string): string {
   const today = todayStr();
@@ -78,22 +78,18 @@ export default function Home() {
   const isViewingToday = selectedDate === todayValue;
   const todosForDate = useMemo(
     () =>
-      todos
-        .filter(
+      overrideCompletedFromLog(
+        todos.filter(
           (t) =>
             t.dueDate === null ||
             t.dueDate === selectedDate ||
             (isViewingToday && !t.completed) ||
             (isViewingToday && t.lastCompletedDate === todayValue)
-        )
-        .map((t) =>
-          // Repeating todos share one live `completed` field with no per-day history —
-          // rollover already reset it for today by the time you browse back to a past
-          // day, so derive that day's actual state from the completions log instead.
-          !isViewingToday && !!t.repeatDays?.length
-            ? { ...t, completed: completions.some((c) => c.todoId === t.id && c.date === selectedDate) }
-            : t
         ),
+        selectedDate,
+        completions,
+        !isViewingToday
+      ),
     [todos, selectedDate, isViewingToday, todayValue, completions]
   );
   const { result, sort, setSort, filter, setFilter } = useSortFilter(todosForDate);

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useData } from "@/app/lib/DataContext";
 import { useSelectedTodo } from "@/app/lib/useSelectedTodo";
 import { priorityDotColors } from "@/app/lib/priority";
+import { overrideCompletedFromLog } from "@/app/lib/completionStats";
 import TodoDetail from "@/app/components/TodoDetail";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -42,16 +43,12 @@ export default function MonthPage() {
   function todosForDay(day: number) {
     const weekday = new Date(year, month, day).getDay();
     const dateStr = dateStrFor(day);
-    return todos
-      .filter((t) => t.dueDate === dateStr || t.repeatDays?.includes(weekday))
-      .map((t) =>
-        // Same fix as app/page.tsx's date-navigator: a repeating todo shares one
-        // live `completed` field with no per-day history, so a past cell needs to
-        // derive that day's actual state from the completions log instead.
-        !isToday(day) && !!t.repeatDays?.length
-          ? { ...t, completed: completions.some((c) => c.todoId === t.id && c.date === dateStr) }
-          : t
-      );
+    return overrideCompletedFromLog(
+      todos.filter((t) => t.dueDate === dateStr || t.repeatDays?.includes(weekday)),
+      dateStr,
+      completions,
+      !isToday(day)
+    );
   }
 
   const isToday = (day: number) =>

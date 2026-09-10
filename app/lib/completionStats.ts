@@ -11,6 +11,24 @@ export function startOfWeek(d: Date): Date {
   return date;
 }
 
+// A repeating todo shares one live `completed` field with no per-day history — rollover
+// already resets it for the current day, so a past day needs to derive its actual state
+// from the completions log instead. One-off todos are left untouched, since their
+// `completed` field is never reset and is already historically accurate as-is.
+export function overrideCompletedFromLog(
+  todos: Todo[],
+  dateStr: string,
+  completions: Completion[],
+  isPastDay: boolean
+): Todo[] {
+  if (!isPastDay) return todos;
+  return todos.map((t) =>
+    t.repeatDays?.length
+      ? { ...t, completed: completions.some((c) => c.todoId === t.id && c.date === dateStr) }
+      : t
+  );
+}
+
 export function startOfMonth(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), 1);
 }
