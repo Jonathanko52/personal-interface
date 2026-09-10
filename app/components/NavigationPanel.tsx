@@ -36,6 +36,9 @@ export default function NavigationPanel({ onSelect }: NavigationPanelProps) {
         <Link href="/applications" className={itemClass}>
           Applications
         </Link>
+        <Link href="/jobs/new" className={itemClass}>
+          New Job
+        </Link>
       </div>
       <div className="flex flex-col gap-1">
         <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-1">Panels</h2>
