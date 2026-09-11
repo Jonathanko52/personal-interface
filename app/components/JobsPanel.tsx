@@ -3,41 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ApplyTypeCode, JobTypeCode, JobCategory, APPLY_TYPE_LABELS, JOB_TYPE_LABELS, JOB_CATEGORIES } from "@/app/lib/jobFields";
-import { today } from "@/app/lib/date";
+import { JobCounts, getJobCounts, resetJobCounts, incrementJobCount } from "@/app/lib/jobCounts";
 
 interface JobResult {
   companyName: string;
   jobPosting: string;
   location: string;
   postingLink: string;
-}
-
-interface JobCounts {
-  total: number;
-  quickApply: number;
-  normalApply: number;
-}
-
-const JOB_COUNT_RESET_KEY = "jobCountResetDate";
-
-function getResetDate(): string {
-  try {
-    const stored = localStorage.getItem(JOB_COUNT_RESET_KEY);
-    if (stored) return stored;
-    // No cutoff persisted yet — lock one in now instead of silently recomputing
-    // "today" on every call, which would drift forward every day on its own.
-    const initial = today();
-    localStorage.setItem(JOB_COUNT_RESET_KEY, initial);
-    return initial;
-  } catch {
-    return today();
-  }
-}
-
-function setResetDate(date: string) {
-  try {
-    localStorage.setItem(JOB_COUNT_RESET_KEY, date);
-  } catch {}
 }
 
 export default function JobsPanel() {
@@ -66,23 +38,13 @@ export default function JobsPanel() {
     );
   }
 
-  async function loadCounts() {
-    try {
-      const res = await fetch(`/api/jobs/count?since=${getResetDate()}`);
-      if (!res.ok) return;
-      setCounts(await res.json());
-    } catch {
-      // Non-critical — leave counts as-is if this fails.
-    }
-  }
-
-  async function handleResetCount() {
-    setResetDate(today());
-    await loadCounts();
+  function handleResetCount() {
+    setCounts(resetJobCounts());
   }
 
   useEffect(() => {
-    loadCounts();
+    // Read on mount only, in a client-only effect — localStorage isn't available during SSR.
+    setCounts(getJobCounts());
   }, []);
 
   async function handleScrape() {
@@ -163,7 +125,7 @@ export default function JobsPanel() {
       if (!res.ok) throw new Error(`Save failed (${res.status})`);
       setSaved(true);
       setUrl("");
-      loadCounts();
+      setCounts(incrementJobCount(applyType));
     } catch (err) {
       setError(
         (err instanceof Error ? err.message : "Something went wrong.") +
