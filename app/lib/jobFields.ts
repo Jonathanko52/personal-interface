@@ -42,3 +42,19 @@ export type JobCategory = (typeof JOB_CATEGORIES)[number];
 export function isJobCategory(value: unknown): value is JobCategory {
   return typeof value === "string" && (JOB_CATEGORIES as readonly string[]).includes(value);
 }
+
+// Starting heuristic, not a promise of accuracy — expect real-world tuning. "Other" is
+// never suggested, since it's a catch-all rather than a detectable pattern.
+const CATEGORY_PATTERNS: [JobCategory, RegExp][] = [
+  ["Frontend", /front[\s-]?end/i],
+  ["Backend", /back[\s-]?end/i],
+  ["Fullstack", /full[\s-]?stack/i],
+  ["Data Science", /data scien/i],
+  ["Machine Learning", /machine learning|\bml\b/i],
+  ["Translation", /translat/i],
+  ["Copywriting", /copywrit/i],
+];
+
+export function suggestCategories(jobTitle: string): JobCategory[] {
+  return CATEGORY_PATTERNS.filter(([, pattern]) => pattern.test(jobTitle)).map(([category]) => category);
+}
