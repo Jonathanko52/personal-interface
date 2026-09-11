@@ -2,7 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ApplyTypeCode, JobTypeCode, JobCategory, APPLY_TYPE_LABELS, JOB_TYPE_LABELS, JOB_CATEGORIES } from "@/app/lib/jobFields";
+import {
+  ApplyTypeCode,
+  JobTypeCode,
+  JobCategory,
+  APPLY_TYPE_LABELS,
+  JOB_TYPE_LABELS,
+  JOB_CATEGORIES,
+  suggestCategories,
+} from "@/app/lib/jobFields";
 import { JobCounts, getJobCounts, resetJobCounts, incrementJobCount } from "@/app/lib/jobCounts";
 
 interface JobResult {
@@ -67,6 +75,7 @@ export default function JobsPanel() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || `Scrape failed (${res.status})`);
       setResult(data);
+      setCategories(suggestCategories(data.jobPosting ?? ""));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
