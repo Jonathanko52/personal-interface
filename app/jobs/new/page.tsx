@@ -9,6 +9,7 @@ import {
   JOB_TYPE_LABELS,
   JOB_CATEGORIES,
 } from "@/app/lib/jobFields";
+import { incrementJobCount } from "@/app/lib/jobCounts";
 
 export default function NewJobPage() {
   const [companyName, setCompanyName] = useState("");
@@ -85,6 +86,7 @@ export default function NewJobPage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || `Save failed (${res.status})`);
       setSaved(true);
+      incrementJobCount(applyType);
     } catch (err) {
       setError(
         (err instanceof Error ? err.message : "Something went wrong.") + " You can try saving again."
