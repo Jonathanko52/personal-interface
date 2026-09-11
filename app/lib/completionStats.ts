@@ -1,6 +1,7 @@
 import { Completion, Todo } from "./DataContext";
 import { toDateString } from "./date";
 import { Weight } from "./weight";
+import { isDailyTodo } from "./groupTodos";
 
 export function startOfWeek(d: Date): Date {
   const date = new Date(d);
@@ -23,7 +24,7 @@ export function overrideCompletedFromLog(
 ): Todo[] {
   if (!isPastDay) return todos;
   return todos.map((t) =>
-    t.repeatDays?.length
+    isDailyTodo(t)
       ? { ...t, completed: completions.some((c) => c.todoId === t.id && c.date === dateStr) }
       : t
   );
@@ -93,7 +94,7 @@ export function completedTasks(
       return {
         title: todo?.title ?? "(deleted task)",
         weight: todo?.weight ?? null,
-        isDaily: !!todo?.repeatDays?.length,
+        isDaily: todo ? isDailyTodo(todo) : false,
       };
     });
 }
@@ -105,7 +106,7 @@ export function uncompletedTasksToday(todos: Todo[], referenceDate: Date = new D
   const today = toDateString(referenceDate);
   return todos
     .filter((t) => !t.completed && (t.dueDate === null || t.dueDate <= today))
-    .map((t) => ({ title: t.title, weight: t.weight, isDaily: !!t.repeatDays?.length }));
+    .map((t) => ({ title: t.title, weight: t.weight, isDaily: isDailyTodo(t) }));
 }
 
 function splitBy(tasks: WeightedTask[], valueOf: (t: WeightedTask) => number): { daily: number; oneOff: number } {
