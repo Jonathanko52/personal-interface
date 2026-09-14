@@ -2,7 +2,16 @@ import { NextResponse } from "next/server";
 import { getSheetsClient, sheetsErrorResponse, sanitizeForSheets } from "@/app/lib/googleSheets";
 import { getCurrentDateMMDDYY } from "@/app/lib/sheetDate";
 import { DEFAULT_JOB_STATUS } from "@/app/lib/jobStatus";
-import { ApplyTypeCode, JobTypeCode, APPLY_TYPE_LABELS, JOB_TYPE_LABELS, isJobCategory } from "@/app/lib/jobFields";
+import {
+  ApplyTypeCode,
+  JobTypeCode,
+  JobSource,
+  APPLY_TYPE_LABELS,
+  JOB_TYPE_LABELS,
+  DEFAULT_JOB_SOURCE,
+  isJobCategory,
+  isJobSource,
+} from "@/app/lib/jobFields";
 
 interface JobData {
   companyName: string;
@@ -11,6 +20,9 @@ interface JobData {
   postingLink: string;
   applyType: ApplyTypeCode;
   jobType: JobTypeCode;
+  // Optional: not every caller (e.g. app/jobs/new/page.tsx, pending its own Source dropdown)
+  // sends this yet — falls back to DEFAULT_JOB_SOURCE below when absent.
+  source?: JobSource;
   categories: string[];
 }
 
@@ -24,6 +36,7 @@ function isJobData(value: unknown): value is JobData {
     typeof v.postingLink === "string" &&
     (v.applyType === "quick" || v.applyType === "normal") &&
     (v.jobType === "internship" || v.jobType === "part-time" || v.jobType === "full-time") &&
+    (v.source === undefined || isJobSource(v.source)) &&
     Array.isArray(v.categories) && v.categories.every(isJobCategory)
   );
 }
@@ -43,7 +56,7 @@ export async function POST(req: Request) {
   const postingLinkCell = trimmedPostingLink ? `=HYPERLINK("${safePostingLink}", "Link")` : "";
 
   const spreadSheetArray = [
-    "LinkedIn",
+    dataOne.source ?? DEFAULT_JOB_SOURCE,
     sanitizeForSheets(dataOne.companyName),
     sanitizeForSheets(dataOne.jobPosting),
     getCurrentDateMMDDYY(),
