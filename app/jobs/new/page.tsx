@@ -87,6 +87,16 @@ export default function NewJobPage() {
       if (!res.ok) throw new Error(data.error || `Save failed (${res.status})`);
       setSaved(true);
       incrementJobCount(applyType);
+      setTimeout(() => {
+        setCompanyName("");
+        setJobPosting("");
+        setLocation("");
+        setPostingLink("");
+        setApplyType("normal");
+        setJobType("full-time");
+        setCategories([]);
+        setSaved(false);
+      }, 5000);
     } catch (err) {
       setError(
         (err instanceof Error ? err.message : "Something went wrong.") + " You can try saving again."

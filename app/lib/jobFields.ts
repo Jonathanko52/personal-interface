@@ -27,6 +27,14 @@ export const JOB_TYPE_LABELS: Record<JobTypeCode, JobTypeLabel> = {
   "full-time": "Full-time",
 };
 
+export const JOB_SOURCES = ["LinkedIn", "Indeed", "Other"] as const;
+export type JobSource = (typeof JOB_SOURCES)[number];
+export const DEFAULT_JOB_SOURCE: JobSource = "LinkedIn";
+
+export function isJobSource(value: unknown): value is JobSource {
+  return typeof value === "string" && (JOB_SOURCES as readonly string[]).includes(value);
+}
+
 export const JOB_CATEGORIES = [
   "Frontend",
   "Backend",
