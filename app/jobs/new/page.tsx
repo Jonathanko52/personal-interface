@@ -5,9 +5,12 @@ import {
   ApplyTypeCode,
   JobTypeCode,
   JobCategory,
+  JobSource,
   APPLY_TYPE_LABELS,
   JOB_TYPE_LABELS,
   JOB_CATEGORIES,
+  JOB_SOURCES,
+  DEFAULT_JOB_SOURCE,
 } from "@/app/lib/jobFields";
 import { incrementJobCount } from "@/app/lib/jobCounts";
 
@@ -18,6 +21,7 @@ export default function NewJobPage() {
   const [postingLink, setPostingLink] = useState("");
   const [applyType, setApplyType] = useState<ApplyTypeCode>("normal");
   const [jobType, setJobType] = useState<JobTypeCode>("full-time");
+  const [source, setSource] = useState<JobSource>(DEFAULT_JOB_SOURCE);
   const [categories, setCategories] = useState<JobCategory[]>([]);
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -79,6 +83,7 @@ export default function NewJobPage() {
             postingLink: postingLink.trim(),
             applyType,
             jobType,
+            source,
             categories,
           },
         }),
@@ -94,6 +99,7 @@ export default function NewJobPage() {
         setPostingLink("");
         setApplyType("normal");
         setJobType("full-time");
+        setSource(DEFAULT_JOB_SOURCE);
         setCategories([]);
         setSaved(false);
       }, 5000);
@@ -149,6 +155,21 @@ export default function NewJobPage() {
             onChange={(e) => setPostingLink(e.target.value)}
             className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors"
           />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Source</span>
+          <select
+            value={source}
+            onChange={(e) => setSource(e.target.value as JobSource)}
+            className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors w-fit"
+          >
+            {JOB_SOURCES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex flex-col gap-1.5">
