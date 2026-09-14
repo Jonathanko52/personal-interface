@@ -6,9 +6,12 @@ import {
   ApplyTypeCode,
   JobTypeCode,
   JobCategory,
+  JobSource,
   APPLY_TYPE_LABELS,
   JOB_TYPE_LABELS,
   JOB_CATEGORIES,
+  JOB_SOURCES,
+  DEFAULT_JOB_SOURCE,
   suggestCategories,
 } from "@/app/lib/jobFields";
 import { JobCounts, getJobCounts, resetJobCounts, incrementJobCount } from "@/app/lib/jobCounts";
@@ -25,6 +28,7 @@ export default function JobsPanel() {
   const [result, setResult] = useState<JobResult | null>(null);
   const [applyType, setApplyType] = useState<ApplyTypeCode>("normal");
   const [jobType, setJobType] = useState<JobTypeCode>("full-time");
+  const [source, setSource] = useState<JobSource>(DEFAULT_JOB_SOURCE);
   const [categories, setCategories] = useState<JobCategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -62,6 +66,7 @@ export default function JobsPanel() {
     setResult(null);
     setApplyType("normal");
     setJobType("full-time");
+    setSource(DEFAULT_JOB_SOURCE);
     setCategories([]);
     setSaved(false);
     setConfirmDuplicate(false);
@@ -127,6 +132,7 @@ export default function JobsPanel() {
             location: result.location.trim(),
             applyType,
             jobType,
+            source,
             categories,
           },
         }),
@@ -172,6 +178,7 @@ export default function JobsPanel() {
             setResult(null);
             setApplyType("normal");
             setJobType("full-time");
+            setSource(DEFAULT_JOB_SOURCE);
             setCategories([]);
             setSaved(false);
             setConfirmDuplicate(false);
@@ -248,6 +255,20 @@ export default function JobsPanel() {
             >
               {result.postingLink}
             </a>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs text-slate-400">Source</span>
+            <select
+              value={source}
+              onChange={(e) => setSource(e.target.value as JobSource)}
+              className="text-xs border border-slate-600 rounded-md px-2 py-1 outline-none text-slate-100 bg-slate-800 w-fit"
+            >
+              {JOB_SOURCES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-xs text-slate-400">Apply Type</span>
