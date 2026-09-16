@@ -11,6 +11,7 @@ import {
   JOB_CATEGORIES,
   JOB_SOURCES,
   DEFAULT_JOB_SOURCE,
+  toggleCategoryInArray,
 } from "@/app/lib/jobFields";
 import { incrementJobCount } from "@/app/lib/jobCounts";
 
@@ -34,9 +35,7 @@ export default function NewJobPage() {
   const isValid = Boolean(companyName.trim() && jobPosting.trim() && location.trim());
 
   function toggleCategory(category: JobCategory) {
-    setCategories((prev) =>
-      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
-    );
+    setCategories((prev) => toggleCategoryInArray(prev, category));
   }
 
   async function handleSaveClick() {

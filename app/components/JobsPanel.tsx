@@ -14,6 +14,7 @@ import {
   DEFAULT_JOB_SOURCE,
   suggestCategories,
   suggestJobType,
+  toggleCategoryInArray,
 } from "@/app/lib/jobFields";
 import { JobCounts, getJobCounts, resetJobCounts, incrementJobCount } from "@/app/lib/jobCounts";
 
@@ -46,9 +47,7 @@ export default function JobsPanel() {
   );
 
   function toggleCategory(category: JobCategory) {
-    setCategories((prev) =>
-      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
-    );
+    setCategories((prev) => toggleCategoryInArray(prev, category));
   }
 
   function handleResetCount() {

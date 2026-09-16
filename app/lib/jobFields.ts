@@ -51,6 +51,12 @@ export function isJobCategory(value: unknown): value is JobCategory {
   return typeof value === "string" && (JOB_CATEGORIES as readonly string[]).includes(value);
 }
 
+export function toggleCategoryInArray(categories: JobCategory[], category: JobCategory): JobCategory[] {
+  return categories.includes(category)
+    ? categories.filter((c) => c !== category)
+    : [...categories, category];
+}
+
 // Starting heuristic, not a promise of accuracy — expect real-world tuning. "Other" is
 // never suggested, since it's a catch-all rather than a detectable pattern.
 const CATEGORY_PATTERNS: [JobCategory, RegExp][] = [
