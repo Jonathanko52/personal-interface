@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ApplyTypeCode,
@@ -17,6 +17,7 @@ import {
   toggleCategoryInArray,
 } from "@/app/lib/jobFields";
 import { JobCounts, getJobCounts, resetJobCounts, incrementJobCount } from "@/app/lib/jobCounts";
+import { useJobSaveFlow } from "@/app/lib/useJobSaveFlow";
 
 interface JobResult {
   companyName: string;
@@ -33,14 +34,7 @@ export default function JobsPanel() {
   const [source, setSource] = useState<JobSource>(DEFAULT_JOB_SOURCE);
   const [categories, setCategories] = useState<JobCategory[]>([]);
   const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [confirmDuplicate, setConfirmDuplicate] = useState(false);
-  const [checkFailed, setCheckFailed] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [counts, setCounts] = useState<JobCounts | null>(null);
-  const savingRef = useRef(false);
 
   const isResultValid = Boolean(
     result && result.companyName.trim() && result.jobPosting.trim() && result.location.trim()
@@ -49,6 +43,37 @@ export default function JobsPanel() {
   function toggleCategory(category: JobCategory) {
     setCategories((prev) => toggleCategoryInArray(prev, category));
   }
+
+  const {
+    checking,
+    saving,
+    saved,
+    confirmDuplicate,
+    setConfirmDuplicate,
+    checkFailed,
+    error,
+    setError,
+    handleSaveClick,
+    doSave,
+    resetSaveState,
+  } = useJobSaveFlow({
+    isValid: isResultValid,
+    getCompanyName: () => result?.companyName ?? "",
+    buildPayload: () => ({
+      companyName: (result?.companyName ?? "").trim(),
+      jobPosting: (result?.jobPosting ?? "").trim(),
+      location: (result?.location ?? "").trim(),
+      postingLink: result?.postingLink ?? "",
+      applyType,
+      jobType,
+      source,
+      categories,
+    }),
+    onSaved: () => {
+      setUrl("");
+      setCounts(incrementJobCount(applyType));
+    },
+  });
 
   function handleResetCount() {
     setCounts(resetJobCounts());
@@ -62,15 +87,12 @@ export default function JobsPanel() {
   async function handleScrape() {
     if (!url.trim()) return;
     setLoading(true);
-    setError(null);
     setResult(null);
     setApplyType("normal");
     setJobType("full-time");
     setSource(DEFAULT_JOB_SOURCE);
     setCategories([]);
-    setSaved(false);
-    setConfirmDuplicate(false);
-    setCheckFailed(false);
+    resetSaveState();
     try {
       const res = await fetch("/api/jobs/scrape", {
         method: "POST",
@@ -86,70 +108,6 @@ export default function JobsPanel() {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleSaveClick() {
-    if (!result || savingRef.current) return;
-    setError(null);
-    setCheckFailed(false);
-    setChecking(true);
-    let checkOk = true;
-    try {
-      const res = await fetch(`/api/jobs/check?company=${encodeURIComponent(result.companyName)}`);
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        checkOk = false;
-      } else if (data.duplicate) {
-        setChecking(false);
-        setConfirmDuplicate(true);
-        return;
-      }
-    } catch {
-      checkOk = false;
-    } finally {
-      setChecking(false);
-    }
-    // If the duplicate check itself fails, don't block saving on it — just surface that it didn't run.
-    if (!checkOk) setCheckFailed(true);
-    await doSave();
-  }
-
-  async function doSave() {
-    if (!result || savingRef.current) return;
-    savingRef.current = true;
-    setSaving(true);
-    setConfirmDuplicate(false);
-    setError(null);
-    try {
-      const res = await fetch("/api/jobs/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          dataOne: {
-            ...result,
-            companyName: result.companyName.trim(),
-            jobPosting: result.jobPosting.trim(),
-            location: result.location.trim(),
-            applyType,
-            jobType,
-            source,
-            categories,
-          },
-        }),
-      });
-      if (!res.ok) throw new Error(`Save failed (${res.status})`);
-      setSaved(true);
-      setUrl("");
-      setCounts(incrementJobCount(applyType));
-    } catch (err) {
-      setError(
-        (err instanceof Error ? err.message : "Something went wrong.") +
-          " You can try saving again."
-      );
-    } finally {
-      savingRef.current = false;
-      setSaving(false);
     }
   }
 
@@ -181,10 +139,7 @@ export default function JobsPanel() {
             setJobType("full-time");
             setSource(DEFAULT_JOB_SOURCE);
             setCategories([]);
-            setSaved(false);
-            setConfirmDuplicate(false);
-            setCheckFailed(false);
-            setError(null);
+            resetSaveState();
           }}
           placeholder="Paste LinkedIn URL..."
           className="text-sm bg-slate-800 border border-slate-600 text-slate-100 rounded-md px-3 py-2 outline-none focus:border-indigo-400 transition-colors placeholder:text-slate-500 w-full"
