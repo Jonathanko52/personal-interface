@@ -13,6 +13,7 @@ import {
   JOB_SOURCES,
   DEFAULT_JOB_SOURCE,
   suggestCategories,
+  suggestJobType,
 } from "@/app/lib/jobFields";
 import { JobCounts, getJobCounts, resetJobCounts, incrementJobCount } from "@/app/lib/jobCounts";
 
@@ -81,6 +82,7 @@ export default function JobsPanel() {
       if (!res.ok) throw new Error(data.error || `Scrape failed (${res.status})`);
       setResult(data);
       setCategories(suggestCategories(data.jobPosting ?? ""));
+      setJobType(suggestJobType(data.jobPosting ?? ""));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {

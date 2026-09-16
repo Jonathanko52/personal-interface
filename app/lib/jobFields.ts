@@ -66,3 +66,9 @@ const CATEGORY_PATTERNS: [JobCategory, RegExp][] = [
 export function suggestCategories(jobTitle: string): JobCategory[] {
   return CATEGORY_PATTERNS.filter(([, pattern]) => pattern.test(jobTitle)).map(([category]) => category);
 }
+
+const INTERNSHIP_PATTERN = /\bintern(ship)?\b/i;
+
+export function suggestJobType(jobTitle: string): JobTypeCode {
+  return INTERNSHIP_PATTERN.test(jobTitle) ? "internship" : "full-time";
+}
