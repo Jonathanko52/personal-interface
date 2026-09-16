@@ -76,21 +76,42 @@ export default function Home() {
 
   const todayValue = todayStr();
   const isViewingToday = selectedDate === todayValue;
-  const todosForDate = useMemo(
+
+  // Daily Tasks: unchanged from before — repeating todos, day-scoped exactly as today,
+  // including the past-day history override (Part 40) when browsing via the navigator.
+  const dailyTodosForDate = useMemo(
     () =>
       overrideCompletedFromLog(
         todos.filter(
           (t) =>
-            t.dueDate === null ||
-            t.dueDate === selectedDate ||
-            (isViewingToday && !t.completed) ||
-            (isViewingToday && t.lastCompletedDate === todayValue)
+            !!t.repeatDays?.length &&
+            (t.dueDate === null ||
+              t.dueDate === selectedDate ||
+              (isViewingToday && !t.completed) ||
+              (isViewingToday && t.lastCompletedDate === todayValue))
         ),
         selectedDate,
         completions,
         !isViewingToday
       ),
     [todos, selectedDate, isViewingToday, todayValue, completions]
+  );
+
+  // One-off: a day-independent overview (always relative to today, not selectedDate) —
+  // indefinite todos, plus anything due within the coming month (which also naturally
+  // keeps overdue todos visible, since a past due date is <= the cutoff too).
+  const oneOffOverview = useMemo(() => {
+    const cutoff = new Date(`${todayValue}T00:00:00`);
+    cutoff.setMonth(cutoff.getMonth() + 1);
+    const cutoffValue = toDateString(cutoff);
+    return todos.filter(
+      (t) => !t.repeatDays?.length && (t.dueDate === null || t.dueDate <= cutoffValue)
+    );
+  }, [todos, todayValue]);
+
+  const todosForDate = useMemo(
+    () => [...dailyTodosForDate, ...oneOffOverview],
+    [dailyTodosForDate, oneOffOverview]
   );
   const { result, sort, setSort, filter, setFilter } = useSortFilter(todosForDate);
 
