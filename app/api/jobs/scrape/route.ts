@@ -10,8 +10,11 @@ function extractJobInfo(html: string, postingLink: string) {
   // ".topcard__flavor--bullet" is LinkedIn's semantic class for the location bullet on
   // public job posting pages; fall back to the old positional guess if it's not present.
   const location = $(".topcard__flavor--bullet").first().text().trim() || $("span").eq(5).text();
+  // Kept alongside the rest so the foundNothing error path (below) can reuse this same
+  // parse for its diagnostic instead of calling cheerio.load(html) again.
+  const pageTitle = $("title").first().text().trim();
 
-  return { companyName, jobPosting, location, postingLink };
+  return { companyName, jobPosting, location, postingLink, pageTitle };
 }
 
 export async function POST(req: Request) {
@@ -47,7 +50,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Failed to fetch page: ${message}` }, { status: 502 });
   }
 
-  const extracted = extractJobInfo(data, cleanUrl);
+  const { pageTitle, ...extracted } = extractJobInfo(data, cleanUrl);
 
   const foundNothing =
     !extracted.companyName.trim() && !extracted.jobPosting.trim() && !extracted.location.trim();
@@ -56,7 +59,6 @@ export async function POST(req: Request) {
     // came back — a bot-block/CAPTCHA page or a login wall instead of the real posting are
     // common causes. The fetched page's <title> is a cheap, often very telling diagnostic
     // (e.g. "Just a moment..." or "Sign in") for figuring out which.
-    const pageTitle = cheerio.load(data)("title").first().text().trim();
     return NextResponse.json(
       {
         error:
