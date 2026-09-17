@@ -15,6 +15,7 @@ import {
 } from "@/app/lib/jobFields";
 import { incrementJobCount } from "@/app/lib/jobCounts";
 import { useJobSaveFlow } from "@/app/lib/useJobSaveFlow";
+import PillPicker from "@/app/components/PillPicker";
 
 export default function NewJobPage() {
   const [companyName, setCompanyName] = useState("");
@@ -133,42 +134,26 @@ export default function NewJobPage() {
 
         <div className="flex flex-col gap-1.5">
           <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Apply Type</span>
-          <div className="flex gap-1.5">
-            {(["normal", "quick"] as const).map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setApplyType(type)}
-                className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                  applyType === type
-                    ? "bg-indigo-500 text-white border-indigo-500"
-                    : "border-zinc-300 text-zinc-600 hover:border-zinc-400"
-                }`}
-              >
-                {APPLY_TYPE_LABELS[type]}
-              </button>
-            ))}
-          </div>
+          <PillPicker
+            options={["normal", "quick"] as const}
+            selected={applyType}
+            onSelect={setApplyType}
+            format={(type) => APPLY_TYPE_LABELS[type]}
+            theme="light"
+            gap="sm"
+          />
         </div>
 
         <div className="flex flex-col gap-1.5">
           <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Job Type</span>
-          <div className="flex gap-1.5">
-            {(["internship", "part-time", "full-time"] as const).map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setJobType(type)}
-                className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                  jobType === type
-                    ? "bg-indigo-500 text-white border-indigo-500"
-                    : "border-zinc-300 text-zinc-600 hover:border-zinc-400"
-                }`}
-              >
-                {JOB_TYPE_LABELS[type]}
-              </button>
-            ))}
-          </div>
+          <PillPicker
+            options={["internship", "part-time", "full-time"] as const}
+            selected={jobType}
+            onSelect={setJobType}
+            format={(type) => JOB_TYPE_LABELS[type]}
+            theme="light"
+            gap="sm"
+          />
         </div>
 
         <div className="flex flex-col gap-1.5">

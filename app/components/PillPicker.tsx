@@ -6,7 +6,19 @@ interface PillPickerProps<T extends string | number> {
   onSelect: (value: T) => void;
   format?: (value: T) => string;
   capitalize?: boolean;
+  theme?: "dark" | "light";
+  gap?: "sm" | "md";
 }
+
+const THEME_UNSELECTED: Record<"dark" | "light", string> = {
+  dark: "border-slate-600 text-slate-400 hover:border-slate-400 hover:text-white",
+  light: "border-zinc-300 text-zinc-600 hover:border-zinc-400",
+};
+
+const GAP_CLASS: Record<"sm" | "md", string> = {
+  sm: "gap-1.5",
+  md: "gap-2",
+};
 
 export default function PillPicker<T extends string | number>({
   options,
@@ -14,9 +26,11 @@ export default function PillPicker<T extends string | number>({
   onSelect,
   format,
   capitalize,
+  theme = "dark",
+  gap = "md",
 }: PillPickerProps<T>) {
   return (
-    <div className="flex gap-2">
+    <div className={`flex ${GAP_CLASS[gap]}`}>
       {options.map((option) => (
         <button
           key={option}
@@ -25,7 +39,7 @@ export default function PillPicker<T extends string | number>({
           className={`text-xs px-3 py-1 rounded-full border transition-colors ${capitalize ? "capitalize" : ""} ${
             selected === option
               ? "bg-indigo-500 text-white border-indigo-500"
-              : "border-slate-600 text-slate-400 hover:border-slate-400 hover:text-white"
+              : THEME_UNSELECTED[theme]
           }`}
         >
           {format ? format(option) : option}
