@@ -10,12 +10,14 @@ interface PillPickerProps<T extends string | number> {
   gap?: "sm" | "md";
 }
 
-const THEME_UNSELECTED: Record<"dark" | "light", string> = {
+// Exported so MultiPillPicker.tsx can reuse the same theme/gap styling instead of
+// duplicating it.
+export const THEME_UNSELECTED: Record<"dark" | "light", string> = {
   dark: "border-slate-600 text-slate-400 hover:border-slate-400 hover:text-white",
   light: "border-zinc-300 text-zinc-600 hover:border-zinc-400",
 };
 
-const GAP_CLASS: Record<"sm" | "md", string> = {
+export const GAP_CLASS: Record<"sm" | "md", string> = {
   sm: "gap-1.5",
   md: "gap-2",
 };

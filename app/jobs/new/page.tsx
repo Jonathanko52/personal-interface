@@ -16,6 +16,7 @@ import {
 import { incrementJobCount } from "@/app/lib/jobCounts";
 import { useJobSaveFlow } from "@/app/lib/useJobSaveFlow";
 import PillPicker from "@/app/components/PillPicker";
+import MultiPillPicker from "@/app/components/MultiPillPicker";
 
 export default function NewJobPage() {
   const [companyName, setCompanyName] = useState("");
@@ -158,22 +159,13 @@ export default function NewJobPage() {
 
         <div className="flex flex-col gap-1.5">
           <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Category</span>
-          <div className="flex gap-1.5 flex-wrap">
-            {JOB_CATEGORIES.map((category) => (
-              <button
-                key={category}
-                type="button"
-                onClick={() => toggleCategory(category)}
-                className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                  categories.includes(category)
-                    ? "bg-indigo-500 text-white border-indigo-500"
-                    : "border-zinc-300 text-zinc-600 hover:border-zinc-400"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
+          <MultiPillPicker
+            options={JOB_CATEGORIES}
+            selected={categories}
+            onToggle={toggleCategory}
+            theme="light"
+            gap="sm"
+          />
         </div>
 
         {error && <p className="text-xs text-red-500">{error}</p>}

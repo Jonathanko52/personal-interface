@@ -19,6 +19,7 @@ import {
 import { JobCounts, getJobCounts, resetJobCounts, incrementJobCount } from "@/app/lib/jobCounts";
 import { useJobSaveFlow } from "@/app/lib/useJobSaveFlow";
 import PillPicker from "./PillPicker";
+import MultiPillPicker from "./MultiPillPicker";
 
 interface JobResult {
   companyName: string;
@@ -249,22 +250,7 @@ export default function JobsPanel() {
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-xs text-slate-400">Category</span>
-            <div className="flex gap-1.5 flex-wrap">
-              {JOB_CATEGORIES.map((category) => (
-                <button
-                  key={category}
-                  type="button"
-                  onClick={() => toggleCategory(category)}
-                  className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-                    categories.includes(category)
-                      ? "bg-indigo-500 text-white border-indigo-500"
-                      : "border-slate-600 text-slate-400 hover:border-slate-400"
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
+            <MultiPillPicker options={JOB_CATEGORIES} selected={categories} onToggle={toggleCategory} gap="sm" />
           </div>
           {confirmDuplicate ? (
             <div className="flex flex-col gap-2 border border-yellow-600/40 bg-yellow-500/10 rounded-md p-3">
