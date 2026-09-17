@@ -85,7 +85,8 @@ export default function NewJobPage() {
             type="text"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
-            className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors"
+            disabled={saved}
+            className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors disabled:opacity-60"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -94,7 +95,8 @@ export default function NewJobPage() {
             type="text"
             value={jobPosting}
             onChange={(e) => setJobPosting(e.target.value)}
-            className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors"
+            disabled={saved}
+            className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors disabled:opacity-60"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -103,7 +105,8 @@ export default function NewJobPage() {
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors"
+            disabled={saved}
+            className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors disabled:opacity-60"
           />
         </div>
         <div className="flex flex-col gap-1">
