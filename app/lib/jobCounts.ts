@@ -9,6 +9,11 @@ export interface JobCounts {
 const JOB_COUNTS_KEY = "jobCounts";
 const EMPTY_COUNTS: JobCounts = { total: 0, quickApply: 0, normalApply: 0 };
 
+// The native "storage" event only fires in *other* tabs/windows, never in the same tab
+// that made the change — no good for keeping JobsPanel.tsx and app/jobs/new/page.tsx in
+// sync when both are mounted in the same page. This custom event covers that instead.
+export const JOB_COUNTS_CHANGED_EVENT = "jobcounts-changed";
+
 function isJobCounts(value: unknown): value is JobCounts {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
@@ -29,6 +34,7 @@ export function getJobCounts(): JobCounts {
 function saveJobCounts(counts: JobCounts) {
   try {
     localStorage.setItem(JOB_COUNTS_KEY, JSON.stringify(counts));
+    window.dispatchEvent(new CustomEvent(JOB_COUNTS_CHANGED_EVENT));
   } catch {}
 }
 
