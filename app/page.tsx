@@ -29,12 +29,22 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState(todayStr());
   const [completedRange, setCompletedRange] = useState<CompletionRange>("day");
   const [copied, setCopied] = useState(false);
+  const [refreshed, setRefreshed] = useState(false);
 
   const completedBlock = useMemo(() => {
     const completed = completedTasks(completions, todos, completedRange);
     const uncompleted = uncompletedTasksToday(todos);
     return formatTasksSummaryBlock(completed, uncompleted, completedRange);
   }, [completions, todos, completedRange]);
+
+  function handleRefresh() {
+    // The block is already a useMemo keyed on [completions, todos, completedRange], so it
+    // recomputes automatically whenever a todo is checked/unchecked — this button doesn't
+    // change that. It's a visible confirmation that what's shown is current, not a fix for
+    // staleness (none is known); same brief-label-flip feedback pattern as Copy below.
+    setRefreshed(true);
+    setTimeout(() => setRefreshed(false), 1500);
+  }
 
   async function handleCopy() {
     try {
@@ -177,12 +187,20 @@ export default function Home() {
         <pre className="border border-zinc-200 rounded-md p-3 text-xs text-zinc-700 whitespace-pre-wrap font-mono bg-zinc-50">
           {completedBlock}
         </pre>
-        <button
-          onClick={handleCopy}
-          className="self-start text-xs bg-zinc-800 text-white rounded-md px-3 py-1.5 hover:bg-zinc-900 transition-colors"
-        >
-          {copied ? "Copied!" : "Copy"}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleCopy}
+            className="self-start text-xs bg-zinc-800 text-white rounded-md px-3 py-1.5 hover:bg-zinc-900 transition-colors"
+          >
+            {copied ? "Copied!" : "Copy"}
+          </button>
+          <button
+            onClick={handleRefresh}
+            className="self-start text-xs bg-zinc-800 text-white rounded-md px-3 py-1.5 hover:bg-zinc-900 transition-colors"
+          >
+            {refreshed ? "Refreshed!" : "Refresh"}
+          </button>
+        </div>
       </section>
     </div>
   );
