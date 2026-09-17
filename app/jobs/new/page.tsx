@@ -13,7 +13,7 @@ import {
   DEFAULT_JOB_SOURCE,
   toggleCategoryInArray,
 } from "@/app/lib/jobFields";
-import { incrementJobCount } from "@/app/lib/jobCounts";
+import { useJobCounts } from "@/app/lib/useJobCounts";
 import { useJobSaveFlow } from "@/app/lib/useJobSaveFlow";
 import PillPicker from "@/app/components/PillPicker";
 import MultiPillPicker from "@/app/components/MultiPillPicker";
@@ -27,6 +27,7 @@ export default function NewJobPage() {
   const [jobType, setJobType] = useState<JobTypeCode>("full-time");
   const [source, setSource] = useState<JobSource>(DEFAULT_JOB_SOURCE);
   const [categories, setCategories] = useState<JobCategory[]>([]);
+  const { counts, increment, reset } = useJobCounts();
 
   const isValid = Boolean(companyName.trim() && jobPosting.trim() && location.trim());
 
@@ -59,7 +60,7 @@ export default function NewJobPage() {
       categories,
     }),
     onSaved: () => {
-      incrementJobCount(applyType);
+      increment(applyType);
       setTimeout(() => {
         setCompanyName("");
         setJobPosting("");
@@ -76,7 +77,19 @@ export default function NewJobPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-xl font-semibold text-zinc-900 mb-6">Add job entry manually</h1>
+      <h1 className="text-xl font-semibold text-zinc-900 mb-4">Add job entry manually</h1>
+
+      <div className="flex items-center gap-4 text-xs text-zinc-500 border-b border-zinc-200 pb-3 mb-4">
+        <span>Count: <span className="text-zinc-900 font-medium">{counts?.total ?? "—"}</span></span>
+        <span>Quick: <span className="text-zinc-900 font-medium">{counts?.quickApply ?? "—"}</span></span>
+        <span>Normal: <span className="text-zinc-900 font-medium">{counts?.normalApply ?? "—"}</span></span>
+        <button
+          onClick={reset}
+          className="ml-auto text-zinc-500 hover:text-zinc-900 transition-colors"
+        >
+          Reset
+        </button>
+      </div>
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
