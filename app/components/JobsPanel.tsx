@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   ApplyTypeCode,
@@ -16,7 +16,7 @@ import {
   suggestJobType,
   toggleCategoryInArray,
 } from "@/app/lib/jobFields";
-import { JobCounts, getJobCounts, resetJobCounts, incrementJobCount } from "@/app/lib/jobCounts";
+import { useJobCounts } from "@/app/lib/useJobCounts";
 import { useJobSaveFlow } from "@/app/lib/useJobSaveFlow";
 import PillPicker from "./PillPicker";
 import MultiPillPicker from "./MultiPillPicker";
@@ -36,7 +36,7 @@ export default function JobsPanel() {
   const [source, setSource] = useState<JobSource>(DEFAULT_JOB_SOURCE);
   const [categories, setCategories] = useState<JobCategory[]>([]);
   const [loading, setLoading] = useState(false);
-  const [counts, setCounts] = useState<JobCounts | null>(null);
+  const { counts, increment, reset } = useJobCounts();
 
   const isResultValid = Boolean(
     result && result.companyName.trim() && result.jobPosting.trim() && result.location.trim()
@@ -73,18 +73,9 @@ export default function JobsPanel() {
     }),
     onSaved: () => {
       setUrl("");
-      setCounts(incrementJobCount(applyType));
+      increment(applyType);
     },
   });
-
-  function handleResetCount() {
-    setCounts(resetJobCounts());
-  }
-
-  useEffect(() => {
-    // Read on mount only, in a client-only effect — localStorage isn't available during SSR.
-    setCounts(getJobCounts());
-  }, []);
 
   async function handleScrape() {
     if (!url.trim()) return;
@@ -120,7 +111,7 @@ export default function JobsPanel() {
         <span>Quick: <span className="text-slate-100 font-medium">{counts?.quickApply ?? "—"}</span></span>
         <span>Normal: <span className="text-slate-100 font-medium">{counts?.normalApply ?? "—"}</span></span>
         <button
-          onClick={handleResetCount}
+          onClick={reset}
           className="ml-auto text-slate-400 hover:text-white transition-colors"
         >
           Reset
