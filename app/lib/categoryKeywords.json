@@ -1,0 +1,10 @@
+{
+  "Frontend": ["frontend", "front-end", "front end", "react", "vue", "angular", "css", "html", "ui developer", "web developer"],
+  "Backend": ["backend", "back-end", "back end", "api", "server-side", "database", "node.js", "django", "spring"],
+  "Fullstack": ["fullstack", "full-stack", "full stack"],
+  "Data Science": ["data scientist", "data science", "data analyst", "analytics"],
+  "Machine Learning": ["machine learning", "ml engineer", "artificial intelligence", "deep learning", "nlp", "computer vision"],
+  "Translation": ["translator", "translation", "localization", "interpreter"],
+  "Copywriting": ["copywriter", "copywriting", "content writer", "content writing"],
+  "Other": []
+}
