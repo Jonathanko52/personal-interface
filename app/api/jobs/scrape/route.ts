@@ -10,11 +10,18 @@ function extractJobInfo(html: string, postingLink: string) {
   // ".topcard__flavor--bullet" is LinkedIn's semantic class for the location bullet on
   // public job posting pages; fall back to the old positional guess if it's not present.
   const location = $(".topcard__flavor--bullet").first().text().trim() || $("span").eq(5).text();
+  // ".show-more-less-html__markup" is LinkedIn's semantic class for the job description body
+  // on public posting pages; fall back to the older ".description__text" wrapper if absent.
+  // Capped since this is only used for keyword matching (category suggestion), not display.
+  const description = (
+    $(".show-more-less-html__markup").first().text().trim() ||
+    $(".description__text").first().text().trim()
+  ).slice(0, 2000);
   // Kept alongside the rest so the foundNothing error path (below) can reuse this same
   // parse for its diagnostic instead of calling cheerio.load(html) again.
   const pageTitle = $("title").first().text().trim();
 
-  return { companyName, jobPosting, location, postingLink, pageTitle };
+  return { companyName, jobPosting, location, postingLink, description, pageTitle };
 }
 
 export async function POST(req: Request) {
