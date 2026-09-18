@@ -95,7 +95,7 @@ export default function JobsPanel() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || `Scrape failed (${res.status})`);
       setResult(data);
-      setCategories(suggestCategories(data.jobPosting ?? ""));
+      setCategories(suggestCategories(`${data.jobPosting ?? ""} ${data.description ?? ""}`));
       setJobType(suggestJobType(data.jobPosting ?? ""));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
