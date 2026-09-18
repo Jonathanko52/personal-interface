@@ -1,3 +1,5 @@
+import categoryKeywords from "./categoryKeywords.json";
+
 export const APPLY_TYPES = ["Quick Apply", "Normal Apply"] as const;
 export type ApplyType = (typeof APPLY_TYPES)[number];
 
@@ -57,20 +59,15 @@ export function toggleCategoryInArray(categories: JobCategory[], category: JobCa
     : [...categories, category];
 }
 
-// Starting heuristic, not a promise of accuracy — expect real-world tuning. "Other" is
-// never suggested, since it's a catch-all rather than a detectable pattern.
-const CATEGORY_PATTERNS: [JobCategory, RegExp][] = [
-  ["Frontend", /front[\s-]?end/i],
-  ["Backend", /back[\s-]?end/i],
-  ["Fullstack", /full[\s-]?stack/i],
-  ["Data Science", /data scien/i],
-  ["Machine Learning", /machine learning|\bml\b/i],
-  ["Translation", /translat/i],
-  ["Copywriting", /copywrit/i],
-];
+// Keyword lists live in categoryKeywords.json, hand-editable without touching code. "Other"
+// has no keywords in that file, so it's never suggested — a catch-all, not a detectable term.
+const CATEGORY_KEYWORDS = categoryKeywords as Record<JobCategory, string[]>;
 
-export function suggestCategories(jobTitle: string): JobCategory[] {
-  return CATEGORY_PATTERNS.filter(([, pattern]) => pattern.test(jobTitle)).map(([category]) => category);
+export function suggestCategories(text: string): JobCategory[] {
+  const lowerText = text.toLowerCase();
+  return JOB_CATEGORIES.filter((category) =>
+    CATEGORY_KEYWORDS[category].some((keyword) => lowerText.includes(keyword.toLowerCase()))
+  );
 }
 
 const INTERNSHIP_PATTERN = /\bintern(ship)?\b/i;
