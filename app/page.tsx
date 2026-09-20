@@ -11,6 +11,7 @@ import { useSortFilter } from "./lib/useSortFilter";
 import { useSelectedTodo } from "./lib/useSelectedTodo";
 import { today as todayStr, toDateString } from "./lib/date";
 import { completedTasks, uncompletedTasksToday, formatTasksSummaryBlock, overrideCompletedFromLog, CompletionRange } from "./lib/completionStats";
+import { getLastAcknowledgedDate, markDayComplete } from "./lib/dayComplete";
 
 function dateLabel(dateStr: string): string {
   const today = todayStr();
@@ -30,6 +31,7 @@ export default function Home() {
   const [completedRange, setCompletedRange] = useState<CompletionRange>("day");
   const [copied, setCopied] = useState(false);
   const [refreshed, setRefreshed] = useState(false);
+  const [dayMarked, setDayMarked] = useState(false);
 
   const completedBlock = useMemo(() => {
     const completed = completedTasks(completions, todos, completedRange);
@@ -60,7 +62,15 @@ export default function Home() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const date = params.get("date");
-    if (date) setSelectedDate(date);
+    if (date) {
+      setSelectedDate(date);
+      return;
+    }
+    // No explicit ?date= link — fall back to the last acknowledged day (Part 60) instead of
+    // today, so the view stays on an unacknowledged day rather than silently advancing past
+    // it. Nothing to do if unset (first-ever load, or the feature's never been used).
+    const acknowledged = getLastAcknowledgedDate();
+    if (acknowledged) setSelectedDate(acknowledged);
   }, []);
 
   function prevDay() {
@@ -82,6 +92,13 @@ export default function Home() {
   function goToday() {
     setSelectedDate(todayStr());
     router.replace("/");
+  }
+
+  function handleDayComplete() {
+    setSelectedDate(markDayComplete());
+    router.replace("/");
+    setDayMarked(true);
+    setTimeout(() => setDayMarked(false), 1500);
   }
 
   const todayValue = todayStr();
@@ -199,6 +216,12 @@ export default function Home() {
             className="self-start text-xs bg-zinc-800 text-white rounded-md px-3 py-1.5 hover:bg-zinc-900 transition-colors"
           >
             {refreshed ? "Refreshed!" : "Refresh"}
+          </button>
+          <button
+            onClick={handleDayComplete}
+            className="self-start text-xs bg-indigo-600 text-white rounded-md px-3 py-1.5 hover:bg-indigo-700 transition-colors"
+          >
+            {dayMarked ? "Day marked ✓" : "Day Complete"}
           </button>
         </div>
       </section>
