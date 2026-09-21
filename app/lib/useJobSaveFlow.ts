@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { checkDuplicate, saveJob } from "./jobSave";
 
 interface UseJobSaveFlowOptions {
   isValid: boolean;
@@ -29,24 +30,15 @@ export function useJobSaveFlow({ isValid, getCompanyName, buildPayload, onSaved 
     setSaving(true);
     setConfirmDuplicate(false);
     setError(null);
-    try {
-      const res = await fetch("/api/jobs/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ dataOne: buildPayload() }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || `Save failed (${res.status})`);
+    const result = await saveJob(buildPayload());
+    if (result.ok) {
       setSaved(true);
       onSaved();
-    } catch (err) {
-      setError(
-        (err instanceof Error ? err.message : "Something went wrong.") + " You can try saving again."
-      );
-    } finally {
-      savingRef.current = false;
-      setSaving(false);
+    } else {
+      setError(result.error + " You can try saving again.");
     }
+    savingRef.current = false;
+    setSaving(false);
   }
 
   async function handleSaveClick() {
@@ -54,24 +46,14 @@ export function useJobSaveFlow({ isValid, getCompanyName, buildPayload, onSaved 
     setError(null);
     setCheckFailed(false);
     setChecking(true);
-    let checkOk = true;
-    try {
-      const res = await fetch(`/api/jobs/check?company=${encodeURIComponent(getCompanyName())}`);
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        checkOk = false;
-      } else if (data.duplicate) {
-        setChecking(false);
-        setConfirmDuplicate(true);
-        return;
-      }
-    } catch {
-      checkOk = false;
-    } finally {
-      setChecking(false);
+    const { duplicate, checkFailed: failed } = await checkDuplicate(getCompanyName());
+    setChecking(false);
+    if (duplicate) {
+      setConfirmDuplicate(true);
+      return;
     }
     // If the duplicate check itself fails, don't block saving on it — just surface that it didn't run.
-    if (!checkOk) setCheckFailed(true);
+    if (failed) setCheckFailed(true);
     await doSave();
   }
 

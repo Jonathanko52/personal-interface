@@ -17,6 +17,7 @@ import {
 } from "@/app/lib/jobFields";
 import { useJobCounts } from "@/app/lib/useJobCounts";
 import { useJobStack } from "@/app/lib/useJobStack";
+import { checkDuplicate, saveJob } from "@/app/lib/jobSave";
 import PillPicker from "@/app/components/PillPicker";
 import MultiPillPicker from "@/app/components/MultiPillPicker";
 import StackedJobRow from "@/app/components/StackedJobRow";
@@ -112,52 +113,36 @@ export default function NewJobPage() {
     resetForm();
   }
 
-  // Duplicated (not shared with StackedJobRow's use of useJobSaveFlow) since that hook's
-  // check->save sequence pauses on a duplicate for a human decision — this loop instead
-  // skips a flagged item and lets it be resolved individually below. Worth revisiting if
-  // this duplication grows; flagged for Part 59 subtask 3.
+  // Sequential batch loop, not per-row useJobSaveFlow instances: that hook's check->save
+  // sequence pauses on a duplicate for a human decision, which doesn't fit a headless batch —
+  // this loop instead skips a flagged item and lets it be resolved individually below.
+  // Shares its actual network calls with useJobSaveFlow via app/lib/jobSave.ts (Part 59
+  // subtask 3), rather than duplicating the fetch logic.
   async function handleSaveAll() {
     setSavingAll(true);
     const skipped = new Set<string>();
     for (const item of stack) {
-      let isDuplicate = false;
-      try {
-        const checkRes = await fetch(`/api/jobs/check?company=${encodeURIComponent(item.companyName)}`);
-        const checkData = await checkRes.json().catch(() => ({}));
-        if (checkRes.ok && checkData.duplicate) isDuplicate = true;
-      } catch {
-        // Duplicate check failing shouldn't block a save, matching the single-item flow.
-      }
-      if (isDuplicate) {
+      const { duplicate } = await checkDuplicate(item.companyName);
+      if (duplicate) {
         skipped.add(item.id);
         continue;
       }
-      try {
-        const saveRes = await fetch("/api/jobs/save", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            dataOne: {
-              companyName: item.companyName,
-              jobPosting: item.jobPosting,
-              location: item.location,
-              postingLink: item.postingLink,
-              applyType: item.applyType,
-              jobType: item.jobType,
-              source: item.source,
-              categories: item.categories,
-            },
-          }),
-        });
-        if (!saveRes.ok) {
-          skipped.add(item.id);
-          continue;
-        }
-        removeFromStack(item.id);
-        increment(item.applyType);
-      } catch {
+      const result = await saveJob({
+        companyName: item.companyName,
+        jobPosting: item.jobPosting,
+        location: item.location,
+        postingLink: item.postingLink,
+        applyType: item.applyType,
+        jobType: item.jobType,
+        source: item.source,
+        categories: item.categories,
+      });
+      if (!result.ok) {
         skipped.add(item.id);
+        continue;
       }
+      removeFromStack(item.id);
+      increment(item.applyType);
     }
     setSkippedIds(skipped);
     setSavingAll(false);
