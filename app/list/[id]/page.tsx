@@ -26,7 +26,7 @@ export default function ListPage() {
       heading={
         <>
           {list && <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: list.color }} />}
-          <h1 className="text-xl font-semibold text-zinc-900">{list?.name ?? "List"}</h1>
+          <h1 className="text-xl font-semibold text-zinc-700">{list?.name ?? "List"}</h1>
         </>
       }
       todos={result}

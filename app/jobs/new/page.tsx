@@ -150,15 +150,15 @@ export default function NewJobPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <h1 className="text-xl font-semibold text-zinc-900 mb-4">Add a job</h1>
+      <h1 className="text-xl font-semibold text-zinc-700 mb-4">Add a job</h1>
 
       <div className="flex items-center gap-4 text-xs text-zinc-500 border-b border-zinc-200 pb-3 mb-6">
-        <span>Count: <span className="text-zinc-900 font-medium">{counts?.total ?? "—"}</span></span>
-        <span>Quick: <span className="text-zinc-900 font-medium">{counts?.quickApply ?? "—"}</span></span>
-        <span>Normal: <span className="text-zinc-900 font-medium">{counts?.normalApply ?? "—"}</span></span>
+        <span>Count: <span className="text-zinc-700 font-medium">{counts?.total ?? "—"}</span></span>
+        <span>Quick: <span className="text-zinc-700 font-medium">{counts?.quickApply ?? "—"}</span></span>
+        <span>Normal: <span className="text-zinc-700 font-medium">{counts?.normalApply ?? "—"}</span></span>
         <button
           onClick={reset}
-          className="ml-auto text-zinc-500 hover:text-zinc-900 transition-colors"
+          className="ml-auto text-zinc-500 hover:text-zinc-700 transition-colors"
         >
           Reset
         </button>
@@ -176,7 +176,7 @@ export default function NewJobPage() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Paste LinkedIn URL..."
-                className="flex-1 text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors"
+                className="flex-1 text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors"
               />
               <button
                 onClick={handleScrape}
@@ -196,7 +196,7 @@ export default function NewJobPage() {
                 type="text"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors"
+                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -205,7 +205,7 @@ export default function NewJobPage() {
                 type="text"
                 value={jobPosting}
                 onChange={(e) => setJobPosting(e.target.value)}
-                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors"
+                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -214,7 +214,7 @@ export default function NewJobPage() {
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors"
+                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -225,7 +225,7 @@ export default function NewJobPage() {
                 type="url"
                 value={postingLink}
                 onChange={(e) => setPostingLink(e.target.value)}
-                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors"
+                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors"
               />
             </div>
 
@@ -234,7 +234,7 @@ export default function NewJobPage() {
               <select
                 value={source}
                 onChange={(e) => setSource(e.target.value as JobSource)}
-                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-900 bg-white focus:border-indigo-400 transition-colors w-fit"
+                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors w-fit"
               >
                 {JOB_SOURCES.map((s) => (
                   <option key={s} value={s}>

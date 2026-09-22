@@ -63,7 +63,7 @@ export default function MonthPage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-zinc-900">{monthLabel}</h1>
+        <h1 className="text-xl font-semibold text-zinc-700">{monthLabel}</h1>
         <div className="flex gap-2">
           <button
             onClick={prevMonth}

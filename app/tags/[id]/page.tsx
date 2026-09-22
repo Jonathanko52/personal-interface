@@ -26,7 +26,7 @@ export default function TagPage() {
       heading={
         <>
           {tag && <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: tag.color }} />}
-          <h1 className="text-xl font-semibold text-zinc-900">#{tag?.name ?? "Tag"}</h1>
+          <h1 className="text-xl font-semibold text-zinc-700">#{tag?.name ?? "Tag"}</h1>
         </>
       }
       todos={result}
