@@ -37,7 +37,18 @@ export default function StackedJobRow({ item, onSaved, onRemove, onEdit, skipped
       <div className="flex items-start justify-between gap-2">
         <div className="text-sm">
           <p className="font-medium text-zinc-700">{item.companyName}</p>
-          <p className="text-zinc-600">{item.jobPosting}</p>
+          {item.postingLink.trim() !== "" ? (
+            <a
+              href={item.postingLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-500 hover:text-indigo-700 transition-colors"
+            >
+              {item.jobPosting}
+            </a>
+          ) : (
+            <p className="text-zinc-600">{item.jobPosting}</p>
+          )}
           <p className="text-xs text-zinc-400">
             {item.location} · {JOB_TYPE_LABELS[item.jobType]} · {APPLY_TYPE_LABELS[item.applyType]} · {item.source}
           </p>
@@ -49,16 +60,6 @@ export default function StackedJobRow({ item, onSaved, onRemove, onEdit, skipped
                 </span>
               ))}
             </div>
-          )}
-          {item.postingLink.trim() !== "" && (
-            <a
-              href={item.postingLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-indigo-500 hover:text-indigo-700 transition-colors inline-block mt-1"
-            >
-              View posting ↗
-            </a>
           )}
         </div>
         <div className="flex gap-3 shrink-0">
