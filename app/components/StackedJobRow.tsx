@@ -36,7 +36,7 @@ export default function StackedJobRow({ item, onSaved, onRemove, onEdit, skipped
     <div className="flex flex-col gap-2 border border-zinc-200 rounded-md p-3">
       <div className="flex items-start justify-between gap-2">
         <div className="text-sm">
-          <p className="font-medium text-zinc-900">{item.companyName}</p>
+          <p className="font-medium text-zinc-700">{item.companyName}</p>
           <p className="text-zinc-600">{item.jobPosting}</p>
           <p className="text-xs text-zinc-400">
             {item.location} · {JOB_TYPE_LABELS[item.jobType]} · {APPLY_TYPE_LABELS[item.applyType]} · {item.source}
