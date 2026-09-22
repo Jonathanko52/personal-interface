@@ -2,6 +2,7 @@
 
 import { StackedJob } from "@/app/lib/useJobStack";
 import { useJobSaveFlow } from "@/app/lib/useJobSaveFlow";
+import { APPLY_TYPE_LABELS, JOB_TYPE_LABELS } from "@/app/lib/jobFields";
 
 interface StackedJobRowProps {
   item: StackedJob;
@@ -37,7 +38,28 @@ export default function StackedJobRow({ item, onSaved, onRemove, onEdit, skipped
         <div className="text-sm">
           <p className="font-medium text-zinc-900">{item.companyName}</p>
           <p className="text-zinc-600">{item.jobPosting}</p>
-          <p className="text-xs text-zinc-400">{item.location}</p>
+          <p className="text-xs text-zinc-400">
+            {item.location} · {JOB_TYPE_LABELS[item.jobType]} · {APPLY_TYPE_LABELS[item.applyType]} · {item.source}
+          </p>
+          {item.categories.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {item.categories.map((category) => (
+                <span key={category} className="text-xs px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-500">
+                  {category}
+                </span>
+              ))}
+            </div>
+          )}
+          {item.postingLink.trim() !== "" && (
+            <a
+              href={item.postingLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-indigo-500 hover:text-indigo-700 transition-colors inline-block mt-1"
+            >
+              View posting ↗
+            </a>
+          )}
         </div>
         <div className="flex gap-3 shrink-0">
           <button
