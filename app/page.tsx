@@ -12,6 +12,7 @@ import { useSelectedTodo } from "./lib/useSelectedTodo";
 import { today as todayStr, toDateString } from "./lib/date";
 import { completedTasks, uncompletedTasksToday, formatTasksSummaryBlock, overrideCompletedFromLog, CompletionRange } from "./lib/completionStats";
 import { getLastAcknowledgedDate, markDayComplete } from "./lib/dayComplete";
+import { resetJobCounts } from "./lib/jobCounts";
 
 function dateLabel(dateStr: string): string {
   const today = todayStr();
@@ -96,6 +97,7 @@ export default function Home() {
 
   function handleDayComplete() {
     setSelectedDate(markDayComplete());
+    resetJobCounts();
     router.replace("/");
     setDayMarked(true);
     setTimeout(() => setDayMarked(false), 1500);
