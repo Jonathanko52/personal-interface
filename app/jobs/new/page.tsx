@@ -21,6 +21,7 @@ import { checkDuplicate, saveJob } from "@/app/lib/jobSave";
 import PillPicker from "@/app/components/PillPicker";
 import MultiPillPicker from "@/app/components/MultiPillPicker";
 import StackedJobRow from "@/app/components/StackedJobRow";
+import StackedJobDetail from "@/app/components/StackedJobDetail";
 
 export default function NewJobPage() {
   const [url, setUrl] = useState("");
@@ -37,9 +38,13 @@ export default function NewJobPage() {
   const [categories, setCategories] = useState<JobCategory[]>([]);
 
   const { counts, increment, reset } = useJobCounts();
-  const { stack, addToStack, removeFromStack, clearStack } = useJobStack();
+  const { stack, addToStack, removeFromStack, updateStackItem, clearStack } = useJobStack();
   const [savingAll, setSavingAll] = useState(false);
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
+  const [openId, setOpenId] = useState<string | null>(null);
+  // Looked up by id each render (like useSelectedTodo) so an item removed while open — e.g. by
+  // "Save all" — simply resolves to null and the normal layout returns.
+  const openItem = stack.find((item) => item.id === openId) ?? null;
 
   const isValid = Boolean(companyName.trim() && jobPosting.trim() && location.trim());
 
@@ -146,6 +151,17 @@ export default function NewJobPage() {
     }
     setSkippedIds(skipped);
     setSavingAll(false);
+  }
+
+  if (openItem) {
+    return (
+      <StackedJobDetail
+        key={openItem.id}
+        item={openItem}
+        onSave={(patch) => updateStackItem(openItem.id, patch)}
+        onClose={() => setOpenId(null)}
+      />
+    );
   }
 
   return (
@@ -322,6 +338,7 @@ export default function NewJobPage() {
                   skipped={skippedIds.has(item.id)}
                   onRemove={() => removeFromStack(item.id)}
                   onEdit={() => handleEditStackItem(item.id)}
+                  onOpen={() => setOpenId(item.id)}
                   onSaved={() => {
                     removeFromStack(item.id);
                     increment(item.applyType);
