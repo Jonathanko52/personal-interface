@@ -9,12 +9,13 @@ interface StackedJobRowProps {
   onSaved: () => void;
   onRemove: () => void;
   onEdit: () => void;
+  onOpen: () => void;
   skipped: boolean;
 }
 
 // Stack items are already fully filled out by the time they're added (the form enforces
 // Company/Role/Location before "Add to stack" is enabled), so isValid is always true here.
-export default function StackedJobRow({ item, onSaved, onRemove, onEdit, skipped }: StackedJobRowProps) {
+export default function StackedJobRow({ item, onSaved, onRemove, onEdit, onOpen, skipped }: StackedJobRowProps) {
   const { checking, saving, confirmDuplicate, setConfirmDuplicate, checkFailed, error, handleSaveClick, doSave } =
     useJobSaveFlow({
       isValid: true,
@@ -32,8 +33,20 @@ export default function StackedJobRow({ item, onSaved, onRemove, onEdit, skipped
       onSaved,
     });
 
+  // Clicks on the Role link or any button (Edit/Remove/Save/duplicate-confirm) keep their own
+  // behavior; only clicks on the card's remaining area open the editor. Ignored mid-save, since
+  // a successful save removes this item from the stack out from under the editor.
+  function handleCardClick(e: React.MouseEvent<HTMLDivElement>) {
+    if ((e.target as HTMLElement).closest("a, button")) return;
+    if (checking || saving) return;
+    onOpen();
+  }
+
   return (
-    <div className="flex flex-col gap-2 border border-zinc-200 rounded-md p-3">
+    <div
+      onClick={handleCardClick}
+      className="flex flex-col gap-2 border border-zinc-200 rounded-md p-3 cursor-pointer hover:border-zinc-300 transition-colors"
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="text-sm">
           <p className="font-medium text-zinc-700">{item.companyName}</p>
