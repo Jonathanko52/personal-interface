@@ -75,3 +75,24 @@ const INTERNSHIP_PATTERN = /\bintern(ship)?\b/i;
 export function suggestJobType(jobTitle: string): JobTypeCode {
   return INTERNSHIP_PATTERN.test(jobTitle) ? "internship" : "full-time";
 }
+
+export const MATCH_SCORE_MIN = 0;
+export const MATCH_SCORE_MAX = 100;
+
+export function isMatchScore(value: unknown): value is number {
+  return (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= MATCH_SCORE_MIN &&
+    value <= MATCH_SCORE_MAX
+  );
+}
+
+// Blank (or non-numeric) input means "no score"; anything else is rounded and clamped into range.
+export function parseMatchScore(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (trimmed === "") return null;
+  const n = Number(trimmed);
+  if (!Number.isFinite(n)) return null;
+  return Math.min(MATCH_SCORE_MAX, Math.max(MATCH_SCORE_MIN, Math.round(n)));
+}
