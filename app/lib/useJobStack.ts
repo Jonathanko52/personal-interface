@@ -48,7 +48,7 @@ export function useJobStack() {
   }, [stack, hydrated]);
 
   function addToStack(entry: Omit<StackedJob, "id">) {
-    setStack((prev) => [...prev, { ...entry, id: crypto.randomUUID() }]);
+    setStack((prev) => [{ ...entry, id: crypto.randomUUID() }, ...prev]);
   }
 
   function removeFromStack(id: string) {
