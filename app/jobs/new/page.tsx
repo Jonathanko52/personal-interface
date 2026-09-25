@@ -11,6 +11,9 @@ import {
   JOB_CATEGORIES,
   JOB_SOURCES,
   DEFAULT_JOB_SOURCE,
+  MATCH_SCORE_MIN,
+  MATCH_SCORE_MAX,
+  parseMatchScore,
   toggleCategoryInArray,
   suggestCategories,
   suggestJobType,
@@ -37,6 +40,7 @@ export default function NewJobPage() {
   const [jobType, setJobType] = useState<JobTypeCode>("full-time");
   const [source, setSource] = useState<JobSource>(DEFAULT_JOB_SOURCE);
   const [categories, setCategories] = useState<JobCategory[]>([]);
+  const [matchScore, setMatchScore] = useState("");
 
   const { counts, increment, reset } = useJobCounts();
   const { stack, addToStack, removeFromStack, updateStackItem, clearStack } = useJobStack();
@@ -69,6 +73,7 @@ export default function NewJobPage() {
     setJobType("full-time");
     setSource(DEFAULT_JOB_SOURCE);
     setCategories([]);
+    setMatchScore("");
     setUrl("");
   }
 
@@ -108,6 +113,7 @@ export default function NewJobPage() {
     setJobType(item.jobType);
     setSource(item.source);
     setCategories(item.categories);
+    setMatchScore(item.matchScore === null ? "" : String(item.matchScore));
     removeFromStack(id);
   }
 
@@ -122,6 +128,7 @@ export default function NewJobPage() {
       jobType,
       source,
       categories,
+      matchScore: parseMatchScore(matchScore),
     });
     resetForm();
     showToast("Added to stack");
@@ -151,6 +158,7 @@ export default function NewJobPage() {
         jobType: item.jobType,
         source: item.source,
         categories: item.categories,
+        matchScore: item.matchScore,
       });
       if (!result.ok) {
         skipped.add(item.id);
@@ -294,6 +302,22 @@ export default function NewJobPage() {
                 format={(type) => JOB_TYPE_LABELS[type]}
                 theme="light"
                 gap="sm"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                Match score (optional)
+              </span>
+              <input
+                type="number"
+                min={MATCH_SCORE_MIN}
+                max={MATCH_SCORE_MAX}
+                step={1}
+                value={matchScore}
+                onChange={(e) => setMatchScore(e.target.value)}
+                placeholder={`${MATCH_SCORE_MIN}–${MATCH_SCORE_MAX}`}
+                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors w-28"
               />
             </div>
 
