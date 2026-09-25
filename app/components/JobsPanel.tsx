@@ -12,6 +12,9 @@ import {
   JOB_CATEGORIES,
   JOB_SOURCES,
   DEFAULT_JOB_SOURCE,
+  MATCH_SCORE_MIN,
+  MATCH_SCORE_MAX,
+  parseMatchScore,
   suggestCategories,
   suggestJobType,
   toggleCategoryInArray,
@@ -35,6 +38,7 @@ export default function JobsPanel() {
   const [jobType, setJobType] = useState<JobTypeCode>("full-time");
   const [source, setSource] = useState<JobSource>(DEFAULT_JOB_SOURCE);
   const [categories, setCategories] = useState<JobCategory[]>([]);
+  const [matchScore, setMatchScore] = useState("");
   const [loading, setLoading] = useState(false);
   const { counts, increment, reset } = useJobCounts();
 
@@ -70,6 +74,7 @@ export default function JobsPanel() {
       jobType,
       source,
       categories,
+      matchScore: parseMatchScore(matchScore),
     }),
     onSaved: () => {
       setUrl("");
@@ -85,6 +90,7 @@ export default function JobsPanel() {
     setJobType("full-time");
     setSource(DEFAULT_JOB_SOURCE);
     setCategories([]);
+    setMatchScore("");
     resetSaveState();
     try {
       const res = await fetch("/api/jobs/scrape", {
@@ -132,6 +138,7 @@ export default function JobsPanel() {
             setJobType("full-time");
             setSource(DEFAULT_JOB_SOURCE);
             setCategories([]);
+            setMatchScore("");
             resetSaveState();
           }}
           placeholder="Paste LinkedIn URL..."
@@ -237,6 +244,20 @@ export default function JobsPanel() {
               onSelect={setJobType}
               format={(type) => JOB_TYPE_LABELS[type]}
               gap="sm"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs text-slate-400">Match score (optional)</span>
+            <input
+              type="number"
+              min={MATCH_SCORE_MIN}
+              max={MATCH_SCORE_MAX}
+              step={1}
+              value={matchScore}
+              onChange={(e) => setMatchScore(e.target.value)}
+              disabled={saved}
+              placeholder={`${MATCH_SCORE_MIN}–${MATCH_SCORE_MAX}`}
+              className="text-sm bg-slate-800 border border-slate-600 text-slate-100 rounded-md px-2 py-1 outline-none focus:border-indigo-400 transition-colors disabled:opacity-60 placeholder:text-slate-500 w-24"
             />
           </div>
           <div className="flex flex-col gap-1.5">
