@@ -7,10 +7,13 @@ import {
   JOB_CATEGORIES,
   JOB_SOURCES,
   JOB_TYPE_LABELS,
+  MATCH_SCORE_MIN,
+  MATCH_SCORE_MAX,
   ApplyTypeCode,
   JobCategory,
   JobSource,
   JobTypeCode,
+  parseMatchScore,
   toggleCategoryInArray,
 } from "@/app/lib/jobFields";
 import PillPicker from "./PillPicker";
@@ -39,6 +42,7 @@ export default function StackedJobDetail({ item, onSave, onClose }: StackedJobDe
   const [applyType, setApplyType] = useState<ApplyTypeCode>(item.applyType);
   const [jobType, setJobType] = useState<JobTypeCode>(item.jobType);
   const [categories, setCategories] = useState<JobCategory[]>(item.categories);
+  const [matchScore, setMatchScore] = useState(item.matchScore === null ? "" : String(item.matchScore));
   const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   const isValid = Boolean(companyName.trim() && jobPosting.trim() && location.trim());
@@ -51,7 +55,8 @@ export default function StackedJobDetail({ item, onSave, onClose }: StackedJobDe
     source !== item.source ||
     applyType !== item.applyType ||
     jobType !== item.jobType ||
-    !sameCategories(categories, item.categories);
+    !sameCategories(categories, item.categories) ||
+    parseMatchScore(matchScore) !== item.matchScore;
 
   function commitChanges() {
     if (!isValid) return;
@@ -64,6 +69,7 @@ export default function StackedJobDetail({ item, onSave, onClose }: StackedJobDe
       applyType,
       jobType,
       categories,
+      matchScore: parseMatchScore(matchScore),
     });
   }
 
@@ -189,6 +195,20 @@ export default function StackedJobDetail({ item, onSave, onClose }: StackedJobDe
               format={(type) => JOB_TYPE_LABELS[type]}
               theme="light"
               gap="sm"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <span className={LABEL_CLASS}>Match score (optional)</span>
+            <input
+              type="number"
+              min={MATCH_SCORE_MIN}
+              max={MATCH_SCORE_MAX}
+              step={1}
+              value={matchScore}
+              onChange={(e) => setMatchScore(e.target.value)}
+              placeholder={`${MATCH_SCORE_MIN}–${MATCH_SCORE_MAX}`}
+              className={`${INPUT_CLASS} w-28`}
             />
           </div>
 
