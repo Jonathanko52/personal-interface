@@ -22,6 +22,7 @@ import PillPicker from "@/app/components/PillPicker";
 import MultiPillPicker from "@/app/components/MultiPillPicker";
 import StackedJobRow from "@/app/components/StackedJobRow";
 import StackedJobDetail from "@/app/components/StackedJobDetail";
+import Toast from "@/app/components/Toast";
 
 export default function NewJobPage() {
   const [url, setUrl] = useState("");
@@ -45,6 +46,13 @@ export default function NewJobPage() {
   // Looked up by id each render (like useSelectedTodo) so an item removed while open — e.g. by
   // "Save all" — simply resolves to null and the normal layout returns.
   const openItem = stack.find((item) => item.id === openId) ?? null;
+  // The id changes on every popup so <Toast key=...> remounts and restarts its 5-second timer,
+  // even when the same message repeats back to back.
+  const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
+
+  function showToast(message: string) {
+    setToast((prev) => ({ id: (prev?.id ?? 0) + 1, message }));
+  }
 
   const isValid = Boolean(companyName.trim() && jobPosting.trim() && location.trim());
 
@@ -116,6 +124,7 @@ export default function NewJobPage() {
       categories,
     });
     resetForm();
+    showToast("Added to stack");
   }
 
   // Sequential batch loop, not per-row useJobSaveFlow instances: that hook's check->save
@@ -126,6 +135,7 @@ export default function NewJobPage() {
   async function handleSaveAll() {
     setSavingAll(true);
     const skipped = new Set<string>();
+    let savedCount = 0;
     for (const item of stack) {
       const { duplicate } = await checkDuplicate(item.companyName);
       if (duplicate) {
@@ -148,23 +158,26 @@ export default function NewJobPage() {
       }
       removeFromStack(item.id);
       increment(item.applyType);
+      savedCount++;
     }
     setSkippedIds(skipped);
     setSavingAll(false);
+    if (savedCount > 0) showToast(`Saved ${savedCount} ${savedCount === 1 ? "job" : "jobs"} to Sheets`);
   }
 
-  if (openItem) {
-    return (
-      <StackedJobDetail
-        key={openItem.id}
-        item={openItem}
-        onSave={(patch) => updateStackItem(openItem.id, patch)}
-        onClose={() => setOpenId(null)}
-      />
-    );
-  }
+  const detailView = openItem ? (
+    <StackedJobDetail
+      key={openItem.id}
+      item={openItem}
+      onSave={(patch) => {
+        updateStackItem(openItem.id, patch);
+        showToast("Changes saved");
+      }}
+      onClose={() => setOpenId(null)}
+    />
+  ) : null;
 
-  return (
+  const listView = (
     <div className="max-w-5xl mx-auto">
       <h1 className="text-xl font-semibold text-zinc-700 mb-4">Add a job</h1>
 
@@ -342,6 +355,7 @@ export default function NewJobPage() {
                   onSaved={() => {
                     removeFromStack(item.id);
                     increment(item.applyType);
+                    showToast("Saved to Sheets");
                   }}
                 />
               ))}
@@ -354,5 +368,14 @@ export default function NewJobPage() {
         </div>
       </div>
     </div>
+  );
+
+  // One Toast in a fixed slot after the view, so it isn't remounted (restarting its timer)
+  // when the page swaps between the list layout and the detail editor.
+  return (
+    <>
+      {detailView ?? listView}
+      {toast && <Toast key={toast.id} message={toast.message} onDismiss={() => setToast(null)} />}
+    </>
   );
 }
