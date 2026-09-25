@@ -29,6 +29,7 @@ export default function StackedJobRow({ item, onSaved, onRemove, onEdit, onOpen,
         jobType: item.jobType,
         source: item.source,
         categories: item.categories,
+        matchScore: item.matchScore,
       }),
       onSaved,
     });
@@ -64,6 +65,7 @@ export default function StackedJobRow({ item, onSaved, onRemove, onEdit, onOpen,
           )}
           <p className="text-xs text-zinc-400">
             {item.location} · {JOB_TYPE_LABELS[item.jobType]} · {APPLY_TYPE_LABELS[item.applyType]} · {item.source}
+            {item.matchScore !== null && ` · Match ${item.matchScore}`}
           </p>
           {item.categories.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
