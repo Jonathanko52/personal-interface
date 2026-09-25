@@ -11,6 +11,7 @@ import {
   DEFAULT_JOB_SOURCE,
   isJobCategory,
   isJobSource,
+  isMatchScore,
 } from "@/app/lib/jobFields";
 
 interface JobData {
@@ -24,6 +25,7 @@ interface JobData {
   // sends this yet — falls back to DEFAULT_JOB_SOURCE below when absent.
   source?: JobSource;
   categories: string[];
+  matchScore?: number | null;
 }
 
 function isJobData(value: unknown): value is JobData {
@@ -37,7 +39,8 @@ function isJobData(value: unknown): value is JobData {
     (v.applyType === "quick" || v.applyType === "normal") &&
     (v.jobType === "internship" || v.jobType === "part-time" || v.jobType === "full-time") &&
     (v.source === undefined || isJobSource(v.source)) &&
-    Array.isArray(v.categories) && v.categories.every(isJobCategory)
+    Array.isArray(v.categories) && v.categories.every(isJobCategory) &&
+    (v.matchScore === undefined || v.matchScore === null || isMatchScore(v.matchScore))
   );
 }
 
@@ -66,6 +69,7 @@ export async function POST(req: Request) {
     JOB_TYPE_LABELS[dataOne.jobType],
     DEFAULT_JOB_STATUS,
     dataOne.categories.join(", "),
+    dataOne.matchScore ?? "",
   ];
 
   try {
@@ -77,7 +81,7 @@ export async function POST(req: Request) {
       spreadsheetId,
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
-      range: "Jobs!A:J",
+      range: "Jobs!A:K",
       requestBody: { values: [spreadSheetArray] },
     });
 
