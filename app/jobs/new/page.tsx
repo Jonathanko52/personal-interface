@@ -343,7 +343,7 @@ export default function NewJobPage() {
             )}
           </div>
           {stack.length > 0 ? (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 max-h-[calc(100vh-8rem)] overflow-y-auto pr-1">
               {stack.map((item) => (
                 <StackedJobRow
                   key={item.id}
