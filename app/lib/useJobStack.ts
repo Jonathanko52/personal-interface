@@ -13,6 +13,7 @@ export interface StackedJob {
   jobType: JobTypeCode;
   source: JobSource;
   categories: JobCategory[];
+  matchScore: number | null;
 }
 
 const JOB_STACK_KEY = "jobStack";
@@ -20,7 +21,9 @@ const JOB_STACK_KEY = "jobStack";
 function load(): StackedJob[] {
   try {
     const raw = localStorage.getItem(JOB_STACK_KEY);
-    return raw ? (JSON.parse(raw) as StackedJob[]) : [];
+    if (!raw) return [];
+    // Items staged before Match score existed have no such field at runtime despite the cast.
+    return (JSON.parse(raw) as StackedJob[]).map((item) => ({ ...item, matchScore: item.matchScore ?? null }));
   } catch {
     return [];
   }
