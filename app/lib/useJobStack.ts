@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ApplyTypeCode, JobTypeCode, JobCategory, JobSource } from "./jobFields";
+import { readJSON, writeJSON } from "./storage";
 
 export interface StackedJob {
   id: string;
@@ -19,20 +20,15 @@ export interface StackedJob {
 const JOB_STACK_KEY = "jobStack";
 
 function load(): StackedJob[] {
-  try {
-    const raw = localStorage.getItem(JOB_STACK_KEY);
-    if (!raw) return [];
-    // Items staged before Match score existed have no such field at runtime despite the cast.
-    return (JSON.parse(raw) as StackedJob[]).map((item) => ({ ...item, matchScore: item.matchScore ?? null }));
-  } catch {
-    return [];
-  }
+  // Items staged before Match score existed have no such field at runtime despite the cast.
+  return readJSON(JOB_STACK_KEY, [] as StackedJob[]).map((item) => ({
+    ...item,
+    matchScore: item.matchScore ?? null,
+  }));
 }
 
 function save(stack: StackedJob[]) {
-  try {
-    localStorage.setItem(JOB_STACK_KEY, JSON.stringify(stack));
-  } catch {}
+  writeJSON(JOB_STACK_KEY, stack);
 }
 
 export function useJobStack() {
