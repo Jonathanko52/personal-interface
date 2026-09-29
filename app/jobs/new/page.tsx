@@ -6,13 +6,7 @@ import {
   JobTypeCode,
   JobCategory,
   JobSource,
-  APPLY_TYPE_LABELS,
-  JOB_TYPE_LABELS,
-  JOB_CATEGORIES,
-  JOB_SOURCES,
   DEFAULT_JOB_SOURCE,
-  MATCH_SCORE_MIN,
-  MATCH_SCORE_MAX,
   parseMatchScore,
   toggleCategoryInArray,
   suggestCategories,
@@ -21,8 +15,7 @@ import {
 import { useJobCounts } from "@/app/lib/useJobCounts";
 import { useJobStack } from "@/app/lib/useJobStack";
 import { checkDuplicate, saveJob } from "@/app/lib/jobSave";
-import PillPicker from "@/app/components/PillPicker";
-import MultiPillPicker from "@/app/components/MultiPillPicker";
+import JobFields from "@/app/components/JobFields";
 import StackedJobRow from "@/app/components/StackedJobRow";
 import StackedJobDetail from "@/app/components/StackedJobDetail";
 import Toast from "@/app/components/Toast";
@@ -227,110 +220,26 @@ export default function NewJobPage() {
           </div>
 
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Company</label>
-              <input
-                type="text"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Role</label>
-              <input
-                type="text"
-                value={jobPosting}
-                onChange={(e) => setJobPosting(e.target.value)}
-                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Location</label>
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                Posting Link (optional)
-              </label>
-              <input
-                type="url"
-                value={postingLink}
-                onChange={(e) => setPostingLink(e.target.value)}
-                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Source</span>
-              <select
-                value={source}
-                onChange={(e) => setSource(e.target.value as JobSource)}
-                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors w-fit"
-              >
-                {JOB_SOURCES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Apply Type</span>
-              <PillPicker
-                options={["normal", "quick"] as const}
-                selected={applyType}
-                onSelect={setApplyType}
-                format={(type) => APPLY_TYPE_LABELS[type]}
-                theme="light"
-                gap="sm"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Job Type</span>
-              <PillPicker
-                options={["internship", "part-time", "full-time"] as const}
-                selected={jobType}
-                onSelect={setJobType}
-                format={(type) => JOB_TYPE_LABELS[type]}
-                theme="light"
-                gap="sm"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                Match score (optional)
-              </span>
-              <input
-                type="number"
-                min={MATCH_SCORE_MIN}
-                max={MATCH_SCORE_MAX}
-                step={1}
-                value={matchScore}
-                onChange={(e) => setMatchScore(e.target.value)}
-                placeholder={`${MATCH_SCORE_MIN}–${MATCH_SCORE_MAX}`}
-                className="text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors w-28"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Category</span>
-              <MultiPillPicker
-                options={JOB_CATEGORIES}
-                selected={categories}
-                onToggle={toggleCategory}
-                theme="light"
-                gap="sm"
-              />
-            </div>
+            <JobFields
+              companyName={companyName}
+              onCompanyNameChange={setCompanyName}
+              jobPosting={jobPosting}
+              onJobPostingChange={setJobPosting}
+              location={location}
+              onLocationChange={setLocation}
+              postingLink={postingLink}
+              onPostingLinkChange={setPostingLink}
+              source={source}
+              onSourceChange={setSource}
+              applyType={applyType}
+              onApplyTypeChange={setApplyType}
+              jobType={jobType}
+              onJobTypeChange={setJobType}
+              matchScore={matchScore}
+              onMatchScoreChange={setMatchScore}
+              categories={categories}
+              onToggleCategory={toggleCategory}
+            />
 
             <button
               onClick={handleAddToStack}
