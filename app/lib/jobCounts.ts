@@ -1,4 +1,5 @@
 import { ApplyTypeCode } from "./jobFields";
+import { readJSON, writeJSON } from "./storage";
 
 export interface JobCounts {
   total: number;
@@ -21,19 +22,12 @@ function isJobCounts(value: unknown): value is JobCounts {
 }
 
 export function getJobCounts(): JobCounts {
-  try {
-    const raw = localStorage.getItem(JOB_COUNTS_KEY);
-    if (!raw) return EMPTY_COUNTS;
-    const parsed = JSON.parse(raw);
-    return isJobCounts(parsed) ? parsed : EMPTY_COUNTS;
-  } catch {
-    return EMPTY_COUNTS;
-  }
+  return readJSON(JOB_COUNTS_KEY, EMPTY_COUNTS, isJobCounts);
 }
 
 function saveJobCounts(counts: JobCounts) {
+  writeJSON(JOB_COUNTS_KEY, counts);
   try {
-    localStorage.setItem(JOB_COUNTS_KEY, JSON.stringify(counts));
     window.dispatchEvent(new CustomEvent(JOB_COUNTS_CHANGED_EVENT));
   } catch {}
 }
