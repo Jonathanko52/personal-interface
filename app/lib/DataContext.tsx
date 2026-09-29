@@ -6,6 +6,7 @@ import { today as todayStr } from "./date";
 import { Priority, isPriority, DEFAULT_PRIORITY } from "./priority";
 import { Weight, isWeight } from "./weight";
 import { rolloverTodos } from "./rollover";
+import { readJSON, writeJSON } from "./storage";
 
 export interface Todo {
   id: string;
@@ -58,24 +59,9 @@ interface DataContextValue {
   deleteTag: (id: string) => void;
 }
 
-function load<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function save(key: string, value: unknown) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {}
-}
-
 function usePersistOnChange<T>(key: string, value: T, hydrated: boolean) {
   useEffect(() => {
-    if (hydrated) save(key, value);
+    if (hydrated) writeJSON(key, value);
   }, [key, value, hydrated]);
 }
 
@@ -99,12 +85,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const today = todayStr();
-    const storedTodos = rolloverTodos(sanitizeTodos(load("todos", initialTodos)), today);
-    save("todos", storedTodos);
+    const storedTodos = rolloverTodos(sanitizeTodos(readJSON("todos", initialTodos)), today);
+    writeJSON("todos", storedTodos);
     setTodos(storedTodos);
-    setLists(load("lists", initialLists));
-    setTags(load("tags", initialTags));
-    setCompletions(load("completions", [] as Completion[]));
+    setLists(readJSON("lists", initialLists));
+    setTags(readJSON("tags", initialTags));
+    setCompletions(readJSON("completions", [] as Completion[]));
     lastCheckedDateRef.current = today;
     setHydrated(true);
   }, []);
