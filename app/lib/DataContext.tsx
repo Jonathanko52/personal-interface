@@ -53,6 +53,8 @@ interface DataContextValue {
   reorderTodos: (activeId: string, overId: string) => void;
   updateList: (id: string, updates: Partial<Omit<List, "id">>) => void;
   deleteList: (id: string) => void;
+  clearTodosInList: (listId: string) => void;
+  resetTodosInList: (listId: string) => void;
   deleteTag: (id: string) => void;
 }
 
@@ -210,6 +212,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setTodos((prev) => prev.filter((t) => t.listId !== id));
   }, []);
 
+  // Drops every todo in a list but keeps the list itself, unlike deleteList. Leaves completions
+  // entries for the deleted todos alone, same as deleteTodo does for a single todo.
+  const clearTodosInList = useCallback((listId: string) => {
+    setTodos((prev) => prev.filter((t) => t.listId !== listId));
+  }, []);
+
+  // Mirrors what toggleTodo already does on an uncheck: flips completed only, leaving
+  // lastCompletedDate and the completions log untouched, so completed-task stats still count
+  // what was done and a repeating todo's rollover anchor doesn't move.
+  const resetTodosInList = useCallback((listId: string) => {
+    setTodos((prev) =>
+      prev.map((t) => (t.listId === listId ? { ...t, completed: false } : t))
+    );
+  }, []);
+
   const deleteTag = useCallback((id: string) => {
     setTags((prev) => prev.filter((t) => t.id !== id));
     setTodos((prev) => prev.map((t) => ({ ...t, tagIds: t.tagIds.filter((tid) => tid !== id) })));
@@ -231,6 +248,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       reorderTodos,
       updateList,
       deleteList,
+      clearTodosInList,
+      resetTodosInList,
       deleteTag,
     }),
     [
@@ -248,6 +267,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       reorderTodos,
       updateList,
       deleteList,
+      clearTodosInList,
+      resetTodosInList,
       deleteTag,
     ]
   );
