@@ -10,7 +10,7 @@ import TodoListPage from "@/app/components/TodoListPage";
 
 export default function ListPage() {
   const { id } = useParams<{ id: string }>();
-  const { todos, lists } = useData();
+  const { todos, lists, clearTodosInList, resetTodosInList } = useData();
 
   const list = lists.find((l) => l.id === id);
   const listTodos = useMemo(() => todos.filter((t) => t.listId === id), [todos, id]);
@@ -37,6 +37,8 @@ export default function ListPage() {
       onSelect={select}
       emptyMessage="No todos in this list."
       defaultListId={id}
+      onClear={() => clearTodosInList(id)}
+      onReset={() => resetTodosInList(id)}
     />
   );
 }
