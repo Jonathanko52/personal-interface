@@ -3,12 +3,6 @@
 import { useState } from "react";
 import { StackedJob } from "@/app/lib/useJobStack";
 import {
-  APPLY_TYPE_LABELS,
-  JOB_CATEGORIES,
-  JOB_SOURCES,
-  JOB_TYPE_LABELS,
-  MATCH_SCORE_MIN,
-  MATCH_SCORE_MAX,
   ApplyTypeCode,
   JobCategory,
   JobSource,
@@ -16,18 +10,13 @@ import {
   parseMatchScore,
   toggleCategoryInArray,
 } from "@/app/lib/jobFields";
-import PillPicker from "./PillPicker";
-import MultiPillPicker from "./MultiPillPicker";
+import JobFields from "./JobFields";
 
 interface StackedJobDetailProps {
   item: StackedJob;
   onSave: (patch: Partial<Omit<StackedJob, "id">>) => void;
   onClose: () => void;
 }
-
-const LABEL_CLASS = "text-xs font-semibold text-zinc-500 uppercase tracking-wider";
-const INPUT_CLASS =
-  "text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors";
 
 function sameCategories(a: JobCategory[], b: JobCategory[]) {
   return JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
@@ -119,109 +108,26 @@ export default function StackedJobDetail({ item, onSave, onClose }: StackedJobDe
             </button>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className={LABEL_CLASS}>Company</label>
-            <input
-              type="text"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              className={INPUT_CLASS}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className={LABEL_CLASS}>Role</label>
-            <input
-              type="text"
-              value={jobPosting}
-              onChange={(e) => setJobPosting(e.target.value)}
-              className={INPUT_CLASS}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className={LABEL_CLASS}>Location</label>
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className={INPUT_CLASS}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className={LABEL_CLASS}>Posting Link (optional)</label>
-            <input
-              type="url"
-              value={postingLink}
-              onChange={(e) => setPostingLink(e.target.value)}
-              className={INPUT_CLASS}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <span className={LABEL_CLASS}>Source</span>
-            <select
-              value={source}
-              onChange={(e) => setSource(e.target.value as JobSource)}
-              className={`${INPUT_CLASS} w-fit`}
-            >
-              {JOB_SOURCES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <span className={LABEL_CLASS}>Apply Type</span>
-            <PillPicker
-              options={["normal", "quick"] as const}
-              selected={applyType}
-              onSelect={setApplyType}
-              format={(type) => APPLY_TYPE_LABELS[type]}
-              theme="light"
-              gap="sm"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <span className={LABEL_CLASS}>Job Type</span>
-            <PillPicker
-              options={["internship", "part-time", "full-time"] as const}
-              selected={jobType}
-              onSelect={setJobType}
-              format={(type) => JOB_TYPE_LABELS[type]}
-              theme="light"
-              gap="sm"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <span className={LABEL_CLASS}>Match score (optional)</span>
-            <input
-              type="number"
-              min={MATCH_SCORE_MIN}
-              max={MATCH_SCORE_MAX}
-              step={1}
-              value={matchScore}
-              onChange={(e) => setMatchScore(e.target.value)}
-              placeholder={`${MATCH_SCORE_MIN}–${MATCH_SCORE_MAX}`}
-              className={`${INPUT_CLASS} w-28`}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <span className={LABEL_CLASS}>Category</span>
-            <MultiPillPicker
-              options={JOB_CATEGORIES}
-              selected={categories}
-              onToggle={(category) => setCategories((prev) => toggleCategoryInArray(prev, category))}
-              theme="light"
-              gap="sm"
-            />
-          </div>
+          <JobFields
+            companyName={companyName}
+            onCompanyNameChange={setCompanyName}
+            jobPosting={jobPosting}
+            onJobPostingChange={setJobPosting}
+            location={location}
+            onLocationChange={setLocation}
+            postingLink={postingLink}
+            onPostingLinkChange={setPostingLink}
+            source={source}
+            onSourceChange={setSource}
+            applyType={applyType}
+            onApplyTypeChange={setApplyType}
+            jobType={jobType}
+            onJobTypeChange={setJobType}
+            matchScore={matchScore}
+            onMatchScoreChange={setMatchScore}
+            categories={categories}
+            onToggleCategory={(category) => setCategories((prev) => toggleCategoryInArray(prev, category))}
+          />
         </div>
       </div>
 
