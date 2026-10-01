@@ -14,10 +14,12 @@ import {
 } from "@/app/lib/jobFields";
 import { useJobCounts } from "@/app/lib/useJobCounts";
 import { useJobStack } from "@/app/lib/useJobStack";
+import { useStackSort } from "@/app/lib/useStackSort";
 import { checkDuplicate, saveJob } from "@/app/lib/jobSave";
 import JobFields from "@/app/components/JobFields";
 import JobIdentityFields from "@/app/components/JobIdentityFields";
 import StackedJobRow from "@/app/components/StackedJobRow";
+import StackSortBar from "@/app/components/StackSortBar";
 import StackedJobDetail from "@/app/components/StackedJobDetail";
 import Toast from "@/app/components/Toast";
 
@@ -38,6 +40,7 @@ export default function NewJobPage() {
 
   const { counts, increment, reset } = useJobCounts();
   const { stack, addToStack, removeFromStack, updateStackItem, clearStack } = useJobStack();
+  const { result: sortedStack, sort: stackSort, setSort: setStackSort } = useStackSort(stack);
   const [savingAll, setSavingAll] = useState(false);
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
   const [openId, setOpenId] = useState<string | null>(null);
@@ -279,9 +282,12 @@ export default function NewJobPage() {
               </div>
             )}
           </div>
+          {stack.length > 1 && (
+            <StackSortBar sort={stackSort} onSortChange={setStackSort} />
+          )}
           {stack.length > 0 ? (
             <div className="flex flex-col gap-2 max-h-[calc(100vh-8rem)] overflow-y-auto pr-1">
-              {stack.map((item) => (
+              {sortedStack.map((item) => (
                 <StackedJobRow
                   key={item.id}
                   item={item}
