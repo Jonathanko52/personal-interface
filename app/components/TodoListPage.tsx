@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react";
 import TodoForm from "./TodoForm";
 import SortFilterBar from "./SortFilterBar";
 import GroupedTodoList from "./GroupedTodoList";
+import ConfirmDialog from "./ConfirmDialog";
 import { SortOption, FilterOption } from "@/app/lib/useSortFilter";
 import { Todo } from "@/app/lib/DataContext";
 
@@ -70,34 +71,26 @@ export default function TodoListPage({
       )}
 
       {showConfirmClear && (
-        <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-          onClick={() => setShowConfirmClear(false)}
-        >
-          <div
-            className="bg-white border border-zinc-200 rounded-lg p-5 flex flex-col gap-4 max-w-sm w-full mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-sm text-zinc-700">Delete every todo in this list? This can&apos;t be undone.</p>
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => setShowConfirmClear(false)}
-                className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors px-2 py-1.5"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  onClear?.();
-                  setShowConfirmClear(false);
-                }}
-                className="text-xs bg-red-500 text-white rounded-md px-3 py-1.5 hover:bg-red-600 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
+        <ConfirmDialog theme="light" onDismiss={() => setShowConfirmClear(false)}>
+          <p className="text-sm text-zinc-700">Delete every todo in this list? This can&apos;t be undone.</p>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => setShowConfirmClear(false)}
+              className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors px-2 py-1.5"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                onClear?.();
+                setShowConfirmClear(false);
+              }}
+              className="text-xs bg-red-500 text-white rounded-md px-3 py-1.5 hover:bg-red-600 transition-colors"
+            >
+              Delete
+            </button>
           </div>
-        </div>
+        </ConfirmDialog>
       )}
     </div>
   );
