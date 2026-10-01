@@ -16,6 +16,7 @@ import { useJobCounts } from "@/app/lib/useJobCounts";
 import { useJobStack } from "@/app/lib/useJobStack";
 import { checkDuplicate, saveJob } from "@/app/lib/jobSave";
 import JobFields from "@/app/components/JobFields";
+import JobIdentityFields from "@/app/components/JobIdentityFields";
 import StackedJobRow from "@/app/components/StackedJobRow";
 import StackedJobDetail from "@/app/components/StackedJobDetail";
 import Toast from "@/app/components/Toast";
@@ -221,14 +222,6 @@ export default function NewJobPage() {
 
           <div className="flex flex-col gap-4">
             <JobFields
-              companyName={companyName}
-              onCompanyNameChange={setCompanyName}
-              jobPosting={jobPosting}
-              onJobPostingChange={setJobPosting}
-              location={location}
-              onLocationChange={setLocation}
-              postingLink={postingLink}
-              onPostingLinkChange={setPostingLink}
               source={source}
               onSourceChange={setSource}
               applyType={applyType}
@@ -248,6 +241,17 @@ export default function NewJobPage() {
             >
               Add to stack
             </button>
+
+            <JobIdentityFields
+              companyName={companyName}
+              onCompanyNameChange={setCompanyName}
+              jobPosting={jobPosting}
+              onJobPostingChange={setJobPosting}
+              location={location}
+              onLocationChange={setLocation}
+              postingLink={postingLink}
+              onPostingLinkChange={setPostingLink}
+            />
           </div>
         </div>
 
