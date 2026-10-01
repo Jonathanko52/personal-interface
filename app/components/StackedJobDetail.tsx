@@ -11,6 +11,7 @@ import {
   toggleCategoryInArray,
 } from "@/app/lib/jobFields";
 import JobFields from "./JobFields";
+import JobIdentityFields from "./JobIdentityFields";
 import ConfirmDialog from "./ConfirmDialog";
 
 interface StackedJobDetailProps {
@@ -109,7 +110,7 @@ export default function StackedJobDetail({ item, onSave, onClose }: StackedJobDe
             </button>
           </div>
 
-          <JobFields
+          <JobIdentityFields
             companyName={companyName}
             onCompanyNameChange={setCompanyName}
             jobPosting={jobPosting}
@@ -118,6 +119,9 @@ export default function StackedJobDetail({ item, onSave, onClose }: StackedJobDe
             onLocationChange={setLocation}
             postingLink={postingLink}
             onPostingLinkChange={setPostingLink}
+          />
+
+          <JobFields
             source={source}
             onSourceChange={setSource}
             applyType={applyType}
