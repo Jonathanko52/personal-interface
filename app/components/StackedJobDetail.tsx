@@ -11,6 +11,7 @@ import {
   toggleCategoryInArray,
 } from "@/app/lib/jobFields";
 import JobFields from "./JobFields";
+import ConfirmDialog from "./ConfirmDialog";
 
 interface StackedJobDetailProps {
   item: StackedJob;
@@ -132,38 +133,30 @@ export default function StackedJobDetail({ item, onSave, onClose }: StackedJobDe
       </div>
 
       {showConfirmClose && (
-        <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-          onClick={() => setShowConfirmClose(false)}
-        >
-          <div
-            className="bg-white border border-zinc-200 rounded-lg p-5 flex flex-col gap-4 max-w-sm w-full mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-sm text-zinc-700">You have unsaved changes. Save them before closing?</p>
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => setShowConfirmClose(false)}
-                className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors px-2 py-1.5"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDiscardAndClose}
-                className="text-xs text-red-500 hover:text-red-600 transition-colors px-2 py-1.5"
-              >
-                Discard
-              </button>
-              <button
-                onClick={handleSaveAndClose}
-                disabled={!isValid}
-                className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1.5 hover:bg-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Save
-              </button>
-            </div>
+        <ConfirmDialog theme="light" onDismiss={() => setShowConfirmClose(false)}>
+          <p className="text-sm text-zinc-700">You have unsaved changes. Save them before closing?</p>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => setShowConfirmClose(false)}
+              className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors px-2 py-1.5"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDiscardAndClose}
+              className="text-xs text-red-500 hover:text-red-600 transition-colors px-2 py-1.5"
+            >
+              Discard
+            </button>
+            <button
+              onClick={handleSaveAndClose}
+              disabled={!isValid}
+              className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1.5 hover:bg-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Save
+            </button>
           </div>
-        </div>
+        </ConfirmDialog>
       )}
     </div>
   );

@@ -8,6 +8,7 @@ import { toggleDay, makeOneOffChangeHandler } from "@/app/lib/repeatDays";
 import RepeatDaysField from "./RepeatDaysField";
 import TagPicker from "./TagPicker";
 import PillPicker from "./PillPicker";
+import ConfirmDialog from "./ConfirmDialog";
 
 interface TodoDetailProps {
   todo: Todo;
@@ -194,37 +195,29 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
       </div>
 
       {showConfirmClose && (
-        <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-          onClick={() => setShowConfirmClose(false)}
-        >
-          <div
-            className="bg-slate-900 border border-slate-700 rounded-lg p-5 flex flex-col gap-4 max-w-sm w-full mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-sm text-slate-200">You have unsaved changes. Save them before closing?</p>
-            <div className="flex gap-2 justify-end">
-              <button
-                onClick={() => setShowConfirmClose(false)}
-                className="text-xs text-slate-400 hover:text-white transition-colors px-2 py-1.5"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDiscardAndClose}
-                className="text-xs text-red-400 hover:text-red-300 transition-colors px-2 py-1.5"
-              >
-                Discard
-              </button>
-              <button
-                onClick={handleSaveAndClose}
-                className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1.5 hover:bg-indigo-600 transition-colors"
-              >
-                Save
-              </button>
-            </div>
+        <ConfirmDialog theme="dark" onDismiss={() => setShowConfirmClose(false)}>
+          <p className="text-sm text-slate-200">You have unsaved changes. Save them before closing?</p>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => setShowConfirmClose(false)}
+              className="text-xs text-slate-400 hover:text-white transition-colors px-2 py-1.5"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDiscardAndClose}
+              className="text-xs text-red-400 hover:text-red-300 transition-colors px-2 py-1.5"
+            >
+              Discard
+            </button>
+            <button
+              onClick={handleSaveAndClose}
+              className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1.5 hover:bg-indigo-600 transition-colors"
+            >
+              Save
+            </button>
           </div>
-        </div>
+        </ConfirmDialog>
       )}
     </div>
   );
