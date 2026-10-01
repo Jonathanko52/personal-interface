@@ -16,14 +16,6 @@ import PillPicker from "./PillPicker";
 import MultiPillPicker from "./MultiPillPicker";
 
 interface JobFieldsProps {
-  companyName: string;
-  onCompanyNameChange: (value: string) => void;
-  jobPosting: string;
-  onJobPostingChange: (value: string) => void;
-  location: string;
-  onLocationChange: (value: string) => void;
-  postingLink: string;
-  onPostingLinkChange: (value: string) => void;
   source: JobSource;
   onSourceChange: (value: JobSource) => void;
   applyType: ApplyTypeCode;
@@ -36,25 +28,18 @@ interface JobFieldsProps {
   onToggleCategory: (category: JobCategory) => void;
 }
 
-const LABEL_CLASS = "text-xs font-semibold text-zinc-500 uppercase tracking-wider";
-const INPUT_CLASS =
+export const LABEL_CLASS = "text-xs font-semibold text-zinc-500 uppercase tracking-wider";
+export const INPUT_CLASS =
   "text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors";
 
-// Shared Company/Role/Location/Posting Link/Source/Apply Type/Job Type/Match score/Category
-// field block — extracted after `jobs/new/page.tsx`'s manual form and `StackedJobDetail.tsx`
-// (Part 66) ended up rendering the identical block independently. Light-themed only: both
-// current callers are light, and no dark-themed caller shares this exact shape (JobsPanel.tsx
-// is structurally different — disabled-on-saved inputs, a link instead of an editable Posting
-// Link), so a theme prop would be unused indirection rather than real reuse.
+// Source/Apply Type/Job Type/Match score/Category — the rest of the field block shared between
+// `jobs/new/page.tsx`'s manual form and `StackedJobDetail.tsx` (Part 72). Company/Role/Location/
+// Posting Link split out into JobIdentityFields.tsx (Part 74), so a caller's submit button can
+// sit between the two groups. Light-themed only: both current callers are light, and no
+// dark-themed caller shares this exact shape (JobsPanel.tsx is structurally different —
+// disabled-on-saved inputs, a link instead of an editable Posting Link), so a theme prop would
+// be unused indirection rather than real reuse.
 export default function JobFields({
-  companyName,
-  onCompanyNameChange,
-  jobPosting,
-  onJobPostingChange,
-  location,
-  onLocationChange,
-  postingLink,
-  onPostingLinkChange,
   source,
   onSourceChange,
   applyType,
@@ -68,46 +53,6 @@ export default function JobFields({
 }: JobFieldsProps) {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <label className={LABEL_CLASS}>Company</label>
-        <input
-          type="text"
-          value={companyName}
-          onChange={(e) => onCompanyNameChange(e.target.value)}
-          className={INPUT_CLASS}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label className={LABEL_CLASS}>Role</label>
-        <input
-          type="text"
-          value={jobPosting}
-          onChange={(e) => onJobPostingChange(e.target.value)}
-          className={INPUT_CLASS}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label className={LABEL_CLASS}>Location</label>
-        <input
-          type="text"
-          value={location}
-          onChange={(e) => onLocationChange(e.target.value)}
-          className={INPUT_CLASS}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label className={LABEL_CLASS}>Posting Link (optional)</label>
-        <input
-          type="url"
-          value={postingLink}
-          onChange={(e) => onPostingLinkChange(e.target.value)}
-          className={INPUT_CLASS}
-        />
-      </div>
-
       <div className="flex flex-col gap-1.5">
         <span className={LABEL_CLASS}>Source</span>
         <select
