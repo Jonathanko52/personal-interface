@@ -14,6 +14,17 @@ import { completedTasks, uncompletedTasksToday, formatTasksSummaryBlock, overrid
 import { getLastAcknowledgedDate, markDayComplete } from "./lib/dayComplete";
 import { resetJobCounts } from "./lib/jobCounts";
 
+// A boolean that flips true then auto-resets after `duration` — the "Copied!"/"Refreshed!"/
+// "Day marked ✓" feedback pattern, previously hand-rolled three times in this same file.
+function useBriefFlag(duration = 1500): [boolean, () => void] {
+  const [active, setActive] = useState(false);
+  function trigger() {
+    setActive(true);
+    setTimeout(() => setActive(false), duration);
+  }
+  return [active, trigger];
+}
+
 function dateLabel(dateStr: string): string {
   const today = todayStr();
   const d = new Date(dateStr + "T12:00:00");
@@ -30,9 +41,9 @@ export default function Home() {
   const { todos, completions } = useData();
   const [selectedDate, setSelectedDate] = useState(todayStr());
   const [completedRange, setCompletedRange] = useState<CompletionRange>("day");
-  const [copied, setCopied] = useState(false);
-  const [refreshed, setRefreshed] = useState(false);
-  const [dayMarked, setDayMarked] = useState(false);
+  const [copied, triggerCopied] = useBriefFlag();
+  const [refreshed, triggerRefreshed] = useBriefFlag();
+  const [dayMarked, triggerDayMarked] = useBriefFlag();
 
   const completedBlock = useMemo(() => {
     const completed = completedTasks(completions, todos, completedRange);
@@ -45,15 +56,13 @@ export default function Home() {
     // recomputes automatically whenever a todo is checked/unchecked — this button doesn't
     // change that. It's a visible confirmation that what's shown is current, not a fix for
     // staleness (none is known); same brief-label-flip feedback pattern as Copy below.
-    setRefreshed(true);
-    setTimeout(() => setRefreshed(false), 1500);
+    triggerRefreshed();
   }
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(completedBlock);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      triggerCopied();
     } catch {
       // Clipboard API can fail (permissions, non-secure context) — the text
       // block is still visible below for the user to select and copy manually.
@@ -99,8 +108,7 @@ export default function Home() {
     setSelectedDate(markDayComplete());
     resetJobCounts();
     router.replace("/");
-    setDayMarked(true);
-    setTimeout(() => setDayMarked(false), 1500);
+    triggerDayMarked();
   }
 
   const todayValue = todayStr();
