@@ -8,10 +8,10 @@ interface GroupedTodoListProps {
   todos: Todo[];
   onSelect: (id: string) => void;
   dragEnabled?: boolean;
-  dailyReadOnly?: boolean;
+  date?: string;
 }
 
-export default function GroupedTodoList({ todos, onSelect, dragEnabled = true, dailyReadOnly }: GroupedTodoListProps) {
+export default function GroupedTodoList({ todos, onSelect, dragEnabled = true, date }: GroupedTodoListProps) {
   const { repeating, oneOff } = groupByRepeat(todos);
 
   return (
@@ -21,7 +21,7 @@ export default function GroupedTodoList({ todos, onSelect, dragEnabled = true, d
         {repeating.length === 0 ? (
           <p className="text-sm text-zinc-400">No daily tasks.</p>
         ) : (
-          <TodoList todos={repeating} onSelect={onSelect} dragEnabled={dragEnabled} readOnly={dailyReadOnly} />
+          <TodoList todos={repeating} onSelect={onSelect} dragEnabled={dragEnabled} date={date} />
         )}
       </section>
       <section className="flex flex-col gap-2">
@@ -29,7 +29,7 @@ export default function GroupedTodoList({ todos, onSelect, dragEnabled = true, d
         {oneOff.length === 0 ? (
           <p className="text-sm text-zinc-400">No one-off todos.</p>
         ) : (
-          <TodoList todos={oneOff} onSelect={onSelect} dragEnabled={dragEnabled} />
+          <TodoList todos={oneOff} onSelect={onSelect} dragEnabled={dragEnabled} date={date} />
         )}
       </section>
     </div>
