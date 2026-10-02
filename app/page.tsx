@@ -2,10 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import GroupedTodoList from "./components/GroupedTodoList";
 import TodoDetail from "./components/TodoDetail";
-import TodoForm from "./components/TodoForm";
-import SortFilterBar from "./components/SortFilterBar";
+import TodoListPage from "./components/TodoListPage";
 import { useData } from "./lib/DataContext";
 import { useSortFilter } from "./lib/useSortFilter";
 import { useSelectedTodo } from "./lib/useSelectedTodo";
@@ -159,82 +157,86 @@ export default function Home() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="flex items-center gap-2 mb-6">
-        <button
-          onClick={prevDay}
-          className="text-zinc-400 hover:text-zinc-700 transition-colors leading-none"
-          style={{ fontSize: "2rem" }}
-        >
-          ◀
-        </button>
-        <h1 className="text-xl font-semibold text-indigo-600">{dateLabel(selectedDate)}</h1>
-        <button
-          onClick={nextDay}
-          className="text-zinc-400 hover:text-zinc-700 transition-colors leading-none"
-          style={{ fontSize: "2rem" }}
-        >
-          ▶
-        </button>
-        {!isViewingToday && (
+    <TodoListPage
+      heading={
+        <>
           <button
-            onClick={goToday}
-            className="ml-1 text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
+            onClick={prevDay}
+            className="text-zinc-400 hover:text-zinc-700 transition-colors leading-none"
+            style={{ fontSize: "2rem" }}
           >
-            Today
+            ◀
           </button>
-        )}
-      </div>
-      <TodoForm key={selectedDate} />
-      <SortFilterBar sort={sort} filter={filter} onSortChange={setSort} onFilterChange={setFilter} />
-      <GroupedTodoList
-        todos={result}
-        onSelect={select}
-        dragEnabled={sort === "default"}
-        dailyReadOnly={!isViewingToday}
-      />
-
-      <section className="flex flex-col gap-3 mt-8">
-        <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Completed tasks</h2>
-        <div className="flex gap-1">
-          {(["day", "week"] as const).map((r) => (
+          <h1 className="text-xl font-semibold text-indigo-600">{dateLabel(selectedDate)}</h1>
+          <button
+            onClick={nextDay}
+            className="text-zinc-400 hover:text-zinc-700 transition-colors leading-none"
+            style={{ fontSize: "2rem" }}
+          >
+            ▶
+          </button>
+          {!isViewingToday && (
             <button
-              key={r}
-              onClick={() => setCompletedRange(r)}
-              className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
-                completedRange === r
-                  ? "bg-zinc-800 text-white"
-                  : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"
-              }`}
+              onClick={goToday}
+              className="ml-1 text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
             >
-              {r === "day" ? "Today" : "This week"}
+              Today
             </button>
-          ))}
-        </div>
-        <pre className="border border-zinc-200 rounded-md p-3 text-xs text-zinc-700 whitespace-pre-wrap font-mono bg-zinc-50">
-          {completedBlock}
-        </pre>
-        <div className="flex gap-2">
-          <button
-            onClick={handleCopy}
-            className="self-start text-xs bg-zinc-800 text-white rounded-md px-3 py-1.5 hover:bg-zinc-900 transition-colors"
-          >
-            {copied ? "Copied!" : "Copy"}
-          </button>
-          <button
-            onClick={handleRefresh}
-            className="self-start text-xs bg-zinc-800 text-white rounded-md px-3 py-1.5 hover:bg-zinc-900 transition-colors"
-          >
-            {refreshed ? "Refreshed!" : "Refresh"}
-          </button>
-          <button
-            onClick={handleDayComplete}
-            className="self-start text-xs bg-indigo-600 text-white rounded-md px-3 py-1.5 hover:bg-indigo-700 transition-colors"
-          >
-            {dayMarked ? "Day marked ✓" : "Day Complete"}
-          </button>
-        </div>
-      </section>
-    </div>
+          )}
+        </>
+      }
+      todos={result}
+      sort={sort}
+      filter={filter}
+      onSortChange={setSort}
+      onFilterChange={setFilter}
+      onSelect={select}
+      emptyMessage="No todos yet."
+      formKey={selectedDate}
+      dailyReadOnly={!isViewingToday}
+      footer={
+        <section className="flex flex-col gap-3 mt-8">
+          <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Completed tasks</h2>
+          <div className="flex gap-1">
+            {(["day", "week"] as const).map((r) => (
+              <button
+                key={r}
+                onClick={() => setCompletedRange(r)}
+                className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
+                  completedRange === r
+                    ? "bg-zinc-800 text-white"
+                    : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"
+                }`}
+              >
+                {r === "day" ? "Today" : "This week"}
+              </button>
+            ))}
+          </div>
+          <pre className="border border-zinc-200 rounded-md p-3 text-xs text-zinc-700 whitespace-pre-wrap font-mono bg-zinc-50">
+            {completedBlock}
+          </pre>
+          <div className="flex gap-2">
+            <button
+              onClick={handleCopy}
+              className="self-start text-xs bg-zinc-800 text-white rounded-md px-3 py-1.5 hover:bg-zinc-900 transition-colors"
+            >
+              {copied ? "Copied!" : "Copy"}
+            </button>
+            <button
+              onClick={handleRefresh}
+              className="self-start text-xs bg-zinc-800 text-white rounded-md px-3 py-1.5 hover:bg-zinc-900 transition-colors"
+            >
+              {refreshed ? "Refreshed!" : "Refresh"}
+            </button>
+            <button
+              onClick={handleDayComplete}
+              className="self-start text-xs bg-indigo-600 text-white rounded-md px-3 py-1.5 hover:bg-indigo-700 transition-colors"
+            >
+              {dayMarked ? "Day marked ✓" : "Day Complete"}
+            </button>
+          </div>
+        </section>
+      }
+    />
   );
 }

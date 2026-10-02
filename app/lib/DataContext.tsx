@@ -47,7 +47,7 @@ interface DataContextValue {
   addTodo: (todo: Omit<Todo, "id">) => void;
   addList: (list: Omit<List, "id">) => void;
   addTag: (tag: Omit<Tag, "id">) => void;
-  toggleTodo: (id: string) => void;
+  toggleTodo: (id: string, date?: string) => void;
   updateTodo: (id: string, updates: Partial<Omit<Todo, "id">>) => void;
   deleteTodo: (id: string) => void;
   duplicateTodo: (id: string) => void;
@@ -136,22 +136,38 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setTags((prev) => [...prev, { ...tag, id: crypto.randomUUID() }]);
   }, []);
 
-  const toggleTodo = useCallback((id: string) => {
-    let justCompleted = false;
+  const toggleTodo = useCallback((id: string, date: string = todayStr()) => {
+    const today = todayStr();
+    // "today" (every caller except the date-navigator) or a one-off todo (no per-day history,
+    // Part 40): behavior is unchanged — flip the live field, log today's completion on check.
+    // A repeating todo toggled for a different day: the live field represents today's state and
+    // isn't touched — only that day's own completions entry changes, which
+    // overrideCompletedFromLog already reads for display. true toggle (add or remove), since the
+    // log becomes the sole source of truth for that day.
+    let completionsAction: "add" | "toggle" | null = null;
     setTodos((prev) =>
       prev.map((t) => {
         if (t.id !== id) return t;
+        if (date !== today && t.repeatDays?.length) {
+          completionsAction = "toggle";
+          return t;
+        }
         const completed = !t.completed;
-        justCompleted = completed;
-        return { ...t, completed, lastCompletedDate: completed ? todayStr() : t.lastCompletedDate };
+        completionsAction = completed ? "add" : null;
+        return { ...t, completed, lastCompletedDate: completed ? today : t.lastCompletedDate };
       })
     );
-    if (justCompleted) {
-      const today = todayStr();
+    if (completionsAction === "add") {
       setCompletions((prev) =>
         prev.some((c) => c.todoId === id && c.date === today)
           ? prev
           : [...prev, { todoId: id, date: today }]
+      );
+    } else if (completionsAction === "toggle") {
+      setCompletions((prev) =>
+        prev.some((c) => c.todoId === id && c.date === date)
+          ? prev.filter((c) => !(c.todoId === id && c.date === date))
+          : [...prev, { todoId: id, date }]
       );
     }
   }, []);
