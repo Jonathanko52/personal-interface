@@ -36,7 +36,7 @@ function dateLabel(dateStr: string): string {
 
 export default function Home() {
   const router = useRouter();
-  const { todos, completions } = useData();
+  const { todos, completions, clearTodos, resetTodos } = useData();
   const [selectedDate, setSelectedDate] = useState(todayStr());
   const [completedRange, setCompletedRange] = useState<CompletionRange>("day");
   const [copied, triggerCopied] = useBriefFlag();
@@ -194,6 +194,9 @@ export default function Home() {
       emptyMessage="No todos yet."
       formKey={selectedDate}
       date={selectedDate}
+      onClear={() => clearTodos(todosForDate.map((t) => t.id))}
+      onReset={() => resetTodos(todosForDate.map((t) => t.id))}
+      clearConfirmMessage="Delete every todo shown here? This can't be undone."
       footer={
         <section className="flex flex-col gap-3 mt-8">
           <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Completed tasks</h2>

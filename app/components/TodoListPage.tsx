@@ -23,6 +23,7 @@ interface TodoListPageProps {
   footer?: ReactNode;
   onClear?: () => void;
   onReset?: () => void;
+  clearConfirmMessage?: string;
 }
 
 export default function TodoListPage({
@@ -40,6 +41,7 @@ export default function TodoListPage({
   footer,
   onClear,
   onReset,
+  clearConfirmMessage = "Delete every todo in this list? This can't be undone.",
 }: TodoListPageProps) {
   const [showConfirmClear, setShowConfirmClear] = useState(false);
 
@@ -90,9 +92,7 @@ export default function TodoListPage({
         <ConfirmDialog
           theme="light"
           onDismiss={() => setShowConfirmClear(false)}>
-          <p className="text-sm text-zinc-700">
-            Delete every todo in this list? This can&apos;t be undone.
-          </p>
+          <p className="text-sm text-zinc-700">{clearConfirmMessage}</p>
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setShowConfirmClear(false)}

@@ -56,6 +56,8 @@ interface DataContextValue {
   deleteList: (id: string) => void;
   clearTodosInList: (listId: string) => void;
   resetTodosInList: (listId: string) => void;
+  clearTodos: (ids: string[]) => void;
+  resetTodos: (ids: string[]) => void;
   deleteTag: (id: string) => void;
 }
 
@@ -229,6 +231,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  // Generic id-set versions of clearTodosInList/resetTodosInList above, for callers (e.g. the
+  // Today page) that span more than one list at once and so have no single listId to key off.
+  const clearTodos = useCallback((ids: string[]) => {
+    const idSet = new Set(ids);
+    setTodos((prev) => prev.filter((t) => !idSet.has(t.id)));
+  }, []);
+
+  const resetTodos = useCallback((ids: string[]) => {
+    const idSet = new Set(ids);
+    setTodos((prev) => prev.map((t) => (idSet.has(t.id) ? { ...t, completed: false } : t)));
+  }, []);
+
   const deleteTag = useCallback((id: string) => {
     setTags((prev) => prev.filter((t) => t.id !== id));
     setTodos((prev) => prev.map((t) => ({ ...t, tagIds: t.tagIds.filter((tid) => tid !== id) })));
@@ -252,6 +266,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       deleteList,
       clearTodosInList,
       resetTodosInList,
+      clearTodos,
+      resetTodos,
       deleteTag,
     }),
     [
@@ -271,6 +287,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       deleteList,
       clearTodosInList,
       resetTodosInList,
+      clearTodos,
+      resetTodos,
       deleteTag,
     ]
   );
