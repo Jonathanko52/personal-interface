@@ -25,19 +25,19 @@ interface TodoListProps {
   todos: Todo[];
   onSelect: (id: string) => void;
   dragEnabled?: boolean;
-  readOnly?: boolean;
+  date?: string;
 }
 
 function SortableTodo({
   todo,
   onSelect,
   dragEnabled,
-  readOnly,
+  date,
 }: {
   todo: Todo;
   onSelect: (id: string) => void;
   dragEnabled: boolean;
-  readOnly?: boolean;
+  date?: string;
 }) {
   const { toggleTodo, tags } = useData();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -50,7 +50,7 @@ function SortableTodo({
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      onClick={() => !readOnly && toggleTodo(todo.id)}
+      onClick={() => toggleTodo(todo.id, date)}
       className={`group flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 transition-colors ${
         dragEnabled ? "cursor-grab active:cursor-grabbing" : ""
       } ${isDragging ? "opacity-50 border-indigo-400 shadow-md" : "hover:border-slate-600"}`}
@@ -60,11 +60,10 @@ function SortableTodo({
       <input
         type="checkbox"
         checked={todo.completed}
-        onChange={() => !readOnly && toggleTodo(todo.id)}
+        onChange={() => toggleTodo(todo.id, date)}
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
-        disabled={readOnly}
-        className="w-4 h-4 accent-indigo-500 shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-4 h-4 accent-indigo-500 shrink-0"
       />
       <span
         className={`text-sm ${
@@ -111,7 +110,7 @@ function SortableTodo({
   );
 }
 
-export default function TodoList({ todos, onSelect, dragEnabled = true, readOnly }: TodoListProps) {
+export default function TodoList({ todos, onSelect, dragEnabled = true, date }: TodoListProps) {
   const { reorderTodos } = useData();
 
   const sensors = useSensors(
@@ -130,7 +129,7 @@ export default function TodoList({ todos, onSelect, dragEnabled = true, readOnly
       <SortableContext items={todos.map((t) => t.id)} strategy={verticalListSortingStrategy}>
         <ul className="flex flex-col gap-2">
           {todos.map((todo) => (
-            <SortableTodo key={todo.id} todo={todo} onSelect={onSelect} dragEnabled={dragEnabled} readOnly={readOnly} />
+            <SortableTodo key={todo.id} todo={todo} onSelect={onSelect} dragEnabled={dragEnabled} date={date} />
           ))}
         </ul>
       </SortableContext>
