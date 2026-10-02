@@ -193,7 +193,7 @@ export default function Home() {
       onSelect={select}
       emptyMessage="No todos yet."
       formKey={selectedDate}
-      dailyReadOnly={!isViewingToday}
+      date={selectedDate}
       footer={
         <section className="flex flex-col gap-3 mt-8">
           <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Completed tasks</h2>
