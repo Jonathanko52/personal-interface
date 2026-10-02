@@ -19,7 +19,7 @@ interface TodoListPageProps {
   emptyMessage: string;
   defaultListId?: string;
   formKey?: string;
-  dailyReadOnly?: boolean;
+  date?: string;
   footer?: ReactNode;
   onClear?: () => void;
   onReset?: () => void;
@@ -36,7 +36,7 @@ export default function TodoListPage({
   emptyMessage,
   defaultListId,
   formKey,
-  dailyReadOnly,
+  date,
   footer,
   onClear,
   onReset,
@@ -80,7 +80,7 @@ export default function TodoListPage({
           todos={todos}
           onSelect={onSelect}
           dragEnabled={sort === "default"}
-          dailyReadOnly={dailyReadOnly}
+          date={date}
         />
       )}
 
