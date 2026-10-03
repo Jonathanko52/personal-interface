@@ -22,6 +22,7 @@ import StackedJobRow from "@/app/components/StackedJobRow";
 import StackSortBar from "@/app/components/StackSortBar";
 import StackedJobDetail from "@/app/components/StackedJobDetail";
 import Toast from "@/app/components/Toast";
+import ConfirmDialog from "@/app/components/ConfirmDialog";
 
 export default function NewJobPage() {
   const [url, setUrl] = useState("");
@@ -44,6 +45,7 @@ export default function NewJobPage() {
   const [savingAll, setSavingAll] = useState(false);
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
   const [openId, setOpenId] = useState<string | null>(null);
+  const [showConfirmClearStack, setShowConfirmClearStack] = useState(false);
   // Looked up by id each render (like useSelectedTodo) so an item removed while open — e.g. by
   // "Save all" — simply resolves to null and the normal layout returns.
   const openItem = stack.find((item) => item.id === openId) ?? null;
@@ -273,7 +275,7 @@ export default function NewJobPage() {
                   {savingAll ? "Saving all..." : "Save all"}
                 </button>
                 <button
-                  onClick={clearStack}
+                  onClick={() => setShowConfirmClearStack(true)}
                   disabled={savingAll}
                   className="text-xs text-zinc-400 hover:text-red-500 transition-colors disabled:opacity-40"
                 >
@@ -310,6 +312,29 @@ export default function NewJobPage() {
           )}
         </div>
       </div>
+
+      {showConfirmClearStack && (
+        <ConfirmDialog theme="light" onDismiss={() => setShowConfirmClearStack(false)}>
+          <p className="text-sm text-zinc-700">Delete every staged job? This can&apos;t be undone.</p>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => setShowConfirmClearStack(false)}
+              className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors px-2 py-1.5"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                clearStack();
+                setShowConfirmClearStack(false);
+              }}
+              className="text-xs bg-red-500 text-white rounded-md px-3 py-1.5 hover:bg-red-600 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </ConfirmDialog>
+      )}
     </div>
   );
 
