@@ -3,6 +3,7 @@
 import { useState } from "react";
 import NavigationPanel from "./NavigationPanel";
 import RightPanel from "./RightPanel";
+import { ToastProvider } from "@/app/lib/ToastContext";
 
 export type ActivePanel = "todo" | "jobs" | null;
 
@@ -20,7 +21,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
+    <ToastProvider>
       <header className="h-14 shrink-0 border-b border-slate-700 bg-slate-900 flex items-center px-6">
         <span className="font-semibold tracking-tight text-slate-100">Todos</span>
       </header>
@@ -34,6 +35,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           onRestore={() => setMinimized(false)}
         />
       </div>
-    </>
+    </ToastProvider>
   );
 }
