@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useData, Todo } from "@/app/lib/DataContext";
+import { useToast } from "@/app/lib/ToastContext";
 import { PRIORITIES, Priority } from "@/app/lib/priority";
 import { WEIGHTS, Weight } from "@/app/lib/weight";
 import { toggleDay, makeOneOffChangeHandler } from "@/app/lib/repeatDays";
@@ -21,6 +22,7 @@ function sameSet(a: (string | number)[], b: (string | number)[]) {
 
 export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
   const { updateTodo, deleteTodo, duplicateTodo, tags } = useData();
+  const { showToast } = useToast();
   const [title, setTitle] = useState(todo.title);
   const [notes, setNotes] = useState(todo.notes);
   const [priority, setPriority] = useState<Priority>(todo.priority);
@@ -52,9 +54,12 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
     }
   }
 
+  // Shared by the header "Save" button and the unsaved-changes modal's "Save". The toast lives in
+  // ToastProvider (not here) because this component unmounts as soon as onClose runs.
   function handleSaveAndClose() {
     commitChanges();
     setShowConfirmClose(false);
+    showToast("Changes saved");
     onClose();
   }
 
@@ -98,7 +103,7 @@ export default function TodoDetail({ todo, onClose }: TodoDetailProps) {
               className="flex-1 text-xl font-semibold text-slate-100 outline-none border-b border-transparent focus:border-slate-500 pb-1 transition-colors"
             />
             <button
-              onClick={commitChanges}
+              onClick={handleSaveAndClose}
               disabled={!isDirty}
               className="shrink-0 text-xs bg-indigo-500 text-white rounded-md px-3 py-1.5 hover:bg-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
