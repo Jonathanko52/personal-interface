@@ -16,12 +16,12 @@ import { useJobCounts } from "@/app/lib/useJobCounts";
 import { useJobStack } from "@/app/lib/useJobStack";
 import { useStackSort } from "@/app/lib/useStackSort";
 import { checkDuplicate, saveJob } from "@/app/lib/jobSave";
+import { useToast } from "@/app/lib/ToastContext";
 import JobFields from "@/app/components/JobFields";
 import JobIdentityFields from "@/app/components/JobIdentityFields";
 import StackedJobRow from "@/app/components/StackedJobRow";
 import StackSortBar from "@/app/components/StackSortBar";
 import StackedJobDetail from "@/app/components/StackedJobDetail";
-import Toast from "@/app/components/Toast";
 import ConfirmDialog from "@/app/components/ConfirmDialog";
 
 export default function NewJobPage() {
@@ -49,13 +49,7 @@ export default function NewJobPage() {
   // Looked up by id each render (like useSelectedTodo) so an item removed while open — e.g. by
   // "Save all" — simply resolves to null and the normal layout returns.
   const openItem = stack.find((item) => item.id === openId) ?? null;
-  // The id changes on every popup so <Toast key=...> remounts and restarts its 5-second timer,
-  // even when the same message repeats back to back.
-  const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
-
-  function showToast(message: string) {
-    setToast((prev) => ({ id: (prev?.id ?? 0) + 1, message }));
-  }
+  const { showToast } = useToast();
 
   const isValid = Boolean(companyName.trim() && jobPosting.trim() && location.trim());
 
@@ -338,12 +332,5 @@ export default function NewJobPage() {
     </div>
   );
 
-  // One Toast in a fixed slot after the view, so it isn't remounted (restarting its timer)
-  // when the page swaps between the list layout and the detail editor.
-  return (
-    <>
-      {detailView ?? listView}
-      {toast && <Toast key={toast.id} message={toast.message} onDismiss={() => setToast(null)} />}
-    </>
-  );
+  return detailView ?? listView;
 }
