@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, ReactNode } from "react";
 import Toast from "@/app/components/Toast";
 
 interface ToastContextValue {
@@ -20,8 +20,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToast((prev) => ({ id: (prev?.id ?? 0) + 1, message }));
   }, []);
 
+  // Stable across toast state changes, so useToast() consumers don't re-render on every popup.
+  const value = useMemo<ToastContextValue>(() => ({ showToast }), [showToast]);
+
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={value}>
       {children}
       {toast && <Toast key={toast.id} message={toast.message} onDismiss={() => setToast(null)} />}
     </ToastContext.Provider>
