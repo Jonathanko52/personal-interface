@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSheetsClient, sheetsErrorResponse } from "@/app/lib/googleSheets";
 import { DEFAULT_JOB_STATUS, isJobStatus } from "@/app/lib/jobStatus";
+import { JOB_SHEET, JOB_COLUMNS, JOB_LAST_COLUMN, colIndex } from "@/app/lib/jobColumns";
 
 const LINK_FORMULA_RE = /^=HYPERLINK\("([^"]*)"/;
 
@@ -8,7 +9,10 @@ export async function GET() {
   try {
     const { sheets, spreadsheetId } = getSheetsClient();
 
-    const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: "Jobs!A:J" });
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${JOB_SHEET}!A:${JOB_LAST_COLUMN}`,
+    });
     const rows = res.data.values ?? [];
     const dataRowCount = Math.max(0, rows.length - 1); // rows.length includes the header row
 
@@ -16,7 +20,7 @@ export async function GET() {
     if (dataRowCount > 0) {
       const linkRes = await sheets.spreadsheets.values.get({
         spreadsheetId,
-        range: `Jobs!F2:F${dataRowCount + 1}`,
+        range: `${JOB_SHEET}!${JOB_COLUMNS.postingLink}2:${JOB_COLUMNS.postingLink}${dataRowCount + 1}`,
         valueRenderOption: "FORMULA",
       });
       linkFormulas = (linkRes.data.values ?? []).map((r) => r[0] ?? "");
@@ -24,17 +28,17 @@ export async function GET() {
 
     const jobs = rows.slice(1).map((row, i) => {
       const match = LINK_FORMULA_RE.exec(linkFormulas[i] ?? "");
-      const rawStatus = row[8];
-      const rawCategories: string = row[9] ?? "";
+      const rawStatus = row[colIndex("status")];
+      const rawCategories: string = row[colIndex("categories")] ?? "";
       return {
         row: i + 2, // 1-based sheet row; row 1 is the header, row 2 is the first data row
-        company: row[1] ?? "",
-        role: row[2] ?? "",
-        dateApplied: row[3] ?? "",
-        location: row[4] ?? "",
+        company: row[colIndex("company")] ?? "",
+        role: row[colIndex("role")] ?? "",
+        dateApplied: row[colIndex("dateApplied")] ?? "",
+        location: row[colIndex("location")] ?? "",
         postingLink: match ? match[1] : "",
-        applyType: row[6] ?? "",
-        jobType: row[7] ?? "",
+        applyType: row[colIndex("applyType")] ?? "",
+        jobType: row[colIndex("jobType")] ?? "",
         status: isJobStatus(rawStatus) ? rawStatus : DEFAULT_JOB_STATUS,
         categories: rawCategories
           ? rawCategories.split(",").map((c) => c.trim()).filter(Boolean)
