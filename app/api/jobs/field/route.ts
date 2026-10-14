@@ -1,16 +1,9 @@
 import { NextResponse } from "next/server";
 import { parseRow, updateSheetCell, sheetsErrorResponse, sanitizeForSheets } from "@/app/lib/googleSheets";
 import { isApplyType, isJobTypeLabel } from "@/app/lib/jobFields";
+import { JOB_COLUMNS, JobColumnField } from "@/app/lib/jobColumns";
 
-type EditableField = "applyType" | "jobType" | "company" | "role" | "location";
-
-const FIELD_COLUMNS: Record<EditableField, string> = {
-  applyType: "G",
-  jobType: "H",
-  company: "B",
-  role: "C",
-  location: "E",
-};
+type EditableField = Extract<JobColumnField, "applyType" | "jobType" | "company" | "role" | "location">;
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
@@ -35,7 +28,7 @@ export async function PATCH(req: Request) {
   if (row === null) {
     return NextResponse.json({ error: "Missing or invalid row" }, { status: 400 });
   }
-  if (typeof field !== "string" || !(field in FIELD_COLUMNS)) {
+  if (typeof field !== "string" || !(field in FIELD_VALIDATORS)) {
     return NextResponse.json({ error: "Missing or invalid field" }, { status: 400 });
   }
   const typedField = field as EditableField;
@@ -43,7 +36,7 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Missing or invalid value" }, { status: 400 });
   }
 
-  const column = FIELD_COLUMNS[typedField];
+  const column = JOB_COLUMNS[typedField];
   const writeValue = FREE_TEXT_FIELDS.has(typedField) ? sanitizeForSheets((value as string).trim()) : value;
 
   try {
