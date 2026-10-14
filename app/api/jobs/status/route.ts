@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { parseRow, updateSheetCell, sheetsErrorResponse } from "@/app/lib/googleSheets";
 import { isJobStatus } from "@/app/lib/jobStatus";
+import { JOB_COLUMNS } from "@/app/lib/jobColumns";
 
 export async function PATCH(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -15,7 +16,7 @@ export async function PATCH(req: Request) {
   }
 
   try {
-    await updateSheetCell("I", row, status);
+    await updateSheetCell(JOB_COLUMNS.status, row, status);
     return NextResponse.json({ row, status });
   } catch (err) {
     return sheetsErrorResponse("update status in Sheets", err);
