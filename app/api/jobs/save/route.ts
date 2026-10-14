@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSheetsClient, sheetsErrorResponse, sanitizeForSheets } from "@/app/lib/googleSheets";
 import { getCurrentDateMMDDYY } from "@/app/lib/sheetDate";
 import { DEFAULT_JOB_STATUS } from "@/app/lib/jobStatus";
+import { JOB_SHEET, JOB_LAST_COLUMN, JobColumnField, colIndex } from "@/app/lib/jobColumns";
 import {
   ApplyTypeCode,
   JobTypeCode,
@@ -58,19 +59,25 @@ export async function POST(req: Request) {
   const safePostingLink = trimmedPostingLink.replace(/"/g, "");
   const postingLinkCell = trimmedPostingLink ? `=HYPERLINK("${safePostingLink}", "Link")` : "";
 
-  const spreadSheetArray = [
-    dataOne.source ?? DEFAULT_JOB_SOURCE,
-    sanitizeForSheets(dataOne.companyName),
-    sanitizeForSheets(dataOne.jobPosting),
-    getCurrentDateMMDDYY(),
-    sanitizeForSheets(dataOne.location),
-    postingLinkCell,
-    APPLY_TYPE_LABELS[dataOne.applyType],
-    JOB_TYPE_LABELS[dataOne.jobType],
-    DEFAULT_JOB_STATUS,
-    dataOne.categories.join(", "),
-    dataOne.matchScore ?? "",
-  ];
+  // Keyed by field (the Record type makes leaving one out a compile error), then placed at each
+  // field's column index, so the written order always follows JOB_COLUMNS.
+  const cells: Record<JobColumnField, string | number> = {
+    source: dataOne.source ?? DEFAULT_JOB_SOURCE,
+    company: sanitizeForSheets(dataOne.companyName),
+    role: sanitizeForSheets(dataOne.jobPosting),
+    dateApplied: getCurrentDateMMDDYY(),
+    location: sanitizeForSheets(dataOne.location),
+    postingLink: postingLinkCell,
+    applyType: APPLY_TYPE_LABELS[dataOne.applyType],
+    jobType: JOB_TYPE_LABELS[dataOne.jobType],
+    status: DEFAULT_JOB_STATUS,
+    categories: dataOne.categories.join(", "),
+    matchScore: dataOne.matchScore ?? "",
+  };
+  const spreadSheetArray: (string | number)[] = [];
+  for (const field of Object.keys(cells) as JobColumnField[]) {
+    spreadSheetArray[colIndex(field)] = cells[field];
+  }
 
   try {
     const { sheets, spreadsheetId } = getSheetsClient();
@@ -81,7 +88,7 @@ export async function POST(req: Request) {
       spreadsheetId,
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
-      range: "Jobs!A:K",
+      range: `${JOB_SHEET}!A:${JOB_LAST_COLUMN}`,
       requestBody: { values: [spreadSheetArray] },
     });
 
