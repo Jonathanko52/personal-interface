@@ -95,21 +95,6 @@ export default function NewJobPage() {
     }
   }
 
-  function handleEditStackItem(id: string) {
-    const item = stack.find((s) => s.id === id);
-    if (!item) return;
-    setCompanyName(item.companyName);
-    setJobPosting(item.jobPosting);
-    setLocation(item.location);
-    setPostingLink(item.postingLink);
-    setApplyType(item.applyType);
-    setJobType(item.jobType);
-    setSource(item.source);
-    setCategories(item.categories);
-    setMatchScore(item.matchScore === null ? "" : String(item.matchScore));
-    removeFromStack(id);
-  }
-
   function handleAddToStack() {
     if (!isValid) return;
     addToStack({
@@ -289,7 +274,6 @@ export default function NewJobPage() {
                   item={item}
                   skipped={skippedIds.has(item.id)}
                   onRemove={() => removeFromStack(item.id)}
-                  onEdit={() => handleEditStackItem(item.id)}
                   onOpen={() => setOpenId(item.id)}
                   onSaved={() => {
                     removeFromStack(item.id);
