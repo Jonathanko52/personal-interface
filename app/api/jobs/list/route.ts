@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSheetsClient, sheetsErrorResponse } from "@/app/lib/googleSheets";
 import { DEFAULT_JOB_STATUS, isJobStatus } from "@/app/lib/jobStatus";
+import { parseMatchScore } from "@/app/lib/jobFields";
 import { JOB_SHEET, JOB_COLUMNS, JOB_LAST_COLUMN, colIndex } from "@/app/lib/jobColumns";
 
 const LINK_FORMULA_RE = /^=HYPERLINK\("([^"]*)"/;
@@ -43,6 +44,9 @@ export async function GET() {
         categories: rawCategories
           ? rawCategories.split(",").map((c) => c.trim()).filter(Boolean)
           : [],
+        source: row[colIndex("source")] ?? "",
+        // Sheets returns cell text, so parse here and send the client a number (null if blank).
+        matchScore: parseMatchScore(String(row[colIndex("matchScore")] ?? "")),
       };
     });
 
