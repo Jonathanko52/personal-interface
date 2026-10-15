@@ -21,6 +21,8 @@ interface ApplicationRow {
   jobType: JobTypeLabel;
   status: JobStatus;
   categories: string[];
+  source: string;
+  matchScore: number | null;
 }
 
 type SortField =
@@ -30,7 +32,9 @@ type SortField =
   | "dateApplied"
   | "applyType"
   | "jobType"
-  | "status";
+  | "source"
+  | "status"
+  | "matchScore";
 type SortDirection = "asc" | "desc";
 type DateFilter = "all" | "week" | "month" | "year";
 type EntryLimit = 5 | 10 | 15 | 25 | 50;
@@ -142,7 +146,13 @@ export default function ApplicationsPage() {
     if (sortField) {
       filteredItems.sort((a, b) => {
         let cmp: number;
-        if (sortField === "dateApplied") {
+        if (sortField === "matchScore") {
+          // Blank scores stay last in both directions, so the direction flip below skips them.
+          if (a.matchScore === null || b.matchScore === null) {
+            return (a.matchScore === null ? 1 : 0) - (b.matchScore === null ? 1 : 0);
+          }
+          cmp = a.matchScore - b.matchScore;
+        } else if (sortField === "dateApplied") {
           const da = parseSheetDate(a.dateApplied);
           const db = parseSheetDate(b.dateApplied);
           cmp = (da?.getTime() ?? 0) - (db?.getTime() ?? 0);
@@ -378,6 +388,12 @@ export default function ApplicationsPage() {
                 <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Category
                 </th>
+                <SortableHeader
+                  label="Source"
+                  active={sortField === "source"}
+                  direction={sortDirection}
+                  onClick={() => handleSort("source")}
+                />
                 <th className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2">
                   Posting
                 </th>
@@ -386,6 +402,12 @@ export default function ApplicationsPage() {
                   active={sortField === "status"}
                   direction={sortDirection}
                   onClick={() => handleSort("status")}
+                />
+                <SortableHeader
+                  label="Match"
+                  active={sortField === "matchScore"}
+                  direction={sortDirection}
+                  onClick={() => handleSort("matchScore")}
                 />
               </tr>
             </thead>
@@ -491,6 +513,9 @@ export default function ApplicationsPage() {
                       <span className="text-slate-500">—</span>
                     )}
                   </td>
+                  <td className="px-3 py-2 text-slate-400">
+                    {job.source || <span className="text-slate-500">—</span>}
+                  </td>
                   <td className="px-3 py-2">
                     {job.postingLink ? (
                       <a
@@ -518,6 +543,9 @@ export default function ApplicationsPage() {
                         </option>
                       ))}
                     </select>
+                  </td>
+                  <td className="px-3 py-2 text-slate-400">
+                    {job.matchScore ?? <span className="text-slate-500">—</span>}
                   </td>
                 </tr>
               ))}
