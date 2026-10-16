@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ApplyTypeCode,
   JobTypeCode,
   JobCategory,
   JobSource,
   DEFAULT_JOB_SOURCE,
+  isJobSource,
   parseMatchScore,
   toggleCategoryInArray,
   suggestCategories,
@@ -50,8 +52,28 @@ export default function NewJobPage() {
   // "Save all" — simply resolves to null and the normal layout returns.
   const openItem = stack.find((item) => item.id === openId) ?? null;
   const { showToast } = useToast();
+  const router = useRouter();
 
   const isValid = Boolean(companyName.trim() && jobPosting.trim() && location.trim());
+
+  // Pre-fill from a ?company=…&role=… link, as opened by bookmarklets/indeed.js (Part 85). Only
+  // fills the form, the same as a scrape, so the entry is reviewed before "Add to stack". The
+  // params are then cleared so a refresh doesn't re-apply them over later edits.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const role = params.get("role") ?? "";
+    const company = params.get("company") ?? "";
+    if (!role && !company) return;
+    const paramSource = params.get("source");
+    setCompanyName(company);
+    setJobPosting(role);
+    setLocation(params.get("location") ?? "");
+    setPostingLink(params.get("link") ?? "");
+    setSource(isJobSource(paramSource) ? paramSource : DEFAULT_JOB_SOURCE);
+    setCategories(suggestCategories(role));
+    setJobType(suggestJobType(role));
+    router.replace("/jobs/new");
+  }, [router]);
 
   function toggleCategory(category: JobCategory) {
     setCategories((prev) => toggleCategoryInArray(prev, category));

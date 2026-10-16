@@ -1,10 +1,17 @@
 import { toDateString } from "./date";
 import type { Todo } from "./DataContext";
 
+// The one place that decides whether a repeat schedule lands on a given day. Currently
+// weekday-based; a future schedule type ("every N days", monthly) only needs to change this.
+export function occursOn(repeatDays: number[], dateStr: string): boolean {
+  return repeatDays.includes(new Date(dateStr + "T12:00:00").getDay());
+}
+
 export function nextOccurrenceOnOrAfter(fromDate: string, repeatDays: number[]): string {
   const date = new Date(fromDate + "T12:00:00");
   for (let i = 0; i < 7; i++) {
-    if (repeatDays.includes(date.getDay())) return toDateString(date);
+    const dateStr = toDateString(date);
+    if (occursOn(repeatDays, dateStr)) return dateStr;
     date.setDate(date.getDate() + 1);
   }
   return fromDate;
