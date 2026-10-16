@@ -6,6 +6,7 @@ import { useData } from "@/app/lib/DataContext";
 import { useSelectedTodo } from "@/app/lib/useSelectedTodo";
 import { priorityDotColors } from "@/app/lib/priority";
 import { overrideCompletedFromLog } from "@/app/lib/completionStats";
+import { occursOn } from "@/app/lib/rollover";
 import TodoDetail from "@/app/components/TodoDetail";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -41,10 +42,9 @@ export default function MonthPage() {
   }
 
   function todosForDay(day: number) {
-    const weekday = new Date(year, month, day).getDay();
     const dateStr = dateStrFor(day);
     return overrideCompletedFromLog(
-      todos.filter((t) => t.dueDate === dateStr || t.repeatDays?.includes(weekday)),
+      todos.filter((t) => t.dueDate === dateStr || occursOn(t.repeatDays ?? [], dateStr)),
       dateStr,
       completions,
       !isToday(day)
