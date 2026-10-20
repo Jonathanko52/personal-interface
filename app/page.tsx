@@ -8,7 +8,7 @@ import { useData } from "./lib/DataContext";
 import { useSortFilter } from "./lib/useSortFilter";
 import { useSelectedTodo } from "./lib/useSelectedTodo";
 import { today as todayStr, toDateString } from "./lib/date";
-import { completedTasks, uncompletedTasksToday, formatTasksSummaryBlock, overrideCompletedFromLog, CompletionRange } from "./lib/completionStats";
+import { completedTasks, uncompletedTasksOn, formatTasksSummaryBlock, overrideCompletedFromLog, CompletionRange } from "./lib/completionStats";
 import { getLastAcknowledgedDate, markDayComplete } from "./lib/dayComplete";
 import { resetJobCounts } from "./lib/jobCounts";
 import { occursOn } from "./lib/rollover";
@@ -44,14 +44,22 @@ export default function Home() {
   const [refreshed, triggerRefreshed] = useBriefFlag();
   const [dayMarked, triggerDayMarked] = useBriefFlag();
 
+  const todayValue = todayStr();
+  const isViewingToday = selectedDate === todayValue;
+
+  // Built for the day on screen, not the real date: after midnight the view stays on the
+  // unacknowledged day (Part 60) while rollover has already reset the live `completed` fields,
+  // so a past day's repeating todos read their state from the completions log instead.
   const completedBlock = useMemo(() => {
-    const completed = completedTasks(completions, todos, completedRange);
-    const uncompleted = uncompletedTasksToday(todos);
+    const dayTodos = overrideCompletedFromLog(todos, selectedDate, completions, !isViewingToday);
+    const referenceDate = new Date(selectedDate + "T12:00:00");
+    const completed = completedTasks(completions, dayTodos, completedRange, referenceDate);
+    const uncompleted = uncompletedTasksOn(dayTodos, referenceDate);
     return formatTasksSummaryBlock(completed, uncompleted, completedRange);
-  }, [completions, todos, completedRange]);
+  }, [completions, todos, completedRange, selectedDate, isViewingToday]);
 
   function handleRefresh() {
-    // The block is already a useMemo keyed on [completions, todos, completedRange], so it
+    // The block is already a useMemo keyed on [completions, todos, completedRange, selectedDate], so it
     // recomputes automatically whenever a todo is checked/unchecked — this button doesn't
     // change that. It's a visible confirmation that what's shown is current, not a fix for
     // staleness (none is known); same brief-label-flip feedback pattern as Copy below.
@@ -110,16 +118,16 @@ export default function Home() {
     triggerDayMarked();
   }
 
-  const todayValue = todayStr();
-  const isViewingToday = selectedDate === todayValue;
-
-  // Daily Tasks: unchanged from before — repeating todos, day-scoped exactly as today,
-  // including the past-day history override (Part 40) when browsing via the navigator.
+  // Daily Tasks: repeating todos, day-scoped, with the past-day history override (Part 40)
+  // when not viewing today.
   const dailyTodosForDate = useMemo(
     () =>
       overrideCompletedFromLog(
         todos.filter((t) => {
           if (!t.repeatDays?.length) return false;
+          // Any other day: everything scheduled (or due) that day, independent of the live
+          // fields, which rollover may already have moved on (e.g. a dueDate advanced at midnight).
+          if (!isViewingToday) return occursOn(t.repeatDays, selectedDate) || t.dueDate === selectedDate;
           // No due date: shown only on its scheduled days, never carried over to an unscheduled one.
           if (t.dueDate === null) return occursOn(t.repeatDays, selectedDate);
           return (
