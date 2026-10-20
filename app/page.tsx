@@ -11,6 +11,7 @@ import { today as todayStr, toDateString } from "./lib/date";
 import { completedTasks, uncompletedTasksToday, formatTasksSummaryBlock, overrideCompletedFromLog, CompletionRange } from "./lib/completionStats";
 import { getLastAcknowledgedDate, markDayComplete } from "./lib/dayComplete";
 import { resetJobCounts } from "./lib/jobCounts";
+import { occursOn } from "./lib/rollover";
 
 // A boolean that flips true then auto-resets after `duration` — the "Copied!"/"Refreshed!"/
 // "Day marked ✓" feedback pattern, previously hand-rolled three times in this same file.
@@ -117,14 +118,16 @@ export default function Home() {
   const dailyTodosForDate = useMemo(
     () =>
       overrideCompletedFromLog(
-        todos.filter(
-          (t) =>
-            !!t.repeatDays?.length &&
-            (t.dueDate === null ||
-              t.dueDate === selectedDate ||
-              (isViewingToday && !t.completed) ||
-              (isViewingToday && t.lastCompletedDate === todayValue))
-        ),
+        todos.filter((t) => {
+          if (!t.repeatDays?.length) return false;
+          // No due date: shown only on its scheduled days, never carried over to an unscheduled one.
+          if (t.dueDate === null) return occursOn(t.repeatDays, selectedDate);
+          return (
+            t.dueDate === selectedDate ||
+            (isViewingToday && !t.completed) ||
+            (isViewingToday && t.lastCompletedDate === todayValue)
+          );
+        }),
         selectedDate,
         completions,
         !isViewingToday

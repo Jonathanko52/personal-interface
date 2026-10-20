@@ -2,6 +2,7 @@ import { Completion, Todo } from "./DataContext";
 import { toDateString } from "./date";
 import { Weight } from "./weight";
 import { isDailyTodo } from "./groupTodos";
+import { occursOn } from "./rollover";
 
 export function startOfWeek(d: Date): Date {
   const date = new Date(d);
@@ -77,7 +78,9 @@ export function completedTasks(
   const cutoff = range === "day" ? today : toDateString(startOfWeek(referenceDate));
   const todoById = new Map(todos.map((t) => [t.id, t]));
   return completions
-    .filter((c) => c.date >= cutoff)
+    // Upper bound too: a referenceDate in the past (an earlier day still being viewed) must
+    // not pull in completions logged after it.
+    .filter((c) => c.date >= cutoff && c.date <= today)
     .filter((c) => {
       // A completion logged today is only still valid if the todo is still
       // currently completed — if it's been unchecked since, this is a stale
@@ -102,10 +105,16 @@ export function completedTasks(
 // Scoped to the current day regardless of the completed-tasks day/week toggle:
 // no due date (indefinite, always "on your plate"), due today, or overdue —
 // excludes todos due in the future, since those aren't relevant yet.
-export function uncompletedTasksToday(todos: Todo[], referenceDate: Date = new Date()): WeightedTask[] {
-  const today = toDateString(referenceDate);
+// A no-due-date repeating todo only counts on its scheduled days (matching Daily Tasks, Part 88);
+// everything else counts when it has no due date or is due on or before the day.
+export function uncompletedTasksOn(todos: Todo[], referenceDate: Date = new Date()): WeightedTask[] {
+  const day = toDateString(referenceDate);
   return todos
-    .filter((t) => !t.completed && (t.dueDate === null || t.dueDate <= today))
+    .filter((t) => {
+      if (t.completed) return false;
+      if (t.dueDate === null && t.repeatDays?.length) return occursOn(t.repeatDays, day);
+      return t.dueDate === null || t.dueDate <= day;
+    })
     .map((t) => ({ title: t.title, weight: t.weight, isDaily: isDailyTodo(t) }));
 }
 

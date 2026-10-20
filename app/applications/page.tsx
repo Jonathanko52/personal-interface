@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { JOB_STATUSES, JobStatus } from "@/app/lib/jobStatus";
-import { JOB_TYPES, APPLY_TYPES, JOB_CATEGORIES, JobTypeLabel, ApplyType } from "@/app/lib/jobFields";
+import {
+  JOB_TYPES,
+  APPLY_TYPES,
+  JOB_CATEGORIES,
+  JobTypeLabel,
+  ApplyType,
+} from "@/app/lib/jobFields";
 import { parseSheetDate } from "@/app/lib/sheetDate";
 import {
   startOfWeek,
@@ -69,12 +75,23 @@ const DATE_FILTER_OPTIONS: { value: DateFilter; label: string }[] = [
   { value: "week", label: "Past week" },
   { value: "month", label: "Past month" },
   { value: "year", label: "Past year" },
+  x,
 ];
 
 const ENTRY_LIMIT_OPTIONS: EntryLimit[] = [5, 10, 15, 25, 50];
 
-type EditableField = "applyType" | "jobType" | "status" | "company" | "role" | "location";
-const FREE_TEXT_FIELDS = new Set<EditableField>(["company", "role", "location"]);
+type EditableField =
+  | "applyType"
+  | "jobType"
+  | "status"
+  | "company"
+  | "role"
+  | "location";
+const FREE_TEXT_FIELDS = new Set<EditableField>([
+  "company",
+  "role",
+  "location",
+]);
 
 function toggleFilterValue(
   current: Set<string>,
@@ -140,7 +157,8 @@ export default function ApplicationsPage() {
         (statusFilter.size === 0 || statusFilter.has(job.status)) &&
         (jobTypeFilter.size === 0 || jobTypeFilter.has(job.jobType)) &&
         (applyTypeFilter.size === 0 || applyTypeFilter.has(job.applyType)) &&
-        (categoryFilter.size === 0 || job.categories.some((c) => categoryFilter.has(c))),
+        (categoryFilter.size === 0 ||
+          job.categories.some((c) => categoryFilter.has(c))),
     );
 
     if (sortField) {
@@ -149,7 +167,9 @@ export default function ApplicationsPage() {
         if (sortField === "matchScore") {
           // Blank scores stay last in both directions, so the direction flip below skips them.
           if (a.matchScore === null || b.matchScore === null) {
-            return (a.matchScore === null ? 1 : 0) - (b.matchScore === null ? 1 : 0);
+            return (
+              (a.matchScore === null ? 1 : 0) - (b.matchScore === null ? 1 : 0)
+            );
           }
           cmp = a.matchScore - b.matchScore;
         } else if (sortField === "dateApplied") {
@@ -214,7 +234,8 @@ export default function ApplicationsPage() {
     const prevJobs = jobs;
     const cellKey = `${row}:${field}`;
     setJobs(
-      (cur) => cur?.map((j) => (j.row === row ? { ...j, [field]: value } : j)) ?? cur,
+      (cur) =>
+        cur?.map((j) => (j.row === row ? { ...j, [field]: value } : j)) ?? cur,
     );
     setSavingCells((prev) => new Set(prev).add(cellKey));
     try {
@@ -246,10 +267,30 @@ export default function ApplicationsPage() {
     selected: Set<string>;
     setSelected: (next: Set<string>) => void;
   }[] = [
-    { label: "Status", options: JOB_STATUSES, selected: statusFilter, setSelected: setStatusFilter },
-    { label: "Job type", options: JOB_TYPES, selected: jobTypeFilter, setSelected: setJobTypeFilter },
-    { label: "Apply type", options: APPLY_TYPES, selected: applyTypeFilter, setSelected: setApplyTypeFilter },
-    { label: "Category", options: JOB_CATEGORIES, selected: categoryFilter, setSelected: setCategoryFilter },
+    {
+      label: "Status",
+      options: JOB_STATUSES,
+      selected: statusFilter,
+      setSelected: setStatusFilter,
+    },
+    {
+      label: "Job type",
+      options: JOB_TYPES,
+      selected: jobTypeFilter,
+      setSelected: setJobTypeFilter,
+    },
+    {
+      label: "Apply type",
+      options: APPLY_TYPES,
+      selected: applyTypeFilter,
+      setSelected: setApplyTypeFilter,
+    },
+    {
+      label: "Category",
+      options: JOB_CATEGORIES,
+      selected: categoryFilter,
+      setSelected: setCategoryFilter,
+    },
   ];
 
   return (
@@ -314,7 +355,11 @@ export default function ApplicationsPage() {
                       type="checkbox"
                       checked={group.selected.has(option)}
                       onChange={() =>
-                        toggleFilterValue(group.selected, option, group.setSelected)
+                        toggleFilterValue(
+                          group.selected,
+                          option,
+                          group.setSelected,
+                        )
                       }
                       className="accent-slate-500"
                     />
@@ -545,7 +590,9 @@ export default function ApplicationsPage() {
                     </select>
                   </td>
                   <td className="px-3 py-2 text-slate-400">
-                    {job.matchScore ?? <span className="text-slate-500">—</span>}
+                    {job.matchScore ?? (
+                      <span className="text-slate-500">—</span>
+                    )}
                   </td>
                 </tr>
               ))}
