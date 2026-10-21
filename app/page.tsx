@@ -9,7 +9,8 @@ import { useSortFilter } from "./lib/useSortFilter";
 import { useSelectedTodo } from "./lib/useSelectedTodo";
 import { today as todayStr, toDateString } from "./lib/date";
 import { completedTasks, uncompletedTasksOn, formatTasksSummaryBlock, overrideCompletedFromLog, CompletionRange } from "./lib/completionStats";
-import { getLastAcknowledgedDate, markDayComplete } from "./lib/dayComplete";
+import { firstUnfinishedDay, markDayComplete } from "./lib/dayComplete";
+import { useToast } from "./lib/ToastContext";
 import { resetJobCounts } from "./lib/jobCounts";
 import { occursOn } from "./lib/rollover";
 
@@ -43,12 +44,13 @@ export default function Home() {
   const [copied, triggerCopied] = useBriefFlag();
   const [refreshed, triggerRefreshed] = useBriefFlag();
   const [dayMarked, triggerDayMarked] = useBriefFlag();
+  const { showWarning, dismissWarning } = useToast();
 
   const todayValue = todayStr();
   const isViewingToday = selectedDate === todayValue;
 
-  // Built for the day on screen, not the real date: after midnight the view stays on the
-  // unacknowledged day (Part 60) while rollover has already reset the live `completed` fields,
+  // Built for the day on screen, not the real date: after midnight an open page stays on the
+  // previous day (it never advances on its own) while rollover has already reset the live `completed` fields,
   // so a past day's repeating todos read their state from the completions log instead.
   const completedBlock = useMemo(() => {
     const dayTodos = overrideCompletedFromLog(todos, selectedDate, completions, !isViewingToday);
@@ -76,18 +78,27 @@ export default function Home() {
     }
   }
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const date = params.get("date");
-    if (date) {
-      setSelectedDate(date);
-      return;
+  function goToDay(day: string) {
+    setSelectedDate(day);
+    router.replace(`/?date=${day}`);
+  }
+
+  // Part 90: rather than opening on an unfinished day, point to it with a persistent warning.
+  function warnAboutUnfinishedDay() {
+    const day = firstUnfinishedDay();
+    if (day) {
+      showWarning(`${dateLabel(day)} wasn't marked complete. Click to go to it.`, () => goToDay(day));
+    } else {
+      dismissWarning();
     }
-    // No explicit ?date= link — fall back to the last acknowledged day (Part 60) instead of
-    // today, so the view stays on an unacknowledged day rather than silently advancing past
-    // it. Nothing to do if unset (first-ever load, or the feature's never been used).
-    const acknowledged = getLastAcknowledgedDate();
-    if (acknowledged) setSelectedDate(acknowledged);
+  }
+
+  // Opens on today (the initial state) unless a ?date= link says otherwise. The page never
+  // changes day on its own at midnight; only navigation moves selectedDate.
+  useEffect(() => {
+    const date = new URLSearchParams(window.location.search).get("date");
+    if (date) setSelectedDate(date);
+    warnAboutUnfinishedDay();
   }, []);
 
   function prevDay() {
@@ -111,11 +122,13 @@ export default function Home() {
     router.replace("/");
   }
 
+  // Marks the day on screen (which, after midnight, may still be yesterday), then returns to today.
   function handleDayComplete() {
-    setSelectedDate(markDayComplete());
+    markDayComplete(selectedDate);
     resetJobCounts();
-    router.replace("/");
+    goToday();
     triggerDayMarked();
+    warnAboutUnfinishedDay();
   }
 
   // Daily Tasks: repeating todos, day-scoped, with the past-day history override (Part 40)
@@ -244,7 +257,8 @@ export default function Home() {
             </button>
             <button
               onClick={handleDayComplete}
-              className="self-start text-xs bg-indigo-600 text-white rounded-md px-3 py-1.5 hover:bg-indigo-700 transition-colors"
+              disabled={selectedDate > todayValue} // marking a future day would hide real gaps
+              className="self-start text-xs bg-indigo-600 text-white rounded-md px-3 py-1.5 hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {dayMarked ? "Day marked ✓" : "Day Complete"}
             </button>
