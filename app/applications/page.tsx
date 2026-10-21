@@ -75,7 +75,6 @@ const DATE_FILTER_OPTIONS: { value: DateFilter; label: string }[] = [
   { value: "week", label: "Past week" },
   { value: "month", label: "Past month" },
   { value: "year", label: "Past year" },
-  x,
 ];
 
 const ENTRY_LIMIT_OPTIONS: EntryLimit[] = [5, 10, 15, 25, 50];
