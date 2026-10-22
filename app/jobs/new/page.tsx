@@ -42,8 +42,13 @@ export default function NewJobPage() {
   const [matchScore, setMatchScore] = useState("");
 
   const { counts, increment, reset } = useJobCounts();
-  const { stack, addToStack, removeFromStack, updateStackItem, clearStack } = useJobStack();
-  const { result: sortedStack, sort: stackSort, setSort: setStackSort } = useStackSort(stack);
+  const { stack, addToStack, removeFromStack, updateStackItem, clearStack } =
+    useJobStack();
+  const {
+    result: sortedStack,
+    sort: stackSort,
+    setSort: setStackSort,
+  } = useStackSort(stack);
   const [savingAll, setSavingAll] = useState(false);
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
   const [openId, setOpenId] = useState<string | null>(null);
@@ -54,7 +59,9 @@ export default function NewJobPage() {
   const { showToast } = useToast();
   const router = useRouter();
 
-  const isValid = Boolean(companyName.trim() && jobPosting.trim() && location.trim());
+  const isValid = Boolean(
+    companyName.trim() && jobPosting.trim() && location.trim(),
+  );
 
   // Pre-fill from a ?company=…&role=… link, as opened by bookmarklets/indeed.js (Part 85). Only
   // fills the form, the same as a scrape, so the entry is reviewed before "Add to stack". The
@@ -103,15 +110,20 @@ export default function NewJobPage() {
         body: JSON.stringify({ value: url.trim() }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || `Scrape failed (${res.status})`);
+      if (!res.ok)
+        throw new Error(data.error || `Scrape failed (${res.status})`);
       setCompanyName(data.companyName ?? "");
       setJobPosting(data.jobPosting ?? "");
       setLocation(data.location ?? "");
       setPostingLink(data.postingLink ?? "");
-      setCategories(suggestCategories(`${data.jobPosting ?? ""} ${data.description ?? ""}`));
+      setCategories(
+        suggestCategories(`${data.jobPosting ?? ""} ${data.description ?? ""}`),
+      );
       setJobType(suggestJobType(data.jobPosting ?? ""));
     } catch (err) {
-      setScrapeError(err instanceof Error ? err.message : "Something went wrong.");
+      setScrapeError(
+        err instanceof Error ? err.message : "Something went wrong.",
+      );
     } finally {
       setScraping(false);
     }
@@ -170,7 +182,10 @@ export default function NewJobPage() {
     }
     setSkippedIds(skipped);
     setSavingAll(false);
-    if (savedCount > 0) showToast(`Saved ${savedCount} ${savedCount === 1 ? "job" : "jobs"} to Sheets`);
+    if (savedCount > 0)
+      showToast(
+        `Saved ${savedCount} ${savedCount === 1 ? "job" : "jobs"} to Sheets`,
+      );
   }
 
   const detailView = openItem ? (
@@ -190,13 +205,27 @@ export default function NewJobPage() {
       <h1 className="text-xl font-semibold text-zinc-700 mb-4">Add a job</h1>
 
       <div className="flex items-center gap-4 text-xs text-zinc-500 border-b border-zinc-200 pb-3 mb-6">
-        <span>Count: <span className="text-zinc-700 font-medium">{counts?.total ?? "—"}</span></span>
-        <span>Quick: <span className="text-zinc-700 font-medium">{counts?.quickApply ?? "—"}</span></span>
-        <span>Normal: <span className="text-zinc-700 font-medium">{counts?.normalApply ?? "—"}</span></span>
+        <span>
+          Count:{" "}
+          <span className="text-zinc-700 font-medium">
+            {counts?.total ?? "—"}
+          </span>
+        </span>
+        <span>
+          Quick:{" "}
+          <span className="text-zinc-700 font-medium">
+            {counts?.quickApply ?? "—"}
+          </span>
+        </span>
+        <span>
+          Normal:{" "}
+          <span className="text-zinc-700 font-medium">
+            {counts?.normalApply ?? "—"}
+          </span>
+        </span>
         <button
           onClick={reset}
-          className="ml-auto text-zinc-500 hover:text-zinc-700 transition-colors"
-        >
+          className="ml-auto text-zinc-500 hover:text-zinc-700 transition-colors">
           Reset
         </button>
       </div>
@@ -218,12 +247,13 @@ export default function NewJobPage() {
               <button
                 onClick={handleScrape}
                 disabled={!url.trim() || scraping}
-                className="text-sm bg-indigo-500 text-white rounded-md px-4 py-2 hover:bg-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
+                className="text-sm bg-indigo-500 text-white rounded-md px-4 py-2 hover:bg-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                 {scraping ? "Scraping..." : "Scrape"}
               </button>
             </div>
-            {scrapeError && <p className="text-xs text-red-500">{scrapeError}</p>}
+            {scrapeError && (
+              <p className="text-xs text-red-500">{scrapeError}</p>
+            )}
           </div>
 
           <div className="flex flex-col gap-4">
@@ -243,8 +273,7 @@ export default function NewJobPage() {
             <button
               onClick={handleAddToStack}
               disabled={!isValid}
-              className="self-start text-sm bg-zinc-800 text-white rounded-md px-4 py-2 hover:bg-zinc-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
+              className="self-start text-sm bg-indigo-500 text-white rounded-md px-4 py-2 hover:bg-indigo-6000 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
               Add to stack
             </button>
 
@@ -271,15 +300,13 @@ export default function NewJobPage() {
                 <button
                   onClick={handleSaveAll}
                   disabled={savingAll}
-                  className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1.5 hover:bg-indigo-600 transition-colors disabled:opacity-40"
-                >
+                  className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1.5 hover:bg-indigo-600 transition-colors disabled:opacity-40">
                   {savingAll ? "Saving all..." : "Save all"}
                 </button>
                 <button
                   onClick={() => setShowConfirmClearStack(true)}
                   disabled={savingAll}
-                  className="text-xs text-zinc-400 hover:text-red-500 transition-colors disabled:opacity-40"
-                >
+                  className="text-xs text-zinc-400 hover:text-red-500 transition-colors disabled:opacity-40">
                   Clear all
                 </button>
               </div>
@@ -307,20 +334,24 @@ export default function NewJobPage() {
             </div>
           ) : (
             <p className="text-xs text-zinc-400 border border-dashed border-zinc-200 rounded-md p-3">
-              Nothing staged yet — scrape a URL or fill out the form and add it to the stack.
+              Nothing staged yet — scrape a URL or fill out the form and add it
+              to the stack.
             </p>
           )}
         </div>
       </div>
 
       {showConfirmClearStack && (
-        <ConfirmDialog theme="light" onDismiss={() => setShowConfirmClearStack(false)}>
-          <p className="text-sm text-zinc-700">Delete every staged job? This can&apos;t be undone.</p>
+        <ConfirmDialog
+          theme="light"
+          onDismiss={() => setShowConfirmClearStack(false)}>
+          <p className="text-sm text-zinc-700">
+            Delete every staged job? This can&apos;t be undone.
+          </p>
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setShowConfirmClearStack(false)}
-              className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors px-2 py-1.5"
-            >
+              className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors px-2 py-1.5">
               Cancel
             </button>
             <button
@@ -328,8 +359,7 @@ export default function NewJobPage() {
                 clearStack();
                 setShowConfirmClearStack(false);
               }}
-              className="text-xs bg-red-500 text-white rounded-md px-3 py-1.5 hover:bg-red-600 transition-colors"
-            >
+              className="text-xs bg-red-500 text-white rounded-md px-3 py-1.5 hover:bg-red-600 transition-colors">
               Delete
             </button>
           </div>
