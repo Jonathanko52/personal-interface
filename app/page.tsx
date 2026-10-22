@@ -7,10 +7,10 @@ import TodoListPage from "./components/TodoListPage";
 import { useData } from "./lib/DataContext";
 import { useSortFilter } from "./lib/useSortFilter";
 import { useSelectedTodo } from "./lib/useSelectedTodo";
-import { today as todayStr, toDateString } from "./lib/date";
+import { today as todayStr, toDateString, dateLabel } from "./lib/date";
 import { completedTasks, uncompletedTasksOn, formatTasksSummaryBlock, overrideCompletedFromLog, CompletionRange } from "./lib/completionStats";
-import { firstUnfinishedDay, markDayComplete } from "./lib/dayComplete";
-import { useToast } from "./lib/ToastContext";
+import { markDayComplete } from "./lib/dayComplete";
+import { useUnfinishedDayWarning } from "./lib/useUnfinishedDayWarning";
 import { resetJobCounts } from "./lib/jobCounts";
 import { occursOn } from "./lib/rollover";
 
@@ -25,17 +25,6 @@ function useBriefFlag(duration = 1500): [boolean, () => void] {
   return [active, trigger];
 }
 
-function dateLabel(dateStr: string): string {
-  const today = todayStr();
-  const d = new Date(dateStr + "T12:00:00");
-  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-  const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-  if (dateStr === today) return "Today";
-  if (dateStr === toDateString(tomorrow)) return "Tomorrow";
-  if (dateStr === toDateString(yesterday)) return "Yesterday";
-  return d.toLocaleDateString("default", { weekday: "long", month: "short", day: "numeric" });
-}
-
 export default function Home() {
   const router = useRouter();
   const { todos, completions, clearTodos, resetTodos } = useData();
@@ -44,7 +33,6 @@ export default function Home() {
   const [copied, triggerCopied] = useBriefFlag();
   const [refreshed, triggerRefreshed] = useBriefFlag();
   const [dayMarked, triggerDayMarked] = useBriefFlag();
-  const { showWarning, dismissWarning } = useToast();
 
   const todayValue = todayStr();
   const isViewingToday = selectedDate === todayValue;
@@ -83,22 +71,16 @@ export default function Home() {
     router.replace(`/?date=${day}`);
   }
 
-  // Part 90: rather than opening on an unfinished day, point to it with a persistent warning.
-  function warnAboutUnfinishedDay() {
-    const day = firstUnfinishedDay();
-    if (day) {
-      showWarning(`${dateLabel(day)} wasn't marked complete. Click to go to it.`, () => goToDay(day));
-    } else {
-      dismissWarning();
-    }
-  }
+  // Rather than opening on an unfinished day, point to it with a persistent warning (Part 90),
+  // re-checked whenever the date changes while this page is open (Part 91). This page's own
+  // instance, so clicking it can switch the already-mounted day in place.
+  const recheckUnfinishedDay = useUnfinishedDayWarning(goToDay);
 
   // Opens on today (the initial state) unless a ?date= link says otherwise. The page never
   // changes day on its own at midnight; only navigation moves selectedDate.
   useEffect(() => {
     const date = new URLSearchParams(window.location.search).get("date");
     if (date) setSelectedDate(date);
-    warnAboutUnfinishedDay();
   }, []);
 
   function prevDay() {
@@ -128,7 +110,7 @@ export default function Home() {
     resetJobCounts();
     goToday();
     triggerDayMarked();
-    warnAboutUnfinishedDay();
+    recheckUnfinishedDay();
   }
 
   // Daily Tasks: repeating todos, day-scoped, with the past-day history override (Part 40)
