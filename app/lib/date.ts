@@ -13,3 +13,15 @@ export function toDateString(date: Date): string {
 export function today(): string {
   return toDateString(new Date());
 }
+
+// "Today" / "Tomorrow" / "Yesterday", otherwise e.g. "Monday, Oct 19". Used by the Today page's
+// header and the unfinished-day warning.
+export function dateLabel(dateStr: string): string {
+  const d = new Date(dateStr + "T12:00:00");
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+  if (dateStr === today()) return "Today";
+  if (dateStr === toDateString(tomorrow)) return "Tomorrow";
+  if (dateStr === toDateString(yesterday)) return "Yesterday";
+  return d.toLocaleDateString("default", { weekday: "long", month: "short", day: "numeric" });
+}
