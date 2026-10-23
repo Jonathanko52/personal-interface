@@ -56,6 +56,9 @@ export default function NewJobPage() {
   // Looked up by id each render (like useSelectedTodo) so an item removed while open — e.g. by
   // "Save all" — simply resolves to null and the normal layout returns.
   const openItem = stack.find((item) => item.id === openId) ?? null;
+  const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
+  // Same id-lookup pattern: if the item leaves the stack first (e.g. "Save all"), the dialog closes.
+  const itemToRemove = stack.find((item) => item.id === confirmRemoveId) ?? null;
   const { showToast } = useToast();
   const router = useRouter();
 
@@ -322,7 +325,7 @@ export default function NewJobPage() {
                   key={item.id}
                   item={item}
                   skipped={skippedIds.has(item.id)}
-                  onRemove={() => removeFromStack(item.id)}
+                  onRemove={() => setConfirmRemoveId(item.id)}
                   onOpen={() => setOpenId(item.id)}
                   onSaved={() => {
                     removeFromStack(item.id);
@@ -361,6 +364,32 @@ export default function NewJobPage() {
               }}
               className="text-xs bg-red-500 text-white rounded-md px-3 py-1.5 hover:bg-red-600 transition-colors">
               Delete
+            </button>
+          </div>
+        </ConfirmDialog>
+      )}
+
+      {itemToRemove && (
+        <ConfirmDialog
+          theme="light"
+          onDismiss={() => setConfirmRemoveId(null)}>
+          <p className="text-sm text-zinc-700">
+            Remove {itemToRemove.companyName} — {itemToRemove.jobPosting} from the stack? This
+            can&apos;t be undone.
+          </p>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => setConfirmRemoveId(null)}
+              className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors px-2 py-1.5">
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                removeFromStack(itemToRemove.id);
+                setConfirmRemoveId(null);
+              }}
+              className="text-xs bg-red-500 text-white rounded-md px-3 py-1.5 hover:bg-red-600 transition-colors">
+              Remove
             </button>
           </div>
         </ConfirmDialog>
