@@ -15,7 +15,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useData, Todo as FullTodo } from "@/app/lib/DataContext";
-import { priorityBadgeStyles } from "@/app/lib/priority";
+import { priorityBadgeStyles, priorityRowStyles } from "@/app/lib/priority";
 import { weightBadgeStyles } from "@/app/lib/weight";
 import { today as todayStr } from "@/app/lib/date";
 
@@ -51,9 +51,12 @@ function SortableTodo({
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       onClick={() => toggleTodo(todo.id, date)}
-      className={`group flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 transition-colors ${
-        dragEnabled ? "cursor-grab active:cursor-grabbing" : ""
-      } ${isDragging ? "opacity-50 border-indigo-400 shadow-md" : "hover:border-slate-600"}`}
+      className={`group flex items-center gap-3 border rounded-lg px-4 py-3 transition-colors ${
+        priorityRowStyles[todo.priority]
+      } ${dragEnabled ? "cursor-grab active:cursor-grabbing" : ""} ${
+        // `!` so the drag border beats the priority border regardless of stylesheet order.
+        isDragging ? "opacity-50 border-indigo-400! shadow-md" : ""
+      }`}
       {...attributes}
       {...listeners}
     >
