@@ -1,11 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef, useCallback, useMemo, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from "react";
 import { todos as initialTodos, lists as initialLists, tags as initialTags } from "./data";
 import { today as todayStr } from "./date";
 import { Priority, isPriority, DEFAULT_PRIORITY } from "./priority";
 import { Weight, isWeight } from "./weight";
 import { rolloverTodos } from "./rollover";
+import { useOnDateChange } from "./useOnDateChange";
 import { readJSON, writeJSON } from "./storage";
 
 export interface Todo {
@@ -83,7 +84,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [tags, setTags] = useState<Tag[]>(initialTags);
   const [completions, setCompletions] = useState<Completion[]>([]);
   const [hydrated, setHydrated] = useState(false);
-  const lastCheckedDateRef = useRef<string | null>(null);
 
   useEffect(() => {
     const today = todayStr();
@@ -93,33 +93,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setLists(readJSON("lists", initialLists));
     setTags(readJSON("tags", initialTags));
     setCompletions(readJSON("completions", [] as Completion[]));
-    lastCheckedDateRef.current = today;
     setHydrated(true);
   }, []);
 
-  const checkRollover = useCallback(() => {
-    const current = todayStr();
-    if (lastCheckedDateRef.current === current) return;
-    lastCheckedDateRef.current = current;
-    setTodos((prev) => rolloverTodos(prev, current));
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    function handleVisibility() {
-      if (document.visibilityState === "visible") checkRollover();
-    }
-    document.addEventListener("visibilitychange", handleVisibility);
-    window.addEventListener("focus", checkRollover);
-    window.addEventListener("pageshow", checkRollover);
-    const intervalId = setInterval(checkRollover, 60 * 1000);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibility);
-      window.removeEventListener("focus", checkRollover);
-      window.removeEventListener("pageshow", checkRollover);
-      clearInterval(intervalId);
-    };
-  }, [hydrated, checkRollover]);
+  // Re-run rollover when the day changes in a long-lived tab; the mount load above covers the
+  // first day. Waits for hydration so it never rolls over the placeholder initial state.
+  useOnDateChange((current) => setTodos((prev) => rolloverTodos(prev, current)), hydrated);
 
   usePersistOnChange("todos", todos, hydrated);
   usePersistOnChange("lists", lists, hydrated);
