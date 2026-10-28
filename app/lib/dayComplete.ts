@@ -1,4 +1,4 @@
-import { today as todayStr, toDateString } from "./date";
+import { today as todayStr, addDays } from "./date";
 
 // The latest day marked complete via "Day Complete" (Part 90; Part 60 stored the click date).
 const LAST_ACKNOWLEDGED_DATE_KEY = "lastAcknowledgedDate";
@@ -29,8 +29,6 @@ export function markDayComplete(date: string): string {
 export function firstUnfinishedDay(today: string = todayStr()): string | null {
   const last = getLastAcknowledgedDate();
   if (!last) return null;
-  const d = new Date(last + "T12:00:00");
-  d.setDate(d.getDate() + 1);
-  const next = toDateString(d);
+  const next = addDays(last, 1);
   return next < today ? next : null;
 }
