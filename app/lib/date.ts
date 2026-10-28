@@ -14,6 +14,14 @@ export function today(): string {
   return toDateString(new Date());
 }
 
+// `dateStr` shifted by `n` days (negative goes back). Anchored at noon, like the rest of the
+// app, so a daylight-saving shift can't land it on the wrong day.
+export function addDays(dateStr: string, n: number): string {
+  const d = new Date(dateStr + "T12:00:00");
+  d.setDate(d.getDate() + n);
+  return toDateString(d);
+}
+
 // "Today" / "Tomorrow" / "Yesterday", otherwise e.g. "Monday, Oct 19". Used by the Today page's
 // header and the unfinished-day warning.
 export function dateLabel(dateStr: string): string {
