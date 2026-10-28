@@ -6,6 +6,8 @@ import { firstUnfinishedDay } from "./dayComplete";
 import { useToast } from "./ToastContext";
 import { useOnDateChange } from "./useOnDateChange";
 
+const WARNING_ID = "unfinished-day";
+
 // Shows the persistent "<day> wasn't marked complete" warning (Part 90) on mount and again
 // whenever the calendar date changes, so a tab left open overnight still gets it. Shares
 // useOnDateChange with DataContext's rollover. It only warns; it never moves the page's day.
@@ -22,9 +24,11 @@ export function useUnfinishedDayWarning(goTo: (day: string) => void, enabled = t
   const check = useCallback(() => {
     const day = firstUnfinishedDay();
     if (day) {
-      showWarning(`${dateLabel(day)} wasn't marked complete. Click to go to it.`, () => goToRef.current(day));
+      showWarning(WARNING_ID, `${dateLabel(day)} wasn't marked complete. Click to go to it.`, () =>
+        goToRef.current(day)
+      );
     } else {
-      dismissWarning();
+      dismissWarning(WARNING_ID);
     }
   }, [showWarning, dismissWarning]);
 
