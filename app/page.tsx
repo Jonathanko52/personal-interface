@@ -7,7 +7,7 @@ import TodoListPage from "./components/TodoListPage";
 import { useData } from "./lib/DataContext";
 import { useSortFilter } from "./lib/useSortFilter";
 import { useSelectedTodo } from "./lib/useSelectedTodo";
-import { today as todayStr, toDateString, dateLabel } from "./lib/date";
+import { today as todayStr, toDateString, dateLabel, addDays } from "./lib/date";
 import { completedTasks, uncompletedTasksOn, formatTasksSummaryBlock, overrideCompletedFromLog, CompletionRange } from "./lib/completionStats";
 import { markDayComplete } from "./lib/dayComplete";
 import { useUnfinishedDayWarning } from "./lib/useUnfinishedDayWarning";
@@ -84,19 +84,11 @@ export default function Home() {
   }, []);
 
   function prevDay() {
-    const d = new Date(selectedDate + "T12:00:00");
-    d.setDate(d.getDate() - 1);
-    const next = toDateString(d);
-    setSelectedDate(next);
-    router.replace(`/?date=${next}`);
+    goToDay(addDays(selectedDate, -1));
   }
 
   function nextDay() {
-    const d = new Date(selectedDate + "T12:00:00");
-    d.setDate(d.getDate() + 1);
-    const next = toDateString(d);
-    setSelectedDate(next);
-    router.replace(`/?date=${next}`);
+    goToDay(addDays(selectedDate, 1));
   }
 
   function goToday() {
