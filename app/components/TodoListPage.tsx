@@ -4,7 +4,7 @@ import { ReactNode, useState } from "react";
 import TodoForm from "./TodoForm";
 import SortFilterBar from "./SortFilterBar";
 import GroupedTodoList from "./GroupedTodoList";
-import ConfirmDialog from "./ConfirmDialog";
+import ConfirmDeleteDialog from "./ConfirmDeleteDialog";
 import { SortOption, FilterOption } from "@/app/lib/useSortFilter";
 import { Todo } from "@/app/lib/DataContext";
 
@@ -89,26 +89,15 @@ export default function TodoListPage({
       {footer}
 
       {showConfirmClear && (
-        <ConfirmDialog
-          theme="light"
-          onDismiss={() => setShowConfirmClear(false)}>
-          <p className="text-sm text-zinc-700">{clearConfirmMessage}</p>
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={() => setShowConfirmClear(false)}
-              className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors px-2 py-1.5">
-              Cancel
-            </button>
-            <button
-              onClick={() => {
-                onClear?.();
-                setShowConfirmClear(false);
-              }}
-              className="text-xs bg-red-500 text-white rounded-md px-3 py-1.5 hover:bg-red-600 transition-colors">
-              Delete
-            </button>
-          </div>
-        </ConfirmDialog>
+        <ConfirmDeleteDialog
+          message={clearConfirmMessage}
+          confirmLabel="Delete"
+          onConfirm={() => {
+            onClear?.();
+            setShowConfirmClear(false);
+          }}
+          onCancel={() => setShowConfirmClear(false)}
+        />
       )}
     </div>
   );
