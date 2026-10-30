@@ -24,7 +24,7 @@ import JobIdentityFields from "@/app/components/JobIdentityFields";
 import StackedJobRow from "@/app/components/StackedJobRow";
 import StackSortBar from "@/app/components/StackSortBar";
 import StackedJobDetail from "@/app/components/StackedJobDetail";
-import ConfirmDialog from "@/app/components/ConfirmDialog";
+import ConfirmDeleteDialog from "@/app/components/ConfirmDeleteDialog";
 
 export default function NewJobPage() {
   const [url, setUrl] = useState("");
@@ -345,54 +345,32 @@ export default function NewJobPage() {
       </div>
 
       {showConfirmClearStack && (
-        <ConfirmDialog
-          theme="light"
-          onDismiss={() => setShowConfirmClearStack(false)}>
-          <p className="text-sm text-zinc-700">
-            Delete every staged job? This can&apos;t be undone.
-          </p>
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={() => setShowConfirmClearStack(false)}
-              className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors px-2 py-1.5">
-              Cancel
-            </button>
-            <button
-              onClick={() => {
-                clearStack();
-                setShowConfirmClearStack(false);
-              }}
-              className="text-xs bg-red-500 text-white rounded-md px-3 py-1.5 hover:bg-red-600 transition-colors">
-              Delete
-            </button>
-          </div>
-        </ConfirmDialog>
+        <ConfirmDeleteDialog
+          message={<>Delete every staged job? This can&apos;t be undone.</>}
+          confirmLabel="Delete"
+          onConfirm={() => {
+            clearStack();
+            setShowConfirmClearStack(false);
+          }}
+          onCancel={() => setShowConfirmClearStack(false)}
+        />
       )}
 
       {itemToRemove && (
-        <ConfirmDialog
-          theme="light"
-          onDismiss={() => setConfirmRemoveId(null)}>
-          <p className="text-sm text-zinc-700">
-            Remove {itemToRemove.companyName} — {itemToRemove.jobPosting} from the stack? This
-            can&apos;t be undone.
-          </p>
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={() => setConfirmRemoveId(null)}
-              className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors px-2 py-1.5">
-              Cancel
-            </button>
-            <button
-              onClick={() => {
-                removeFromStack(itemToRemove.id);
-                setConfirmRemoveId(null);
-              }}
-              className="text-xs bg-red-500 text-white rounded-md px-3 py-1.5 hover:bg-red-600 transition-colors">
-              Remove
-            </button>
-          </div>
-        </ConfirmDialog>
+        <ConfirmDeleteDialog
+          message={
+            <>
+              Remove {itemToRemove.companyName} — {itemToRemove.jobPosting} from the stack? This
+              can&apos;t be undone.
+            </>
+          }
+          confirmLabel="Remove"
+          onConfirm={() => {
+            removeFromStack(itemToRemove.id);
+            setConfirmRemoveId(null);
+          }}
+          onCancel={() => setConfirmRemoveId(null)}
+        />
       )}
     </div>
   );
