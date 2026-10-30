@@ -35,7 +35,15 @@ export interface Tag {
   color: string;
 }
 
-export interface Completion {
+// Copied from the todo when the completion is logged (Part 100), so summaries can still name it
+// after Day Complete deletes the todo. Entries logged before Part 100 don't have these.
+type CompletionSnapshot = {
+  title?: string;
+  weight?: Weight | null;
+  isDaily?: boolean;
+};
+
+export interface Completion extends CompletionSnapshot {
   todoId: string;
   date: string;
 }
@@ -126,9 +134,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     // overrideCompletedFromLog already reads for display. true toggle (add or remove), since the
     // log becomes the sole source of truth for that day.
     let completionsAction: "add" | "toggle" | null = null;
+    let snapshot: CompletionSnapshot = {};
     setTodos((prev) =>
       prev.map((t) => {
         if (t.id !== id) return t;
+        snapshot = { title: t.title, weight: t.weight, isDaily: !!t.repeatDays?.length };
         if (date !== today && t.repeatDays?.length) {
           completionsAction = "toggle";
           return t;
@@ -142,13 +152,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setCompletions((prev) =>
         prev.some((c) => c.todoId === id && c.date === today)
           ? prev
-          : [...prev, { todoId: id, date: today }]
+          : [...prev, { todoId: id, date: today, ...snapshot }]
       );
     } else if (completionsAction === "toggle") {
       setCompletions((prev) =>
         prev.some((c) => c.todoId === id && c.date === date)
           ? prev.filter((c) => !(c.todoId === id && c.date === date))
-          : [...prev, { todoId: id, date }]
+          : [...prev, { todoId: id, date, ...snapshot }]
       );
     }
   }, []);
