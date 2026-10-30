@@ -132,14 +132,20 @@ export default function Home() {
 
   // One-off: a day-independent overview (always relative to today, not selectedDate) —
   // indefinite todos, plus anything due within the coming month (which also naturally
-  // keeps overdue todos visible, since a past due date is <= the cutoff too).
+  // keeps overdue todos visible, since a past due date is <= the cutoff too). A completed
+  // todo whose due date has passed drops out from the day after it was completed (Part 99);
+  // it's only hidden here, still listed on its list/tag pages.
   const oneOffOverview = useMemo(() => {
     const cutoff = new Date(`${todayValue}T00:00:00`);
     cutoff.setMonth(cutoff.getMonth() + 1);
     const cutoffValue = toDateString(cutoff);
-    return todos.filter(
-      (t) => !t.repeatDays?.length && (t.dueDate === null || t.dueDate <= cutoffValue)
-    );
+    return todos.filter((t) => {
+      if (t.repeatDays?.length) return false;
+      if (t.dueDate !== null && t.dueDate > cutoffValue) return false;
+      const finishedAndPastDue =
+        t.completed && t.dueDate !== null && t.dueDate < todayValue && t.lastCompletedDate !== todayValue;
+      return !finishedAndPastDue;
+    });
   }, [todos, todayValue]);
 
   const todosForDate = useMemo(
