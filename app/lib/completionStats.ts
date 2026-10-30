@@ -94,10 +94,13 @@ export function completedTasks(
     })
     .map((c) => {
       const todo = todoById.get(c.todoId);
+      if (todo) return { title: todo.title, weight: todo.weight, isDaily: isDailyTodo(todo) };
+      // Deleted (e.g. by Day Complete, Part 100): fall back to the snapshot taken when it was
+      // checked off. Entries logged before Part 100 have none.
       return {
-        title: todo?.title ?? "(deleted task)",
-        weight: todo?.weight ?? null,
-        isDaily: todo ? isDailyTodo(todo) : false,
+        title: c.title ?? "(deleted task)",
+        weight: c.weight ?? null,
+        isDaily: c.isDaily ?? false,
       };
     });
 }
