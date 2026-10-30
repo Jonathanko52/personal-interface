@@ -11,6 +11,7 @@ import { today as todayStr, toDateString, dateLabel, addDays } from "./lib/date"
 import { completedTasks, uncompletedTasksOn, formatTasksSummaryBlock, overrideCompletedFromLog, CompletionRange } from "./lib/completionStats";
 import { markDayComplete } from "./lib/dayComplete";
 import { useUnfinishedDayWarning } from "./lib/useUnfinishedDayWarning";
+import { useToast } from "./lib/ToastContext";
 import { resetJobCounts } from "./lib/jobCounts";
 import { occursOn } from "./lib/rollover";
 
@@ -33,6 +34,7 @@ export default function Home() {
   const [copied, triggerCopied] = useBriefFlag();
   const [refreshed, triggerRefreshed] = useBriefFlag();
   const [dayMarked, triggerDayMarked] = useBriefFlag();
+  const { showToast } = useToast();
 
   const todayValue = todayStr();
   const isViewingToday = selectedDate === todayValue;
@@ -97,7 +99,22 @@ export default function Home() {
   }
 
   // Marks the day on screen (which, after midnight, may still be yesterday), then returns to today.
+  // Also deletes completed one-off todos finished on or before the marked day (Part 100), so
+  // marking yesterday after midnight keeps anything already checked off today. Repeating
+  // todos are never deleted; they reset daily. The completions log keeps their names.
   function handleDayComplete() {
+    const finishedIds = todos
+      .filter(
+        (t) =>
+          !t.repeatDays?.length &&
+          t.completed &&
+          (!t.lastCompletedDate || t.lastCompletedDate <= selectedDate)
+      )
+      .map((t) => t.id);
+    if (finishedIds.length > 0) {
+      clearTodos(finishedIds);
+      showToast(`Removed ${finishedIds.length} completed ${finishedIds.length === 1 ? "todo" : "todos"}`);
+    }
     markDayComplete(selectedDate);
     resetJobCounts();
     goToday();
@@ -132,20 +149,15 @@ export default function Home() {
 
   // One-off: a day-independent overview (always relative to today, not selectedDate) —
   // indefinite todos, plus anything due within the coming month (which also naturally
-  // keeps overdue todos visible, since a past due date is <= the cutoff too). A completed
-  // todo whose due date has passed drops out from the day after it was completed (Part 99);
-  // it's only hidden here, still listed on its list/tag pages.
+  // keeps overdue todos visible, since a past due date is <= the cutoff too). Completed ones
+  // stay listed, checked, until Day Complete deletes them (Part 100).
   const oneOffOverview = useMemo(() => {
     const cutoff = new Date(`${todayValue}T00:00:00`);
     cutoff.setMonth(cutoff.getMonth() + 1);
     const cutoffValue = toDateString(cutoff);
-    return todos.filter((t) => {
-      if (t.repeatDays?.length) return false;
-      if (t.dueDate !== null && t.dueDate > cutoffValue) return false;
-      const finishedAndPastDue =
-        t.completed && t.dueDate !== null && t.dueDate < todayValue && t.lastCompletedDate !== todayValue;
-      return !finishedAndPastDue;
-    });
+    return todos.filter(
+      (t) => !t.repeatDays?.length && (t.dueDate === null || t.dueDate <= cutoffValue)
+    );
   }, [todos, todayValue]);
 
   const todosForDate = useMemo(
