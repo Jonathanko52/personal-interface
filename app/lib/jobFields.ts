@@ -49,6 +49,22 @@ export const JOB_CATEGORIES = [
 ] as const;
 export type JobCategory = (typeof JOB_CATEGORIES)[number];
 
+// Categories that make a job count as "programming" on the Metrics page (Part 103); the rest
+// (Translation, Copywriting, Other) are non-programming.
+export const PROGRAMMING_CATEGORIES: readonly JobCategory[] = [
+  "Frontend",
+  "Backend",
+  "Fullstack",
+  "Data Science",
+  "Machine Learning",
+];
+
+// Any programming category makes the whole job programming; no category at all counts as
+// non-programming, so every job falls in exactly one of the two groups.
+export function isProgrammingJob(categories: string[]): boolean {
+  return categories.some((c) => (PROGRAMMING_CATEGORIES as readonly string[]).includes(c));
+}
+
 export function isJobCategory(value: unknown): value is JobCategory {
   return typeof value === "string" && (JOB_CATEGORIES as readonly string[]).includes(value);
 }
