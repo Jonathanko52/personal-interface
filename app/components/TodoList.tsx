@@ -70,7 +70,15 @@ function SortableTodo({
       />
       <span
         className={`text-sm ${
-          todo.completed ? "line-through text-slate-500" : isOverdue ? "text-red-400" : "text-slate-100"
+          todo.completed
+            ? "line-through text-slate-500"
+            : isOverdue
+              ? // A high-priority row is already dark red (Part 93), so a lighter, bolder red keeps
+                // the overdue state from blending into it.
+                todo.priority === "high"
+                ? "text-red-200 font-semibold"
+                : "text-red-400"
+              : "text-slate-100"
         }`}
       >
         {todo.title}
