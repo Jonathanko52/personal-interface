@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import { NextResponse } from "next/server";
+import { JOB_SHEET } from "./jobColumns";
 
 type SheetsClient = { sheets: ReturnType<typeof google.sheets>; spreadsheetId: string };
 
@@ -49,7 +50,7 @@ export async function updateSheetCell(column: string, row: number, value: unknow
   const { sheets, spreadsheetId } = getSheetsClient();
   await sheets.spreadsheets.values.update({
     spreadsheetId,
-    range: `Jobs!${column}${row}:${column}${row}`,
+    range: `${JOB_SHEET}!${column}${row}:${column}${row}`,
     valueInputOption: "RAW",
     requestBody: { values: [[value]] },
   });
