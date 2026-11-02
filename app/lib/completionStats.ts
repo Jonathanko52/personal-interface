@@ -57,6 +57,39 @@ export function completionCounts(completions: Completion[], referenceDate: Date 
   };
 }
 
+export interface PeriodRange {
+  start: Date;
+  end: Date;
+}
+
+export interface PeriodRanges {
+  day: PeriodRange;
+  week: PeriodRange;
+  month: PeriodRange;
+  year: PeriodRange;
+}
+
+// Full calendar periods containing `referenceDate`, each start/end at local midnight and
+// inclusive: the day itself, Monday–Sunday, the 1st to the last day of the month, Jan 1–Dec 31.
+// Shown as date ranges on the Metrics page (Part 102) and used to bucket job counts (Part 103).
+export function periodRanges(referenceDate: Date = new Date()): PeriodRanges {
+  const day = new Date(referenceDate);
+  day.setHours(0, 0, 0, 0);
+  const weekStart = startOfWeek(referenceDate);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  const monthStart = startOfMonth(referenceDate);
+  const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+  const yearStart = startOfYear(referenceDate);
+  const yearEnd = new Date(yearStart.getFullYear(), 11, 31);
+  return {
+    day: { start: day, end: day },
+    week: { start: weekStart, end: weekEnd },
+    month: { start: monthStart, end: monthEnd },
+    year: { start: yearStart, end: yearEnd },
+  };
+}
+
 export type CompletionRange = "day" | "week";
 
 export interface WeightedTask {
