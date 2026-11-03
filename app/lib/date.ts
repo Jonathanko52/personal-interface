@@ -22,6 +22,28 @@ export function addDays(dateStr: string, n: number): string {
   return toDateString(d);
 }
 
+// "Nov 2"
+export function formatShortDate(d: Date): string {
+  return d.toLocaleDateString("default", { month: "short", day: "numeric" });
+}
+
+// "Tue, Nov 3", for a YYYY-MM-DD string (noon-anchored like the rest of this file).
+export function formatShortDay(dateStr: string): string {
+  return new Date(dateStr + "T12:00:00").toLocaleDateString("default", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+// "Nov 2 ~ Nov 8"; with `withYear`, "Jan 1 ~ Dec 31, 2026". A single-day range is just "Nov 2".
+// Shared by the Metrics page (Part 102) and the Today summary block (Part 105).
+export function formatDateRange({ start, end }: { start: Date; end: Date }, withYear = false): string {
+  const range =
+    start.getTime() === end.getTime() ? formatShortDate(start) : `${formatShortDate(start)} ~ ${formatShortDate(end)}`;
+  return withYear ? `${range}, ${end.getFullYear()}` : range;
+}
+
 // "Today" / "Tomorrow" / "Yesterday", otherwise e.g. "Monday, Oct 19". Used by the Today page's
 // header and the unfinished-day warning.
 export function dateLabel(dateStr: string): string {
