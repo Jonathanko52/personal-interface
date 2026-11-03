@@ -4,20 +4,13 @@ import { useEffect, useState } from "react";
 import { useData } from "@/app/lib/DataContext";
 import { countCompletionsBetween, periodRanges, PeriodRange, PeriodRanges } from "@/app/lib/completionStats";
 import { countJobsByPeriod } from "@/app/lib/jobMetrics";
-
-const shortDate = (d: Date) => d.toLocaleDateString("default", { month: "short", day: "numeric" });
-
-// "Nov 2 ~ Nov 8"; with `withYear`, "Jan 1 ~ Dec 31, 2026". A single-day range is just "Nov 2".
-function formatRange({ start, end }: PeriodRange, withYear = false): string {
-  const range = start.getTime() === end.getTime() ? shortDate(start) : `${shortDate(start)} ~ ${shortDate(end)}`;
-  return withYear ? `${range}, ${end.getFullYear()}` : range;
-}
+import { formatDateRange, formatShortDate } from "@/app/lib/date";
 
 // Labels for the steppable periods (Part 104): the current one, the one before, then by date.
 function weekLabel(offset: number, range: PeriodRange): string {
   if (offset === 0) return "This week";
   if (offset === -1) return "Last week";
-  return `Week of ${shortDate(range.start)}`;
+  return `Week of ${formatShortDate(range.start)}`;
 }
 
 function monthLabel(offset: number, range: PeriodRange): string {
@@ -72,16 +65,16 @@ export default function MetricsPage() {
   const monthStepper = <Stepper offset={monthOffset} onChange={setMonthOffset} />;
 
   const cards = [
-    { label: weekLabel(weekOffset, periods.week), range: formatRange(periods.week), period: periods.week, stepper: weekStepper },
-    { label: monthLabel(monthOffset, periods.month), range: formatRange(periods.month), period: periods.month, stepper: monthStepper },
-    { label: "This year", range: formatRange(periods.year, true), period: periods.year, stepper: null },
+    { label: weekLabel(weekOffset, periods.week), range: formatDateRange(periods.week), period: periods.week, stepper: weekStepper },
+    { label: monthLabel(monthOffset, periods.month), range: formatDateRange(periods.month), period: periods.month, stepper: monthStepper },
+    { label: "This year", range: formatDateRange(periods.year, true), period: periods.year, stepper: null },
   ];
 
   const jobRows: { key: keyof PeriodRanges; label: string; range: string; stepper: React.ReactNode }[] = [
-    { key: "day", label: "Today", range: formatRange(periods.day), stepper: null },
-    { key: "week", label: weekLabel(weekOffset, periods.week), range: formatRange(periods.week), stepper: weekStepper },
-    { key: "month", label: monthLabel(monthOffset, periods.month), range: formatRange(periods.month), stepper: monthStepper },
-    { key: "year", label: "This year", range: formatRange(periods.year, true), stepper: null },
+    { key: "day", label: "Today", range: formatDateRange(periods.day), stepper: null },
+    { key: "week", label: weekLabel(weekOffset, periods.week), range: formatDateRange(periods.week), stepper: weekStepper },
+    { key: "month", label: monthLabel(monthOffset, periods.month), range: formatDateRange(periods.month), stepper: monthStepper },
+    { key: "year", label: "This year", range: formatDateRange(periods.year, true), stepper: null },
   ];
 
   return (
