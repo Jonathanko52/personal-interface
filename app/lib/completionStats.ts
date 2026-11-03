@@ -72,13 +72,20 @@ export interface PeriodRanges {
 // Full calendar periods containing `referenceDate`, each start/end at local midnight and
 // inclusive: the day itself, Monday–Sunday, the 1st to the last day of the month, Jan 1–Dec 31.
 // Shown as date ranges on the Metrics page (Part 102) and used to bucket job counts (Part 103).
-export function periodRanges(referenceDate: Date = new Date()): PeriodRanges {
+// `offsets` steps the week (by 7 days) or month (by calendar months) away from the current one,
+// for the Metrics page's ‹ › navigation (Part 104); negative goes back.
+export function periodRanges(
+  referenceDate: Date = new Date(),
+  offsets: { week?: number; month?: number } = {}
+): PeriodRanges {
   const day = new Date(referenceDate);
   day.setHours(0, 0, 0, 0);
   const weekStart = startOfWeek(referenceDate);
+  weekStart.setDate(weekStart.getDate() + 7 * (offsets.week ?? 0));
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekEnd.getDate() + 6);
-  const monthStart = startOfMonth(referenceDate);
+  const currentMonth = startOfMonth(referenceDate);
+  const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + (offsets.month ?? 0), 1);
   const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
   const yearStart = startOfYear(referenceDate);
   const yearEnd = new Date(yearStart.getFullYear(), 11, 31);
@@ -88,6 +95,14 @@ export function periodRanges(referenceDate: Date = new Date()): PeriodRanges {
     month: { start: monthStart, end: monthEnd },
     year: { start: yearStart, end: yearEnd },
   };
+}
+
+// Completions logged within `range`, start and end inclusive. Unlike countSince, this has an
+// upper bound, so a past week or month counts only its own days (Part 104).
+export function countCompletionsBetween(completions: Completion[], { start, end }: PeriodRange): number {
+  const from = toDateString(start);
+  const to = toDateString(end);
+  return completions.filter((c) => c.date >= from && c.date <= to).length;
 }
 
 export type CompletionRange = "day" | "week";
