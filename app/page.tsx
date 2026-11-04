@@ -47,7 +47,7 @@ export default function Home() {
     const referenceDate = new Date(selectedDate + "T12:00:00");
     const completed = completedTasks(completions, dayTodos, completedRange, referenceDate);
     const uncompleted = uncompletedTasksOn(dayTodos, referenceDate);
-    return formatTasksSummaryBlock(completed, uncompleted, completedRange);
+    return formatTasksSummaryBlock(completed, uncompleted, completedRange, referenceDate);
   }, [completions, todos, completedRange, selectedDate, isViewingToday]);
 
   function handleRefresh() {
