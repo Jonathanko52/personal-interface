@@ -4,9 +4,15 @@ import { useEffect, useState } from "react";
 import { useData } from "@/app/lib/DataContext";
 import { countCompletionsBetween, periodRanges, PeriodRange, PeriodRanges } from "@/app/lib/completionStats";
 import { countJobsByPeriod } from "@/app/lib/jobMetrics";
-import { formatDateRange, formatShortDate } from "@/app/lib/date";
+import { formatDateRange, formatShortDate, formatShortDay, toDateString } from "@/app/lib/date";
 
-// Labels for the steppable periods (Part 104): the current one, the one before, then by date.
+// Labels for the steppable periods (Parts 104, 107): the current one, the one before, then by date.
+function dayLabel(offset: number, range: PeriodRange): string {
+  if (offset === 0) return "Today";
+  if (offset === -1) return "Yesterday";
+  return formatShortDay(toDateString(range.start));
+}
+
 function weekLabel(offset: number, range: PeriodRange): string {
   if (offset === 0) return "This week";
   if (offset === -1) return "Last week";
@@ -41,9 +47,10 @@ export default function MetricsPage() {
   const { completions } = useData();
   // One offset per steppable period, shared by its todo card and its jobs-table row so both
   // always show the same range. Plain state: back to the current period on leaving the page.
+  const [dayOffset, setDayOffset] = useState(0);
   const [weekOffset, setWeekOffset] = useState(0);
   const [monthOffset, setMonthOffset] = useState(0);
-  const periods = periodRanges(new Date(), { week: weekOffset, month: monthOffset });
+  const periods = periodRanges(new Date(), { day: dayOffset, week: weekOffset, month: monthOffset });
 
   // Job counts come from the Sheet (via the same route as the Applications page), separate from
   // the Jobs panel's manual counter. Only this section waits on the fetch.
@@ -72,7 +79,12 @@ export default function MetricsPage() {
   ];
 
   const jobRows: { key: keyof PeriodRanges; label: string; range: string; stepper: React.ReactNode }[] = [
-    { key: "day", label: "Today", range: formatDateRange(periods.day), stepper: null },
+    {
+      key: "day",
+      label: dayLabel(dayOffset, periods.day),
+      range: formatDateRange(periods.day),
+      stepper: <Stepper offset={dayOffset} onChange={setDayOffset} />,
+    },
     { key: "week", label: weekLabel(weekOffset, periods.week), range: formatDateRange(periods.week), stepper: weekStepper },
     { key: "month", label: monthLabel(monthOffset, periods.month), range: formatDateRange(periods.month), stepper: monthStepper },
     { key: "year", label: "This year", range: formatDateRange(periods.year, true), stepper: null },
