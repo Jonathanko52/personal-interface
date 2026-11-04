@@ -107,6 +107,21 @@ export function countCompletionsBetween(completions: Completion[], { start, end 
   return completions.filter((c) => c.date >= from && c.date <= to).length;
 }
 
+// Every day in `range` (start to end inclusive), as YYYY-MM-DD. Steps with setDate, so a
+// daylight-saving shift can't skip or repeat a day.
+export function daysIn({ start, end }: PeriodRange): string[] {
+  const days: string[] = [];
+  for (const d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) days.push(toDateString(d));
+  return days;
+}
+
+// Completions logged on each day of `range`, zeros included, for the Metrics chart (Part 108).
+export function completionsPerDay(completions: Completion[], range: PeriodRange): { date: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const c of completions) counts.set(c.date, (counts.get(c.date) ?? 0) + 1);
+  return daysIn(range).map((date) => ({ date, count: counts.get(date) ?? 0 }));
+}
+
 export type CompletionRange = "day" | "week";
 
 export interface WeightedTask {
