@@ -1,5 +1,5 @@
 import { Completion, Todo } from "./DataContext";
-import { toDateString } from "./date";
+import { toDateString, formatShortDay, formatDateRange } from "./date";
 import { Weight } from "./weight";
 import { isDailyTodo } from "./groupTodos";
 import { occursOn } from "./rollover";
@@ -194,12 +194,19 @@ function formatTaskLines(tasks: WeightedTask[]): string[] {
   return ["Daily:", ...formatTaskGroup(daily), "One-off:", ...formatTaskGroup(oneOff)];
 }
 
+// `referenceDate` is the day on screen (Part 89), so headers name its date rather than "today"
+// (Part 105). "Uncompleted" is always that single day (Part 28 item 7), even in week mode.
 export function formatTasksSummaryBlock(
   completed: WeightedTask[],
   uncompleted: WeightedTask[],
-  range: CompletionRange
+  range: CompletionRange,
+  referenceDate: Date
 ): string {
-  const completedHeader = range === "day" ? "Completed today:" : "Completed this week:";
+  const day = formatShortDay(toDateString(referenceDate));
+  const completedHeader =
+    range === "day"
+      ? `Completed (${day}):`
+      : `Completed this week (${formatDateRange(periodRanges(referenceDate).week)}):`;
   const completedSplit = splitBy(completed, (t) => t.weight ?? 0);
   const uncompletedSplit = splitBy(uncompleted, (t) => t.weight ?? 0);
   const completedCountSplit = splitBy(completed, () => 1);
@@ -210,7 +217,7 @@ export function formatTasksSummaryBlock(
     ...formatTaskLines(completed),
     `Completed points — Daily: ${completedSplit.daily}, One-off: ${completedSplit.oneOff}`,
     "",
-    "Uncompleted:",
+    `Uncompleted (${day}):`,
     ...formatTaskLines(uncompleted),
     `Uncompleted points — Daily: ${uncompletedSplit.daily}, One-off: ${uncompletedSplit.oneOff}`,
     "",
