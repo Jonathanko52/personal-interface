@@ -2,9 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { useData } from "@/app/lib/DataContext";
-import { countCompletionsBetween, periodRanges, PeriodRange, PeriodRanges } from "@/app/lib/completionStats";
-import { countJobsByPeriod } from "@/app/lib/jobMetrics";
-import { formatDateRange, formatShortDate, formatShortDay, toDateString } from "@/app/lib/date";
+import {
+  completionsPerDay,
+  countCompletionsBetween,
+  daysIn,
+  periodRanges,
+  PeriodRange,
+  PeriodRanges,
+} from "@/app/lib/completionStats";
+import { countJobsByPeriod, jobsPerDay } from "@/app/lib/jobMetrics";
+import { formatDateRange, formatShortDate, formatShortDay, toDateString, today } from "@/app/lib/date";
+import BarChart from "@/app/components/BarChart";
+
+// Chart colors (Part 108): indigo for todos and programming jobs, amber for non-programming.
+// The pair passed the dataviz palette validator against a white surface.
+const INDIGO = "#4f46e5";
+const AMBER = "#d97706";
 
 // Labels for the steppable periods (Parts 104, 107): the current one, the one before, then by date.
 function dayLabel(offset: number, range: PeriodRange): string {
@@ -69,6 +82,22 @@ export default function MetricsPage() {
 
   const jobCounts = jobs ? countJobsByPeriod(jobs, periods) : null;
 
+  // Daily charts span the month shown by the month stepper. Days after today are null (no bar,
+  // no tooltip) rather than 0, so the current month doesn't read as a run of empty days.
+  const todayValue = today();
+  const chartDays = daysIn(periods.month);
+  const futureAsNull = <T,>(values: T[]) => values.map((v, i) => (chartDays[i] > todayValue ? null : v));
+  const todoSeries = [
+    { label: "Completed", color: INDIGO, values: futureAsNull(completionsPerDay(completions, periods.month).map((d) => d.count)) },
+  ];
+  const dailyJobs = jobs ? jobsPerDay(jobs, periods.month) : null;
+  const jobSeries = dailyJobs
+    ? [
+        { label: "Programming", color: INDIGO, values: futureAsNull(dailyJobs.map((d) => d.programming)) },
+        { label: "Non-programming", color: AMBER, values: futureAsNull(dailyJobs.map((d) => d.nonProgramming)) },
+      ]
+    : null;
+
   const weekStepper = <Stepper offset={weekOffset} onChange={setWeekOffset} />;
   const monthStepper = <Stepper offset={monthOffset} onChange={setMonthOffset} />;
 
@@ -90,6 +119,13 @@ export default function MetricsPage() {
     { key: "year", label: "This year", range: formatDateRange(periods.year, true), stepper: null },
   ];
 
+  // Caption above each chart, with the month stepper so the charts can be moved in place.
+  const chartCaption = (
+    <span className="text-xs text-zinc-400">
+      Per day · {monthLabel(monthOffset, periods.month)} {monthStepper}
+    </span>
+  );
+
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-8">
       <h1 className="text-xl font-semibold text-zinc-700">Metrics</h1>
@@ -109,45 +145,51 @@ export default function MetricsPage() {
             </div>
           ))}
         </div>
+        {chartCaption}
+        <BarChart days={chartDays} series={todoSeries} />
       </section>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Jobs applied</h2>
         {jobsError ? (
           <p className="text-sm text-red-500">{jobsError}</p>
-        ) : !jobCounts ? (
+        ) : !jobCounts || !jobSeries ? (
           <p className="text-sm text-zinc-400">Loading…</p>
         ) : (
-          <div className="border border-zinc-200 rounded-md overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-zinc-200 text-xs text-zinc-400">
-                  <th className="text-left font-medium px-4 py-2">Period</th>
-                  <th className="text-right font-medium px-4 py-2">Programming</th>
-                  <th className="text-right font-medium px-4 py-2">Non-programming</th>
-                  <th className="text-right font-medium px-4 py-2">Both</th>
-                </tr>
-              </thead>
-              <tbody>
-                {jobRows.map((row) => {
-                  const counts = jobCounts[row.key];
-                  return (
-                    <tr key={row.key} className="border-b border-zinc-200 last:border-b-0">
-                      <td className="px-4 py-2">
-                        <span className="text-zinc-700">{row.label}</span>
-                        <span className="block text-[11px] text-zinc-400/80">
-                          {row.range} {row.stepper}
-                        </span>
-                      </td>
-                      <td className="text-right px-4 py-2 text-zinc-700 tabular-nums">{counts.programming}</td>
-                      <td className="text-right px-4 py-2 text-zinc-700 tabular-nums">{counts.nonProgramming}</td>
-                      <td className="text-right px-4 py-2 font-semibold text-zinc-700 tabular-nums">{counts.total}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div className="border border-zinc-200 rounded-md overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-zinc-200 text-xs text-zinc-400">
+                    <th className="text-left font-medium px-4 py-2">Period</th>
+                    <th className="text-right font-medium px-4 py-2">Programming</th>
+                    <th className="text-right font-medium px-4 py-2">Non-programming</th>
+                    <th className="text-right font-medium px-4 py-2">Both</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {jobRows.map((row) => {
+                    const counts = jobCounts[row.key];
+                    return (
+                      <tr key={row.key} className="border-b border-zinc-200 last:border-b-0">
+                        <td className="px-4 py-2">
+                          <span className="text-zinc-700">{row.label}</span>
+                          <span className="block text-[11px] text-zinc-400/80">
+                            {row.range} {row.stepper}
+                          </span>
+                        </td>
+                        <td className="text-right px-4 py-2 text-zinc-700 tabular-nums">{counts.programming}</td>
+                        <td className="text-right px-4 py-2 text-zinc-700 tabular-nums">{counts.nonProgramming}</td>
+                        <td className="text-right px-4 py-2 font-semibold text-zinc-700 tabular-nums">{counts.total}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {chartCaption}
+            <BarChart days={chartDays} series={jobSeries} />
+          </>
         )}
       </section>
     </div>
