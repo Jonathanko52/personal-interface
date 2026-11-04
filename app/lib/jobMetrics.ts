@@ -1,6 +1,7 @@
-import type { PeriodRanges } from "./completionStats";
+import { daysIn, type PeriodRange, type PeriodRanges } from "./completionStats";
 import { isProgrammingJob } from "./jobFields";
 import { parseSheetDate } from "./sheetDate";
+import { toDateString } from "./date";
 
 export interface JobCounts {
   programming: number;
@@ -35,4 +36,27 @@ export function countJobsByPeriod(
     }
   }
   return result;
+}
+
+export interface DailyJobCounts {
+  date: string;
+  programming: number;
+  nonProgramming: number;
+}
+
+// Job applications on each day of `range`, zeros included, for the Metrics chart (Part 108).
+// Same date parsing and programming split as countJobsByPeriod.
+export function jobsPerDay(
+  jobs: { dateApplied: string; categories: string[] }[],
+  range: PeriodRange
+): DailyJobCounts[] {
+  const byDate = new Map(daysIn(range).map((date) => [date, { date, programming: 0, nonProgramming: 0 }]));
+  for (const job of jobs) {
+    const applied = parseSheetDate(job.dateApplied);
+    const day = applied && byDate.get(toDateString(applied));
+    if (!day) continue;
+    if (isProgrammingJob(job.categories)) day.programming += 1;
+    else day.nonProgramming += 1;
+  }
+  return [...byDate.values()];
 }
