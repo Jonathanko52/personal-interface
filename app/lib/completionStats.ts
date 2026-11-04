@@ -73,13 +73,15 @@ export interface PeriodRanges {
 // inclusive: the day itself, Monday–Sunday, the 1st to the last day of the month, Jan 1–Dec 31.
 // Shown as date ranges on the Metrics page (Part 102) and used to bucket job counts (Part 103).
 // `offsets` steps the week (by 7 days) or month (by calendar months) away from the current one,
-// for the Metrics page's ‹ › navigation (Part 104); negative goes back.
+// for the Metrics page's ‹ › navigation (Part 104); negative goes back. `day` steps by single
+// days (Part 107). Each offset moves only its own period.
 export function periodRanges(
   referenceDate: Date = new Date(),
-  offsets: { week?: number; month?: number } = {}
+  offsets: { day?: number; week?: number; month?: number } = {}
 ): PeriodRanges {
   const day = new Date(referenceDate);
   day.setHours(0, 0, 0, 0);
+  day.setDate(day.getDate() + (offsets.day ?? 0));
   const weekStart = startOfWeek(referenceDate);
   weekStart.setDate(weekStart.getDate() + 7 * (offsets.week ?? 0));
   const weekEnd = new Date(weekStart);
