@@ -21,9 +21,10 @@ function monthLabel(offset: number, range: PeriodRange): string {
 
 // ‹ › next to a period's date range. › stops at the current period, since later ones are always 0.
 function Stepper({ offset, onChange }: { offset: number; onChange: (offset: number) => void }) {
-  const button = "px-1 text-zinc-400 hover:text-zinc-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed";
+  const button =
+    "text-base leading-none px-1.5 py-0.5 rounded text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent";
   return (
-    <span className="inline-flex items-center">
+    <span className="inline-flex items-center align-middle">
       <button onClick={() => onChange(offset - 1)} aria-label="Previous" className={button}>
         ‹
       </button>
