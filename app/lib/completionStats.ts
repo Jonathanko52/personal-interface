@@ -39,24 +39,6 @@ export function startOfYear(d: Date): Date {
   return new Date(d.getFullYear(), 0, 1);
 }
 
-export function countSince(completions: Completion[], cutoff: string): number {
-  return completions.filter((c) => c.date >= cutoff).length;
-}
-
-export interface CompletionCounts {
-  week: number;
-  month: number;
-  year: number;
-}
-
-export function completionCounts(completions: Completion[], referenceDate: Date = new Date()): CompletionCounts {
-  return {
-    week: countSince(completions, toDateString(startOfWeek(referenceDate))),
-    month: countSince(completions, toDateString(startOfMonth(referenceDate))),
-    year: countSince(completions, toDateString(startOfYear(referenceDate))),
-  };
-}
-
 export interface PeriodRange {
   start: Date;
   end: Date;
@@ -99,8 +81,8 @@ export function periodRanges(
   };
 }
 
-// Completions logged within `range`, start and end inclusive. Unlike countSince, this has an
-// upper bound, so a past week or month counts only its own days (Part 104).
+// Completions logged within `range`, start and end inclusive. The upper bound means a past
+// week or month counts only its own days (Part 104).
 export function countCompletionsBetween(completions: Completion[], { start, end }: PeriodRange): number {
   const from = toDateString(start);
   const to = toDateString(end);
