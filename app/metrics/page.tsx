@@ -12,6 +12,7 @@ import {
 } from "@/app/lib/completionStats";
 import { countJobsByPeriod, jobsPerDay } from "@/app/lib/jobMetrics";
 import { formatDateRange, formatShortDate, formatShortDay, toDateString, today } from "@/app/lib/date";
+import { parseSheetDate } from "@/app/lib/sheetDate";
 import BarChart from "@/app/components/BarChart";
 
 // Chart colors (Part 108): indigo for todos and programming jobs, amber for non-programming.
@@ -119,10 +120,42 @@ export default function MetricsPage() {
     { key: "year", label: "This year", range: formatDateRange(periods.year, true), stepper: null },
   ];
 
-  // Caption above each chart, with the month stepper so the charts can be moved in place.
+  // Month dropdown options (Part 109): offsets from the current month (0) back to the earliest
+  // month with a completion or a job application, newest first. Also reaches the selected month,
+  // in case the arrows went past the earliest data.
+  const now = new Date();
+  const dataDates = [
+    ...completions.map((c) => new Date(c.date + "T12:00:00")),
+    ...(jobs ?? []).flatMap((j) => parseSheetDate(j.dateApplied) ?? []),
+  ];
+  const earliestOffset = dataDates.reduce(
+    (min, d) => Math.min(min, (d.getFullYear() - now.getFullYear()) * 12 + d.getMonth() - now.getMonth()),
+    0
+  );
+  const monthOptions: number[] = [];
+  for (let o = 0; o >= Math.min(earliestOffset, monthOffset); o--) monthOptions.push(o);
+
+  // Caption above each chart. The arrows come first so they stay put while the month name
+  // changes width; the dropdown jumps straight to a month. Same monthOffset as the card and row.
   const chartCaption = (
-    <span className="text-xs text-zinc-400">
-      Per day · {monthLabel(monthOffset, periods.month)} {monthStepper}
+    <span className="flex items-center gap-1 text-xs text-zinc-400">
+      {monthStepper}
+      <select
+        value={monthOffset}
+        onChange={(e) => setMonthOffset(Number(e.target.value))}
+        aria-label="Month"
+        className="text-xs text-zinc-600 bg-transparent border border-zinc-200 rounded px-1.5 py-0.5 hover:border-zinc-300 focus:outline-none focus:border-indigo-400"
+      >
+        {monthOptions.map((o) => {
+          const start = new Date(now.getFullYear(), now.getMonth() + o, 1);
+          return (
+            <option key={o} value={o}>
+              {monthLabel(o, { start, end: start })}
+            </option>
+          );
+        })}
+      </select>
+      <span>· per day</span>
     </span>
   );
 
