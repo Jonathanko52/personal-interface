@@ -178,7 +178,7 @@ export default function Home() {
         <>
           <button
             onClick={prevDay}
-            className="text-zinc-400 hover:text-zinc-700 transition-colors leading-none"
+            className="text-zinc-400 hover:text-slate-100 transition-colors leading-none"
             style={{ fontSize: "2rem" }}
           >
             ◀
@@ -186,7 +186,7 @@ export default function Home() {
           <h1 className="text-xl font-semibold text-indigo-600">{dateLabel(selectedDate)}</h1>
           <button
             onClick={nextDay}
-            className="text-zinc-400 hover:text-zinc-700 transition-colors leading-none"
+            className="text-zinc-400 hover:text-slate-100 transition-colors leading-none"
             style={{ fontSize: "2rem" }}
           >
             ▶
@@ -223,8 +223,8 @@ export default function Home() {
                 onClick={() => setCompletedRange(r)}
                 className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
                   completedRange === r
-                    ? "bg-zinc-800 text-white"
-                    : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"
+                    ? "bg-slate-700 text-white"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
                 }`}
               >
                 {r === "day" ? "Today" : "This week"}

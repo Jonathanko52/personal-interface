@@ -73,7 +73,7 @@ export default function AddEntityForm({ label, placeholder, onAdd }: AddEntityFo
         <button type="submit" className="text-xs bg-indigo-500 text-white rounded-md px-3 py-1 hover:bg-indigo-600 transition-colors">
           Add
         </button>
-        <button type="button" onClick={reset} className="text-xs text-zinc-500 hover:text-zinc-800 transition-colors">
+        <button type="button" onClick={reset} className="text-xs text-slate-400 hover:text-slate-100 transition-colors">
           Cancel
         </button>
       </div>

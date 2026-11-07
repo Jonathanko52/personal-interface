@@ -69,7 +69,7 @@ export default function ToDoOptions() {
               <div className="hidden group-hover:flex items-center gap-0.5">
                 <button
                   onClick={() => { setEditingListId(list.id); setEditingListName(list.name); }}
-                  className="text-zinc-400 hover:text-zinc-700 text-xs px-1"
+                  className="text-zinc-400 hover:text-slate-100 text-xs px-1"
                   title="Rename"
                 >✎</button>
                 <button

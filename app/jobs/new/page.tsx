@@ -205,30 +205,30 @@ export default function NewJobPage() {
 
   const listView = (
     <div className="max-w-5xl mx-auto">
-      <h1 className="text-xl font-semibold text-zinc-700 mb-4">Add a job</h1>
+      <h1 className="text-xl font-semibold text-slate-100 mb-4">Add a job</h1>
 
-      <div className="flex items-center gap-4 text-xs text-zinc-500 border-b border-zinc-200 pb-3 mb-6">
+      <div className="flex items-center gap-4 text-xs text-slate-400 border-b border-zinc-200 pb-3 mb-6">
         <span>
           Count:{" "}
-          <span className="text-zinc-700 font-medium">
+          <span className="text-slate-100 font-medium">
             {counts?.total ?? "—"}
           </span>
         </span>
         <span>
           Quick:{" "}
-          <span className="text-zinc-700 font-medium">
+          <span className="text-slate-100 font-medium">
             {counts?.quickApply ?? "—"}
           </span>
         </span>
         <span>
           Normal:{" "}
-          <span className="text-zinc-700 font-medium">
+          <span className="text-slate-100 font-medium">
             {counts?.normalApply ?? "—"}
           </span>
         </span>
         <button
           onClick={reset}
-          className="ml-auto text-zinc-500 hover:text-zinc-700 transition-colors">
+          className="ml-auto text-slate-400 hover:text-slate-100 transition-colors">
           Reset
         </button>
       </div>
@@ -236,7 +236,7 @@ export default function NewJobPage() {
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         <div className="flex-1 w-full flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
               Scrape a URL (optional)
             </label>
             <div className="flex gap-2">
@@ -271,6 +271,7 @@ export default function NewJobPage() {
               onMatchScoreChange={setMatchScore}
               categories={categories}
               onToggleCategory={toggleCategory}
+              theme="dark"
             />
 
             <button

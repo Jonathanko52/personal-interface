@@ -15,6 +15,9 @@ const HEIGHT = 160;
 const PAD = { top: 8, right: 4, bottom: 20, left: 28 };
 const GAP = 2; // surface gap between stacked segments
 const RADIUS = 4; // rounded data end (top of the stack only)
+// Gridlines (slate-700) and the hovered-column highlight (slate-800), for the dark page (Part 112).
+const GRID = "#334155";
+const HOVER_FILL = "#1e293b";
 
 // Smallest whole-number step that fits `max` in about four gridlines.
 function yScale(max: number): { top: number; ticks: number[] } {
@@ -62,7 +65,7 @@ export default function BarChart({ days, series }: { days: string[]; series: Bar
   return (
     <div className="flex flex-col gap-2">
       {series.length > 1 && (
-        <div className="flex gap-4 text-xs text-zinc-500">
+        <div className="flex gap-4 text-xs text-slate-400">
           {series.map((s) => (
             <span key={s.label} className="inline-flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-sm" style={{ background: s.color }} />
@@ -76,7 +79,7 @@ export default function BarChart({ days, series }: { days: string[]; series: Bar
           <svg width={width} height={HEIGHT} aria-hidden="true">
             {ticks.map((t) => (
               <g key={t}>
-                <line x1={PAD.left} x2={width - PAD.right} y1={y(t)} y2={y(t)} stroke="#e4e4e7" strokeWidth={1} />
+                <line x1={PAD.left} x2={width - PAD.right} y1={y(t)} y2={y(t)} stroke={GRID} strokeWidth={1} />
                 <text x={PAD.left - 6} y={y(t)} dy="0.32em" textAnchor="end" fontSize={10} fill="#a1a1aa">
                   {t}
                 </text>
@@ -91,7 +94,7 @@ export default function BarChart({ days, series }: { days: string[]; series: Bar
                 .filter((seg) => seg.value > 0);
               return (
                 <g key={day}>
-                  {hoveredDay === i && <rect x={x} y={PAD.top} width={colW} height={plotH} fill="#f4f4f5" />}
+                  {hoveredDay === i && <rect x={x} y={PAD.top} width={colW} height={plotH} fill={HOVER_FILL} />}
                   {stacked.map((seg, j) => {
                     const yTop = y(base + seg.value);
                     // Every segment but the bottom one gives up GAP px to separate it from the one below.

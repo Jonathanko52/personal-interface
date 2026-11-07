@@ -42,7 +42,7 @@ function monthLabel(offset: number, range: PeriodRange): string {
 // ‹ › next to a period's date range. › stops at the current period, since later ones are always 0.
 function Stepper({ offset, onChange }: { offset: number; onChange: (offset: number) => void }) {
   const button =
-    "text-base leading-none px-1.5 py-0.5 rounded text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent";
+    "text-base leading-none px-1.5 py-0.5 rounded text-zinc-400 hover:text-slate-100 hover:bg-slate-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent";
   return (
     <span className="inline-flex items-center align-middle">
       <button onClick={() => onChange(offset - 1)} aria-label="Previous" className={button}>
@@ -144,12 +144,12 @@ export default function MetricsPage() {
         value={monthOffset}
         onChange={(e) => setMonthOffset(Number(e.target.value))}
         aria-label="Month"
-        className="text-xs text-zinc-600 bg-transparent border border-zinc-200 rounded px-1.5 py-0.5 hover:border-zinc-300 focus:outline-none focus:border-indigo-400"
+        className="text-xs text-slate-100 bg-transparent border border-zinc-200 rounded px-1.5 py-0.5 hover:border-zinc-300 focus:outline-none focus:border-indigo-400"
       >
         {monthOptions.map((o) => {
           const start = new Date(now.getFullYear(), now.getMonth() + o, 1);
           return (
-            <option key={o} value={o}>
+            <option key={o} value={o} className="bg-slate-900 text-slate-100">
               {monthLabel(o, { start, end: start })}
             </option>
           );
@@ -161,7 +161,7 @@ export default function MetricsPage() {
 
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-8">
-      <h1 className="text-xl font-semibold text-zinc-700">Metrics</h1>
+      <h1 className="text-xl font-semibold text-slate-100">Metrics</h1>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Todos completed</h2>
@@ -172,7 +172,7 @@ export default function MetricsPage() {
               <span className="text-[11px] text-zinc-400/80">
                 {card.range} {card.stepper}
               </span>
-              <span className="text-2xl font-semibold text-zinc-700">
+              <span className="text-2xl font-semibold text-slate-100">
                 {countCompletionsBetween(completions, card.period)}
               </span>
             </div>
@@ -206,14 +206,14 @@ export default function MetricsPage() {
                     return (
                       <tr key={row.key} className="border-b border-zinc-200 last:border-b-0">
                         <td className="px-4 py-2">
-                          <span className="text-zinc-700">{row.label}</span>
+                          <span className="text-slate-100">{row.label}</span>
                           <span className="block text-[11px] text-zinc-400/80">
                             {row.range} {row.stepper}
                           </span>
                         </td>
-                        <td className="text-right px-4 py-2 text-zinc-700 tabular-nums">{counts.programming}</td>
-                        <td className="text-right px-4 py-2 text-zinc-700 tabular-nums">{counts.nonProgramming}</td>
-                        <td className="text-right px-4 py-2 font-semibold text-zinc-700 tabular-nums">{counts.total}</td>
+                        <td className="text-right px-4 py-2 text-slate-100 tabular-nums">{counts.programming}</td>
+                        <td className="text-right px-4 py-2 text-slate-100 tabular-nums">{counts.nonProgramming}</td>
+                        <td className="text-right px-4 py-2 font-semibold text-slate-100 tabular-nums">{counts.total}</td>
                       </tr>
                     );
                   })}

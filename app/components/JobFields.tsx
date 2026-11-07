@@ -26,6 +26,7 @@ interface JobFieldsProps {
   onMatchScoreChange: (value: string) => void;
   categories: JobCategory[];
   onToggleCategory: (category: JobCategory) => void;
+  theme?: "dark" | "light";
 }
 
 export const LABEL_CLASS = "text-xs font-semibold text-zinc-500 uppercase tracking-wider";
@@ -35,10 +36,9 @@ export const INPUT_CLASS =
 // Source/Apply Type/Job Type/Match score/Category — the rest of the field block shared between
 // `jobs/new/page.tsx`'s manual form and `StackedJobDetail.tsx` (Part 72). Company/Role/Location/
 // Posting Link split out into JobIdentityFields.tsx (Part 74), so a caller's submit button can
-// sit between the two groups. Light-themed only: both current callers are light, and no
-// dark-themed caller shares this exact shape (JobsPanel.tsx is structurally different —
-// disabled-on-saved inputs, a link instead of an editable Posting Link), so a theme prop would
-// be unused indirection rather than real reuse.
+// sit between the two groups. `theme` styles the pill pickers: `jobs/new/page.tsx` sits on the
+// dark page background, `StackedJobDetail.tsx` in a white card (Part 112). The labels' zinc-500
+// and the white inputs read on both.
 export default function JobFields({
   source,
   onSourceChange,
@@ -50,6 +50,7 @@ export default function JobFields({
   onMatchScoreChange,
   categories,
   onToggleCategory,
+  theme = "light",
 }: JobFieldsProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -75,7 +76,7 @@ export default function JobFields({
           selected={applyType}
           onSelect={onApplyTypeChange}
           format={(type) => APPLY_TYPE_LABELS[type]}
-          theme="light"
+          theme={theme}
           gap="sm"
         />
       </div>
@@ -87,7 +88,7 @@ export default function JobFields({
           selected={jobType}
           onSelect={onJobTypeChange}
           format={(type) => JOB_TYPE_LABELS[type]}
-          theme="light"
+          theme={theme}
           gap="sm"
         />
       </div>
@@ -112,7 +113,7 @@ export default function JobFields({
           options={JOB_CATEGORIES}
           selected={categories}
           onToggle={onToggleCategory}
-          theme="light"
+          theme={theme}
           gap="sm"
         />
       </div>

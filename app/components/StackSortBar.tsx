@@ -25,8 +25,8 @@ export default function StackSortBar({ sort, onSortChange }: StackSortBarProps) 
             onClick={() => onSortChange(o.value)}
             className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
               sort === o.value
-                ? "bg-zinc-800 text-white"
-                : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"
+                ? "bg-slate-700 text-white"
+                : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
             }`}
           >
             {o.label}

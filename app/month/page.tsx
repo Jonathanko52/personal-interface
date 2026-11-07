@@ -63,23 +63,23 @@ export default function MonthPage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-semibold text-zinc-700">{monthLabel}</h1>
+        <h1 className="text-xl font-semibold text-slate-100">{monthLabel}</h1>
         <div className="flex gap-2">
           <button
             onClick={prevMonth}
-            className="text-sm px-3 py-1.5 border border-zinc-200 rounded-md hover:bg-zinc-100 transition-colors"
+            className="text-sm px-3 py-1.5 border border-zinc-200 rounded-md hover:bg-slate-800 transition-colors"
           >
             ← Prev
           </button>
           <button
             onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); }}
-            className="text-sm px-3 py-1.5 border border-zinc-200 rounded-md hover:bg-zinc-100 transition-colors"
+            className="text-sm px-3 py-1.5 border border-zinc-200 rounded-md hover:bg-slate-800 transition-colors"
           >
             Today
           </button>
           <button
             onClick={nextMonth}
-            className="text-sm px-3 py-1.5 border border-zinc-200 rounded-md hover:bg-zinc-100 transition-colors"
+            className="text-sm px-3 py-1.5 border border-zinc-200 rounded-md hover:bg-slate-800 transition-colors"
           >
             Next →
           </button>

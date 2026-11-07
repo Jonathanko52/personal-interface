@@ -61,7 +61,7 @@ export default function TodoListPage({
             {onReset && (
               <button
                 onClick={onReset}
-                className="text-xs text-zinc-400 hover:text-zinc-800 transition-colors">
+                className="text-xs text-zinc-400 hover:text-slate-100 transition-colors">
                 Reset
               </button>
             )}
