@@ -11,7 +11,8 @@ export type ActivePanel = "todo" | "jobs" | null;
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [activePanel, setActivePanel] = useState<ActivePanel>("todo");
-  const [minimized, setMinimized] = useState(false);
+  // Starts closed to its tab (Part 113); reopened from the tab or Panels → Todo.
+  const [minimized, setMinimized] = useState(true);
 
   function handleSelect(panel: ActivePanel) {
     if (activePanel === panel && !minimized) {
