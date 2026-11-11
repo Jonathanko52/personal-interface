@@ -17,3 +17,28 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+/* Scrollbars for the dark page (Part 114): slate-700 thumb, slate-600 on hover, no track.
+   scrollbar-color covers Chrome/Edge/Firefox; the ::-webkit-scrollbar rules are for Safari
+   (Chrome ignores them once scrollbar-color is set). */
+* {
+  scrollbar-color: #334155 transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
