@@ -18,6 +18,7 @@ import { useJobCounts } from "@/app/lib/useJobCounts";
 import { useJobStack } from "@/app/lib/useJobStack";
 import { useStackSort } from "@/app/lib/useStackSort";
 import { checkDuplicate, saveJob } from "@/app/lib/jobSave";
+import { scrapeJob } from "@/app/lib/scrapeJob";
 import { useToast } from "@/app/lib/ToastContext";
 import JobFields from "@/app/components/JobFields";
 import JobIdentityFields from "@/app/components/JobIdentityFields";
@@ -107,22 +108,13 @@ export default function NewJobPage() {
     setScraping(true);
     setScrapeError(null);
     try {
-      const res = await fetch("/api/jobs/scrape", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ value: url.trim() }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok)
-        throw new Error(data.error || `Scrape failed (${res.status})`);
-      setCompanyName(data.companyName ?? "");
-      setJobPosting(data.jobPosting ?? "");
-      setLocation(data.location ?? "");
-      setPostingLink(data.postingLink ?? "");
-      setCategories(
-        suggestCategories(`${data.jobPosting ?? ""} ${data.description ?? ""}`),
-      );
-      setJobType(suggestJobType(data.jobPosting ?? ""));
+      const scraped = await scrapeJob(url);
+      setCompanyName(scraped.companyName);
+      setJobPosting(scraped.jobPosting);
+      setLocation(scraped.location);
+      setPostingLink(scraped.postingLink);
+      setCategories(scraped.categories);
+      setJobType(scraped.jobType);
     } catch (err) {
       setScrapeError(
         err instanceof Error ? err.message : "Something went wrong.",
