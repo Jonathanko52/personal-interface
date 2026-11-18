@@ -15,12 +15,11 @@ import {
   MATCH_SCORE_MIN,
   MATCH_SCORE_MAX,
   parseMatchScore,
-  suggestCategories,
-  suggestJobType,
   toggleCategoryInArray,
 } from "@/app/lib/jobFields";
 import { useJobCounts } from "@/app/lib/useJobCounts";
 import { useJobSaveFlow } from "@/app/lib/useJobSaveFlow";
+import { scrapeJob } from "@/app/lib/scrapeJob";
 import PillPicker from "./PillPicker";
 import MultiPillPicker from "./MultiPillPicker";
 
@@ -93,16 +92,10 @@ export default function JobsPanel() {
     setMatchScore("");
     resetSaveState();
     try {
-      const res = await fetch("/api/jobs/scrape", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ value: url.trim() }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || `Scrape failed (${res.status})`);
-      setResult(data);
-      setCategories(suggestCategories(`${data.jobPosting ?? ""} ${data.description ?? ""}`));
-      setJobType(suggestJobType(data.jobPosting ?? ""));
+      const { categories: suggestedCategories, jobType: suggestedJobType, ...fields } = await scrapeJob(url);
+      setResult(fields);
+      setCategories(suggestedCategories);
+      setJobType(suggestedJobType);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
