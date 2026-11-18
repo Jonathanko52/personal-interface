@@ -10,6 +10,7 @@ import {
   ApplyType,
 } from "@/app/lib/jobFields";
 import { parseSheetDate } from "@/app/lib/sheetDate";
+import SegmentedControl from "@/app/components/SegmentedControl";
 import {
   startOfWeek,
   startOfMonth,
@@ -77,7 +78,10 @@ const DATE_FILTER_OPTIONS: { value: DateFilter; label: string }[] = [
   { value: "year", label: "Past year" },
 ];
 
-const ENTRY_LIMIT_OPTIONS: EntryLimit[] = [5, 10, 15, 25, 50];
+const ENTRY_LIMIT_OPTIONS: { value: EntryLimit; label: string }[] = ([5, 10, 15, 25, 50] as const).map((n) => ({
+  value: n,
+  label: String(n),
+}));
 
 type EditableField =
   | "applyType"
@@ -304,40 +308,14 @@ export default function ApplicationsPage() {
             <legend className="text-xs text-slate-300 font-semibold mb-2">
               Date applied
             </legend>
-            <div className="flex flex-wrap gap-1">
-              {DATE_FILTER_OPTIONS.map((o) => (
-                <button
-                  key={o.value}
-                  onClick={() => setDateFilter(o.value)}
-                  className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
-                    dateFilter === o.value
-                      ? "bg-slate-700 text-white"
-                      : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
-                  }`}>
-                  {o.label}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl options={DATE_FILTER_OPTIONS} value={dateFilter} onChange={setDateFilter} />
           </fieldset>
 
           <fieldset>
             <legend className="text-xs text-slate-300 font-semibold mb-2">
               Show entries
             </legend>
-            <div className="flex flex-wrap gap-1">
-              {ENTRY_LIMIT_OPTIONS.map((limit) => (
-                <button
-                  key={limit}
-                  onClick={() => setEntryLimit(limit)}
-                  className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
-                    entryLimit === limit
-                      ? "bg-slate-700 text-white"
-                      : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
-                  }`}>
-                  {limit}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl options={ENTRY_LIMIT_OPTIONS} value={entryLimit} onChange={setEntryLimit} />
           </fieldset>
 
           {filterGroups.map((group) => (

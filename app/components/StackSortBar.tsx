@@ -1,6 +1,7 @@
 "use client";
 
 import { StackSortOption } from "@/app/lib/useStackSort";
+import SegmentedControl from "./SegmentedControl";
 
 interface StackSortBarProps {
   sort: StackSortOption;
@@ -18,21 +19,7 @@ export default function StackSortBar({ sort, onSortChange }: StackSortBarProps) 
   return (
     <div className="flex items-center gap-1.5">
       <span className="text-xs text-zinc-400 font-medium">Sort</span>
-      <div className="flex gap-1">
-        {sortOptions.map((o) => (
-          <button
-            key={o.value}
-            onClick={() => onSortChange(o.value)}
-            className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
-              sort === o.value
-                ? "bg-slate-700 text-white"
-                : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
-            }`}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl options={sortOptions} value={sort} onChange={onSortChange} />
     </div>
   );
 }

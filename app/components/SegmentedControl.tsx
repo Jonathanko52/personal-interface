@@ -14,7 +14,7 @@ export default function SegmentedControl<T extends string | number>({
   onChange: (value: T) => void;
 }) {
   return (
-    <div className="flex gap-1">
+    <div className="flex flex-wrap gap-1">
       {options.map((o) => (
         <button
           key={String(o.value)}
