@@ -14,6 +14,12 @@ import { useUnfinishedDayWarning } from "./lib/useUnfinishedDayWarning";
 import { useToast } from "./lib/ToastContext";
 import { resetJobCounts } from "./lib/jobCounts";
 import { occursOn } from "./lib/rollover";
+import SegmentedControl from "./components/SegmentedControl";
+
+const RANGE_OPTIONS = [
+  { value: "day", label: "Today" },
+  { value: "week", label: "This week" },
+] as const satisfies readonly { value: CompletionRange; label: string }[];
 
 // A boolean that flips true then auto-resets after `duration` — the "Copied!"/"Refreshed!"/
 // "Day marked ✓" feedback pattern, previously hand-rolled three times in this same file.
@@ -216,21 +222,7 @@ export default function Home() {
       footer={
         <section className="flex flex-col gap-3 mt-8">
           <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Completed tasks</h2>
-          <div className="flex gap-1">
-            {(["day", "week"] as const).map((r) => (
-              <button
-                key={r}
-                onClick={() => setCompletedRange(r)}
-                className={`text-xs px-2.5 py-1 rounded-md transition-colors ${
-                  completedRange === r
-                    ? "bg-slate-700 text-white"
-                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
-                }`}
-              >
-                {r === "day" ? "Today" : "This week"}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl options={RANGE_OPTIONS} value={completedRange} onChange={setCompletedRange} />
           <pre className="border border-zinc-200 rounded-md p-3 text-xs text-zinc-700 whitespace-pre-wrap font-mono bg-zinc-50">
             {completedBlock}
           </pre>
