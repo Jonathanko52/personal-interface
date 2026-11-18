@@ -30,6 +30,8 @@ interface JobFieldsProps {
 }
 
 export const LABEL_CLASS = "text-xs font-semibold text-zinc-500 uppercase tracking-wider";
+const ROW_CLASS = "flex flex-wrap items-start gap-x-8 gap-y-4";
+
 export const INPUT_CLASS =
   "text-sm border border-zinc-200 rounded-md px-3 py-2 outline-none text-zinc-700 bg-white focus:border-indigo-400 transition-colors";
 
@@ -54,57 +56,62 @@ export default function JobFields({
 }: JobFieldsProps) {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <span className={LABEL_CLASS}>Source</span>
-        <select
-          value={source}
-          onChange={(e) => onSourceChange(e.target.value as JobSource)}
-          className={`${INPUT_CLASS} w-fit`}
-        >
-          {JOB_SOURCES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
+      {/* Paired rows to keep the form compact (Part 122); a field wraps under its partner when narrow. */}
+      <div className={ROW_CLASS}>
+        <div className="flex flex-col gap-1.5">
+          <span className={LABEL_CLASS}>Source</span>
+          <select
+            value={source}
+            onChange={(e) => onSourceChange(e.target.value as JobSource)}
+            className={`${INPUT_CLASS} w-fit`}
+          >
+            {JOB_SOURCES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className={LABEL_CLASS}>Apply Type</span>
+          <PillPicker
+            options={["normal", "quick"] as const}
+            selected={applyType}
+            onSelect={onApplyTypeChange}
+            format={(type) => APPLY_TYPE_LABELS[type]}
+            theme={theme}
+            gap="sm"
+          />
+        </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <span className={LABEL_CLASS}>Apply Type</span>
-        <PillPicker
-          options={["normal", "quick"] as const}
-          selected={applyType}
-          onSelect={onApplyTypeChange}
-          format={(type) => APPLY_TYPE_LABELS[type]}
-          theme={theme}
-          gap="sm"
-        />
-      </div>
+      <div className={ROW_CLASS}>
+        <div className="flex flex-col gap-1.5">
+          <span className={LABEL_CLASS}>Job Type</span>
+          <PillPicker
+            options={["internship", "part-time", "full-time"] as const}
+            selected={jobType}
+            onSelect={onJobTypeChange}
+            format={(type) => JOB_TYPE_LABELS[type]}
+            theme={theme}
+            gap="sm"
+          />
+        </div>
 
-      <div className="flex flex-col gap-1.5">
-        <span className={LABEL_CLASS}>Job Type</span>
-        <PillPicker
-          options={["internship", "part-time", "full-time"] as const}
-          selected={jobType}
-          onSelect={onJobTypeChange}
-          format={(type) => JOB_TYPE_LABELS[type]}
-          theme={theme}
-          gap="sm"
-        />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <span className={LABEL_CLASS}>Match score (optional)</span>
-        <input
-          type="number"
-          min={MATCH_SCORE_MIN}
-          max={MATCH_SCORE_MAX}
-          step={1}
-          value={matchScore}
-          onChange={(e) => onMatchScoreChange(e.target.value)}
-          placeholder={`${MATCH_SCORE_MIN}–${MATCH_SCORE_MAX}`}
-          className={`${INPUT_CLASS} w-28`}
-        />
+        <div className="flex flex-col gap-1.5">
+          <span className={LABEL_CLASS}>Match score (optional)</span>
+          <input
+            type="number"
+            min={MATCH_SCORE_MIN}
+            max={MATCH_SCORE_MAX}
+            step={1}
+            value={matchScore}
+            onChange={(e) => onMatchScoreChange(e.target.value)}
+            placeholder={`${MATCH_SCORE_MIN}–${MATCH_SCORE_MAX}`}
+            className={`${INPUT_CLASS} w-28`}
+          />
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
