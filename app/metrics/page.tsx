@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useData } from "@/app/lib/DataContext";
 import {
   completionsPerDay,
@@ -13,6 +13,7 @@ import {
 import { countJobsByPeriod, jobsPerDay } from "@/app/lib/jobMetrics";
 import { formatDateRange, formatShortDate, formatShortDay, toDateString, today } from "@/app/lib/date";
 import { parseSheetDate } from "@/app/lib/sheetDate";
+import { useJobList } from "@/app/lib/useJobList";
 import BarChart from "@/app/components/BarChart";
 
 // Chart colors (Part 108): indigo for todos and programming jobs, amber for non-programming.
@@ -68,18 +69,7 @@ export default function MetricsPage() {
 
   // Job counts come from the Sheet (via the same route as the Applications page), separate from
   // the Jobs panel's manual counter. Only this section waits on the fetch.
-  const [jobs, setJobs] = useState<ListedJob[] | null>(null);
-  const [jobsError, setJobsError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/jobs/list")
-      .then((res) => {
-        if (!res.ok) throw new Error(`Failed to load (${res.status})`);
-        return res.json();
-      })
-      .then((data) => setJobs(data.jobs))
-      .catch((err) => setJobsError(err instanceof Error ? err.message : "Something went wrong."));
-  }, []);
+  const { jobs, error: jobsError } = useJobList<ListedJob>();
 
   const jobCounts = jobs ? countJobsByPeriod(jobs, periods) : null;
 
