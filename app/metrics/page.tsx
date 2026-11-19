@@ -11,7 +11,7 @@ import {
   PeriodRanges,
 } from "@/app/lib/completionStats";
 import { countJobsByPeriod, jobsPerDay } from "@/app/lib/jobMetrics";
-import { formatDateRange, formatShortDate, formatShortDay, toDateString, today } from "@/app/lib/date";
+import { formatDateRange, formatShortDate, formatShortDay, parseDate, toDateString, today } from "@/app/lib/date";
 import { parseSheetDate } from "@/app/lib/sheetDate";
 import { useJobList } from "@/app/lib/useJobList";
 import BarChart from "@/app/components/BarChart";
@@ -115,7 +115,7 @@ export default function MetricsPage() {
   // in case the arrows went past the earliest data.
   const now = new Date();
   const dataDates = [
-    ...completions.map((c) => new Date(c.date + "T12:00:00")),
+    ...completions.map((c) => parseDate(c.date)),
     ...(jobs ?? []).flatMap((j) => parseSheetDate(j.dateApplied) ?? []),
   ];
   const earliestOffset = dataDates.reduce(
