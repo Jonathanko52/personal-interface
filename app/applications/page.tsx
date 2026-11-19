@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { JOB_STATUSES, JobStatus } from "@/app/lib/jobStatus";
 import {
   JOB_TYPES,
@@ -11,6 +11,7 @@ import {
 } from "@/app/lib/jobFields";
 import { parseSheetDate } from "@/app/lib/sheetDate";
 import SegmentedControl from "@/app/components/SegmentedControl";
+import { useJobList } from "@/app/lib/useJobList";
 import {
   startOfWeek,
   startOfMonth,
@@ -111,9 +112,8 @@ function toggleFilterValue(
 }
 
 export default function ApplicationsPage() {
-  const [jobs, setJobs] = useState<ApplicationRow[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Sheet order (oldest first); reversed to newest first in filteredAndSortedJobs below.
+  const { jobs, setJobs, loading, error } = useJobList<ApplicationRow>();
   const [savingCells, setSavingCells] = useState<Set<string>>(new Set());
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -148,12 +148,14 @@ export default function ApplicationsPage() {
             ? startOfYear(now)
             : null;
 
+    // Newest first by default (the Sheet appends, so reversing its order does it).
+    const newestFirst = [...jobs].reverse();
     const items = cutoff
-      ? jobs.filter((j) => {
+      ? newestFirst.filter((j) => {
           const applied = parseSheetDate(j.dateApplied);
           return applied ? applied >= cutoff : false;
         })
-      : [...jobs];
+      : newestFirst;
 
     const filteredItems = items.filter(
       (job) =>
@@ -208,19 +210,6 @@ export default function ApplicationsPage() {
     jobTypeFilter.size > 0 ||
     applyTypeFilter.size > 0 ||
     categoryFilter.size > 0;
-
-  useEffect(() => {
-    fetch("/api/jobs/list")
-      .then((res) => {
-        if (!res.ok) throw new Error(`Failed to load (${res.status})`);
-        return res.json();
-      })
-      .then((data) => setJobs([...data.jobs].reverse()))
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : "Something went wrong."),
-      )
-      .finally(() => setLoading(false));
-  }, []);
 
   async function handleFieldChange(
     row: number,

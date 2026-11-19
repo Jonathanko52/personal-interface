@@ -14,10 +14,15 @@ export function today(): string {
   return toDateString(new Date());
 }
 
-// `dateStr` shifted by `n` days (negative goes back). Anchored at noon, like the rest of the
-// app, so a daylight-saving shift can't land it on the wrong day.
+// A YYYY-MM-DD string as a local Date at noon (Part 118), so a daylight-saving shift can't
+// move it onto the neighboring day.
+export function parseDate(dateStr: string): Date {
+  return new Date(dateStr + "T12:00:00");
+}
+
+// `dateStr` shifted by `n` days (negative goes back), noon-anchored via parseDate.
 export function addDays(dateStr: string, n: number): string {
-  const d = new Date(dateStr + "T12:00:00");
+  const d = parseDate(dateStr);
   d.setDate(d.getDate() + n);
   return toDateString(d);
 }
@@ -27,9 +32,9 @@ export function formatShortDate(d: Date): string {
   return d.toLocaleDateString("default", { month: "short", day: "numeric" });
 }
 
-// "Tue, Nov 3", for a YYYY-MM-DD string (noon-anchored like the rest of this file).
+// "Tue, Nov 3", for a YYYY-MM-DD string.
 export function formatShortDay(dateStr: string): string {
-  return new Date(dateStr + "T12:00:00").toLocaleDateString("default", {
+  return parseDate(dateStr).toLocaleDateString("default", {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -47,7 +52,7 @@ export function formatDateRange({ start, end }: { start: Date; end: Date }, with
 // "Today" / "Tomorrow" / "Yesterday", otherwise e.g. "Monday, Oct 19". Used by the Today page's
 // header and the unfinished-day warning.
 export function dateLabel(dateStr: string): string {
-  const d = new Date(dateStr + "T12:00:00");
+  const d = parseDate(dateStr);
   const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
   const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
   if (dateStr === today()) return "Today";
