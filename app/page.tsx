@@ -7,7 +7,7 @@ import TodoListPage from "./components/TodoListPage";
 import { useData } from "./lib/DataContext";
 import { useSortFilter } from "./lib/useSortFilter";
 import { useSelectedTodo } from "./lib/useSelectedTodo";
-import { today as todayStr, toDateString, dateLabel, addDays } from "./lib/date";
+import { today as todayStr, toDateString, dateLabel, addDays, parseDate } from "./lib/date";
 import { completedTasks, uncompletedTasksOn, formatTasksSummaryBlock, overrideCompletedFromLog, CompletionRange } from "./lib/completionStats";
 import { markDayComplete } from "./lib/dayComplete";
 import { useUnfinishedDayWarning } from "./lib/useUnfinishedDayWarning";
@@ -50,7 +50,7 @@ export default function Home() {
   // so a past day's repeating todos read their state from the completions log instead.
   const completedBlock = useMemo(() => {
     const dayTodos = overrideCompletedFromLog(todos, selectedDate, completions, !isViewingToday);
-    const referenceDate = new Date(selectedDate + "T12:00:00");
+    const referenceDate = parseDate(selectedDate);
     const completed = completedTasks(completions, dayTodos, completedRange, referenceDate);
     const uncompleted = uncompletedTasksOn(dayTodos, referenceDate);
     return formatTasksSummaryBlock(completed, uncompleted, completedRange, referenceDate);
