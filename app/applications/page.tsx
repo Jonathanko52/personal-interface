@@ -5,13 +5,13 @@ import { JOB_STATUSES, JobStatus } from "@/app/lib/jobStatus";
 import {
   JOB_TYPES,
   APPLY_TYPES,
-  JOB_CATEGORIES,
   JobTypeLabel,
   ApplyType,
 } from "@/app/lib/jobFields";
 import { parseSheetDate } from "@/app/lib/sheetDate";
-import SegmentedControl from "@/app/components/SegmentedControl";
 import { useJobList } from "@/app/lib/useJobList";
+import SortableHeader, { SortDirection } from "@/app/components/applications/SortableHeader";
+import ApplicationsFilters, { DateFilter, EntryLimit } from "@/app/components/applications/ApplicationsFilters";
 import {
   startOfWeek,
   startOfMonth,
@@ -43,47 +43,6 @@ type SortField =
   | "source"
   | "status"
   | "matchScore";
-type SortDirection = "asc" | "desc";
-type DateFilter = "all" | "week" | "month" | "year";
-type EntryLimit = 5 | 10 | 15 | 25 | 50;
-
-interface SortableHeaderProps {
-  label: string;
-  active: boolean;
-  direction: SortDirection;
-  onClick: () => void;
-}
-
-function SortableHeader({
-  label,
-  active,
-  direction,
-  onClick,
-}: SortableHeaderProps) {
-  return (
-    <th
-      onClick={onClick}
-      className="text-left font-semibold text-slate-400 uppercase tracking-wider text-xs px-3 py-2 cursor-pointer select-none hover:text-slate-200 transition-colors">
-      {label}
-      {active && (
-        <span className="ml-1">{direction === "asc" ? "▲" : "▼"}</span>
-      )}
-    </th>
-  );
-}
-
-const DATE_FILTER_OPTIONS: { value: DateFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "week", label: "Past week" },
-  { value: "month", label: "Past month" },
-  { value: "year", label: "Past year" },
-];
-
-const ENTRY_LIMIT_OPTIONS: { value: EntryLimit; label: string }[] = ([5, 10, 15, 25, 50] as const).map((n) => ({
-  value: n,
-  label: String(n),
-}));
-
 type EditableField =
   | "applyType"
   | "jobType"
@@ -96,20 +55,6 @@ const FREE_TEXT_FIELDS = new Set<EditableField>([
   "role",
   "location",
 ]);
-
-function toggleFilterValue(
-  current: Set<string>,
-  value: string,
-  update: (next: Set<string>) => void,
-) {
-  const next = new Set(current);
-  if (next.has(value)) {
-    next.delete(value);
-  } else {
-    next.add(value);
-  }
-  update(next);
-}
 
 export default function ApplicationsPage() {
   // Sheet order (oldest first); reversed to newest first in filteredAndSortedJobs below.
@@ -253,95 +198,27 @@ export default function ApplicationsPage() {
     }
   }
 
-  const filterGroups: {
-    label: string;
-    options: readonly string[];
-    selected: Set<string>;
-    setSelected: (next: Set<string>) => void;
-  }[] = [
-    {
-      label: "Status",
-      options: JOB_STATUSES,
-      selected: statusFilter,
-      setSelected: setStatusFilter,
-    },
-    {
-      label: "Job type",
-      options: JOB_TYPES,
-      selected: jobTypeFilter,
-      setSelected: setJobTypeFilter,
-    },
-    {
-      label: "Apply type",
-      options: APPLY_TYPES,
-      selected: applyTypeFilter,
-      setSelected: setApplyTypeFilter,
-    },
-    {
-      label: "Category",
-      options: JOB_CATEGORIES,
-      selected: categoryFilter,
-      setSelected: setCategoryFilter,
-    },
-  ];
-
   return (
     <div className="max-w-5xl mx-auto">
       <h1 className="text-xl font-semibold text-sm text-slate-400 mb-6">
         Applications
       </h1>
 
-      <section className="mb-5 border border-slate-700 rounded-md bg-slate-900 p-4">
-        <div className="flex flex-wrap gap-x-8 gap-y-4">
-          <fieldset>
-            <legend className="text-xs text-slate-300 font-semibold mb-2">
-              Date applied
-            </legend>
-            <SegmentedControl options={DATE_FILTER_OPTIONS} value={dateFilter} onChange={setDateFilter} />
-          </fieldset>
-
-          <fieldset>
-            <legend className="text-xs text-slate-300 font-semibold mb-2">
-              Show entries
-            </legend>
-            <SegmentedControl options={ENTRY_LIMIT_OPTIONS} value={entryLimit} onChange={setEntryLimit} />
-          </fieldset>
-
-          {filterGroups.map((group) => (
-            <fieldset key={group.label}>
-              <legend className="text-xs text-slate-300 font-semibold mb-2">
-                {group.label}
-              </legend>
-              <div className="flex flex-wrap gap-x-3 gap-y-2">
-                {group.options.map((option) => (
-                  <label
-                    key={option}
-                    className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={group.selected.has(option)}
-                      onChange={() =>
-                        toggleFilterValue(
-                          group.selected,
-                          option,
-                          group.setSelected,
-                        )
-                      }
-                      className="accent-slate-500"
-                    />
-                    {option}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          ))}
-        </div>
-        {filteredAndSortedJobs && filteredAndSortedJobs.length > entryLimit && (
-          <p className="text-xs text-slate-500 mt-4">
-            Showing {entryLimit} of {filteredAndSortedJobs.length}
-          </p>
-        )}
-      </section>
+      <ApplicationsFilters
+        dateFilter={dateFilter}
+        onDateFilterChange={setDateFilter}
+        entryLimit={entryLimit}
+        onEntryLimitChange={setEntryLimit}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        jobTypeFilter={jobTypeFilter}
+        onJobTypeFilterChange={setJobTypeFilter}
+        applyTypeFilter={applyTypeFilter}
+        onApplyTypeFilterChange={setApplyTypeFilter}
+        categoryFilter={categoryFilter}
+        onCategoryFilterChange={setCategoryFilter}
+        matchCount={filteredAndSortedJobs?.length ?? null}
+      />
 
       {loading ? (
         <p className="text-sm text-slate-400">Loading...</p>
