@@ -12,11 +12,7 @@ import { parseSheetDate } from "@/app/lib/sheetDate";
 import { useJobList } from "@/app/lib/useJobList";
 import SortableHeader, { SortDirection } from "@/app/components/applications/SortableHeader";
 import ApplicationsFilters, { DateFilter, EntryLimit } from "@/app/components/applications/ApplicationsFilters";
-import {
-  startOfWeek,
-  startOfMonth,
-  startOfYear,
-} from "@/app/lib/completionStats";
+import { periodRanges } from "@/app/lib/completionStats";
 
 interface ApplicationRow {
   row: number;
@@ -83,22 +79,15 @@ export default function ApplicationsPage() {
   const filteredAndSortedJobs = useMemo(() => {
     if (!jobs) return jobs;
 
-    const now = new Date();
-    const cutoff =
-      dateFilter === "week"
-        ? startOfWeek(now)
-        : dateFilter === "month"
-          ? startOfMonth(now)
-          : dateFilter === "year"
-            ? startOfYear(now)
-            : null;
+    // The same calendar week/month/year as the Metrics page (Part 121), start and end inclusive.
+    const range = dateFilter === "all" ? null : periodRanges(new Date())[dateFilter];
 
     // Newest first by default (the Sheet appends, so reversing its order does it).
     const newestFirst = [...jobs].reverse();
-    const items = cutoff
+    const items = range
       ? newestFirst.filter((j) => {
           const applied = parseSheetDate(j.dateApplied);
-          return applied ? applied >= cutoff : false;
+          return applied ? applied >= range.start && applied <= range.end : false;
         })
       : newestFirst;
 
