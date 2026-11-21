@@ -7,6 +7,7 @@ import { useSelectedTodo } from "@/app/lib/useSelectedTodo";
 import { priorityDotColors } from "@/app/lib/priority";
 import { overrideCompletedFromLog } from "@/app/lib/completionStats";
 import { occursOn } from "@/app/lib/rollover";
+import { toDateString, today } from "@/app/lib/date";
 import TodoDetail from "@/app/components/TodoDetail";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -14,9 +15,10 @@ const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export default function MonthPage() {
   const router = useRouter();
   const { todos, completions } = useData();
-  const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth());
+  const now = new Date();
+  const todayStr = today();
+  const [year, setYear] = useState(now.getFullYear());
+  const [month, setMonth] = useState(now.getMonth());
   const { selectedTodo, select, clear } = useSelectedTodo(todos);
 
   if (selectedTodo) {
@@ -27,19 +29,15 @@ export default function MonthPage() {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const monthLabel = new Date(year, month).toLocaleString("default", { month: "long", year: "numeric" });
 
-  function prevMonth() {
-    if (month === 0) { setMonth(11); setYear((y) => y - 1); }
-    else setMonth((m) => m - 1);
+  // Date handles the year rollover (month -1 → December of the year before, 12 → January after).
+  function stepMonth(delta: number) {
+    const d = new Date(year, month + delta, 1);
+    setYear(d.getFullYear());
+    setMonth(d.getMonth());
   }
 
-  function nextMonth() {
-    if (month === 11) { setMonth(0); setYear((y) => y + 1); }
-    else setMonth((m) => m + 1);
-  }
-
-  function dateStrFor(day: number) {
-    return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-  }
+  // Shared date helpers (Part 119) instead of hand-built YYYY-MM-DD strings.
+  const dateStrFor = (day: number) => toDateString(new Date(year, month, day));
 
   function todosForDay(day: number) {
     const dateStr = dateStrFor(day);
@@ -51,8 +49,7 @@ export default function MonthPage() {
     );
   }
 
-  const isToday = (day: number) =>
-    day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+  const isToday = (day: number) => dateStrFor(day) === todayStr;
 
   type Cell = { key: string; empty: true } | { key: string; empty: false; day: number };
   const cells: Cell[] = [
@@ -66,19 +63,19 @@ export default function MonthPage() {
         <h1 className="text-xl font-semibold text-slate-100">{monthLabel}</h1>
         <div className="flex gap-2">
           <button
-            onClick={prevMonth}
+            onClick={() => stepMonth(-1)}
             className="text-sm px-3 py-1.5 border border-zinc-200 rounded-md hover:bg-slate-800 transition-colors"
           >
             ← Prev
           </button>
           <button
-            onClick={() => { setMonth(today.getMonth()); setYear(today.getFullYear()); }}
+            onClick={() => { setMonth(now.getMonth()); setYear(now.getFullYear()); }}
             className="text-sm px-3 py-1.5 border border-zinc-200 rounded-md hover:bg-slate-800 transition-colors"
           >
             Today
           </button>
           <button
-            onClick={nextMonth}
+            onClick={() => stepMonth(1)}
             className="text-sm px-3 py-1.5 border border-zinc-200 rounded-md hover:bg-slate-800 transition-colors"
           >
             Next →
